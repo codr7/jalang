@@ -1,7 +1,7 @@
 package codr7.jalang;
 
 public class Library extends Namespace {
-  public Library(String name, Namespace parentNamespace) {
+  public Library(final String name, final Namespace parentNamespace) {
     super(parentNamespace);
     this.name = name;
   }

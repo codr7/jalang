@@ -1,16 +1,13 @@
 package codr7.jalang;
 
 public final class SourceLocation {
-  private final String source;
-  private int line, column;
-
   public SourceLocation(final String source) {
     this.source = source;
     this.line = 1;
     this.column = 1;
   }
 
-  public void update(final char c) {
+  public final void update(final char c) {
     if (c == '\n') {
       line++;
       column = 1;
@@ -19,7 +16,10 @@ public final class SourceLocation {
     }
   }
 
-  public String toString() {
+  public final String toString() {
     return String.format("%s@%d:%d", source, line, column);
   }
+
+  public final String source;
+  private int line, column;
 }

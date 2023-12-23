@@ -1,12 +1,12 @@
 package codr7.jalang;
 
 public abstract class Operation {
-  public static enum Code {
+  public enum Code {
     Goto, Nop, Stop
   }
 
   public static class Goto extends Operation {
-    public Goto(int pc) {
+    public Goto(final int pc) {
       super(Code.Goto);
       this.pc = pc;
     }
@@ -25,7 +25,7 @@ public abstract class Operation {
     }
   }
 
-  public Operation(Code code) {
+  public Operation(final Code code) {
     this.code = code;
   }
 

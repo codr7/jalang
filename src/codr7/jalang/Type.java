@@ -1,18 +1,18 @@
 package codr7.jalang;
 
 public class Type<D> {
-  public Type(String name) {
+  public Type(final String name) {
     this.name = name;
   }
 
-  public String dump(D value) {
+  public String dump(final D value) {
     return value.toString();
   }
 
-  public boolean isTrue(D value) {
+  public boolean isTrue(final D value) {
     return true;
   }
-  public String say(D value) {
+  public String say(final D value) {
     return dump(value);
   }
   public final String name;
