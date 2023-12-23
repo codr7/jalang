@@ -1,0 +1,6 @@
+* Add VM.emit(pc, operation)
+* Add tracing
+    * Add Trace op
+* Add Pair operation
+* Add REPL class
+* Add readers
