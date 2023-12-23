@@ -9,10 +9,10 @@ import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-class VMTest {
+class VmTest {
   @Test
   public void testPair() {
-    final var vm = new VM();
+    final var vm = new Vm();
     final var left = new Value<Integer>(Core.instance.intType, 1);
     final var right = new Value<Integer>(Core.instance.intType, 2);
     vm.emit(new SetRegister(1, left));

@@ -1,3 +1,14 @@
-* Add REPL class
-** Run in main
 * Add readers
+* Add forms
+* Add PairForm
+
+1:2:3
+
+* Add VectForm
+** add Vect type
+** Add one item at a time
+*** Keep collection in register
+
+[1 2 3]
+
+* Add CallForm

@@ -1,13 +1,14 @@
-import codr7.jalang.VM;
-import codr7.jalang.Value;
-import codr7.jalang.libraries.Core;
+import codr7.jalang.Repl;
+import codr7.jalang.Vm;
 import codr7.jalang.operations.*;
 
+import java.io.IOException;
+
 public class Main {
-  public static void main(final String[] args) {
-    final var vm = new VM();
+  public static void main(final String[] args) throws IOException {
+    final var vm = new Vm();
     vm.enableTracing(true);
-    vm.emit(Stop.instance);
-    vm.evaluate(0);
+    final var repl = new Repl(System.in, System.out);
+    repl.run(vm);
   }
 }

@@ -7,10 +7,10 @@ import codr7.jalang.libraries.Core;
 import codr7.jalang.operations.*;
 import codr7.jalang.types.Pair;
 
-public class VM {
+public class Vm {
   public static final int REGISTER_COUNT = 10;
 
-  public VM() {
+  public Vm() {
     for (var i = 0; i < REGISTER_COUNT; i++) {
       registers.add(null);
     }
@@ -25,6 +25,10 @@ public class VM {
 
   public final void emit(final int pc, final Operation operation) {
     code.set(pc, operation);
+  }
+
+  public final int emitPc() {
+    return code.size();
   }
 
   public final void enableTracing(boolean enabled) {
