@@ -1,7 +1,7 @@
 package codr7.jalang.libraries;
 
 import codr7.jalang.Library;
-import codr7.jalang.Pair;
+import codr7.jalang.types.Pair;
 import codr7.jalang.Type;
 import codr7.jalang.Value;
 
@@ -25,12 +25,12 @@ public class Core extends Library {
     }
   }
 
-  public static class PairType extends Type<Pair<?, ?>> {
+  public static class PairType extends Type<Pair> {
     public PairType(final String name) {
       super(name);
     }
 
-    public boolean isTrue(Value<Pair<?, ?>> value) {
+    public boolean isTrue(Value<Pair> value) {
       return value.data().left().isTrue();
     }
   }

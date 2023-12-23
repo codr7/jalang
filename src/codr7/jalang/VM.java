@@ -3,9 +3,19 @@ package codr7.jalang;
 import java.util.ArrayList;
 import java.util.List;
 
+import codr7.jalang.libraries.Core;
 import codr7.jalang.operations.*;
+import codr7.jalang.types.Pair;
 
 public class VM {
+  public static final int REGISTER_COUNT = 10;
+
+  public VM() {
+    for (var i = 0; i < REGISTER_COUNT; i++) {
+      registers.add(null);
+    }
+  }
+
   public final int emit(final Operation operation) {
     if (tracingEnabled) { code.add(Trace.instance); }
     final var pc = code.size();
@@ -31,7 +41,19 @@ public class VM {
         case Goto:
           pc = ((Goto)op).pc;
           break;
+        case MakePair:
+          var mpo = (MakePair)op;
+          registers.set(mpo.result,
+              new Value<Pair>(Core.instance.pairType,
+                  new Pair(registers.get(mpo.left), registers.get(mpo.right))));
+          pc++;
+          break;
         case Nop:
+          pc++;
+          break;
+        case SetRegister:
+          var sro = (SetRegister)op;
+          registers.set(sro.register, sro.value);
           pc++;
           break;
         case Stop:
@@ -39,13 +61,18 @@ public class VM {
           return;
         case Trace:
           pc++;
-          System.out.printf("%d %s", pc, code.get(pc));
+          System.out.printf("%d %s\n", pc, code.get(pc));
           break;
       }
     }
   }
-  private boolean tracingEnabled = false;
-  private final List<Operation> code = new ArrayList<>();
 
+  public Value<?> getRegister(final int index) {
+    return registers.get(index);
+  }
+
+  private final List<Operation> code = new ArrayList<>();
   private int pc = -1;
+  private final List<Value<?>> registers = new ArrayList<>();
+  private boolean tracingEnabled = false;
 }
