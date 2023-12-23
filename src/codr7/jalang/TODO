@@ -1,5 +1,4 @@
-* Add VM.emit(pc, operation)
-* Add tracing
+* Add emit tracing
     * Add Trace op
 * Add Pair operation
 * Add REPL class
