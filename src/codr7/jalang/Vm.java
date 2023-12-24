@@ -50,7 +50,7 @@ public class Vm {
         case MakePair:
           var mpo = (MakePair)op;
           registers.set(mpo.result,
-              new Value<Pair>(Core.instance.pairType,
+              new Value<>(Core.instance.pairType,
                   new Pair(registers.get(mpo.left), registers.get(mpo.right))));
           pc++;
           break;
@@ -77,8 +77,12 @@ public class Vm {
     return registers.get(index);
   }
 
+  public void poke(final int index, Value<?> value) {
+    registers.set(index, value);
+  }
+
   private final List<Operation> code = new ArrayList<>();
   private int pc = -1;
-  private final List<Value<?>> registers = new ArrayList<>();
+  private final ArrayList<Value<?>> registers = new ArrayList<>();
   private boolean tracingEnabled = false;
 }

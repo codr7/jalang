@@ -1,11 +1,13 @@
-* Add Namespace.bindType
-** Bind all in core
+* Implement functions
+** Add forms.Sexpr
+** Add Call op
+*** Add Callable interface
+
+(function (x:Int):Int x)
 
 * Add pair form/reader
 
 1:2:3
-
-* Add forms.Sexpr
 
 * Add forms.Deque
 ** add readers.DequeReader

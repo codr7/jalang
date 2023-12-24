@@ -27,7 +27,7 @@ public class IntReader implements Reader {
       location.update(c);
     }
 
-    out.addLast(new Literal(formLocation, new Value<Integer>(Core.instance.intType, v)));
+    out.addLast(new Literal(formLocation, new Value<>(Core.instance.intType, v)));
     return true;
   }
 }

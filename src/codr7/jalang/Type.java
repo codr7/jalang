@@ -1,12 +1,18 @@
 package codr7.jalang;
 
 public class Type<D> {
+  public static final Type<Type<?>> meta = new Type<>("Meta");
+
   public Type(final String name) {
     this.name = name;
   }
 
   public String dump(final D value) {
     return value.toString();
+  }
+
+  public final String name() {
+    return name;
   }
 
   public boolean isTrue(final D value) {

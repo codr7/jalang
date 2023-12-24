@@ -52,8 +52,24 @@ public class Core extends Library {
   public static final Core instance = new Core();
   public Core() {
     super("core", null);
-    bind("T", new Value<Boolean>(bitType, true));
-    bind("F", new Value<Boolean>(bitType, false));
+    bindType(bitType);
+    bindType(intType);
+    bindType(Type.meta);
+    bindType(pairType);
+    bindType(stringType);
+
+    bind("T", new Value<>(bitType, true));
+    bind("F", new Value<>(bitType, false));
+
+    bindFunction("+", -1, (vm, location, arity, register) -> {
+      int result = 0;
+
+      for (int i = 1; i <= arity; i++) {
+        result += (int)vm.peek(i).data();
+      }
+
+      vm.poke(register, new Value<>(intType, result));
+    });
   }
 
   public final BitType bitType = new BitType("Bit");
