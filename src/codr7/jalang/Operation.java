@@ -2,7 +2,7 @@ package codr7.jalang;
 
 public abstract class Operation {
   public enum Code {
-    Goto, Nop, MakePair, Stop, SetRegister, Trace
+    Goto, Nop, MakePair, Stop, Poke, Trace
   }
 
   public Operation(final Code code) {

@@ -4,11 +4,11 @@
 
 1:2:3
 
-* Add VectForm
+* Add forms.Vect
 ** add Vect type
 ** Add one item at a time
 *** Keep collection in register
 
 [1 2 3]
 
-* Add CallForm
+* Add forms.Sexpr

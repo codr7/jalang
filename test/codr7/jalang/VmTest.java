@@ -20,6 +20,6 @@ class VmTest {
     vm.emit(new MakePair(1, 2, 3));
     vm.emit(Stop.instance);
     vm.evaluate(0);
-    assertEquals(new Value<Pair>(Core.instance.pairType, new Pair(left, right)), vm.getRegister(3));
+    assertEquals(new Value<Pair>(Core.instance.pairType, new Pair(left, right)), vm.peek(3));
   }
 }

@@ -55,7 +55,7 @@ public class Vm {
         case Nop:
           pc++;
           break;
-        case SetRegister:
+        case Poke:
           var sro = (SetRegister)op;
           registers.set(sro.register, sro.value);
           pc++;
@@ -71,7 +71,7 @@ public class Vm {
     }
   }
 
-  public Value<?> getRegister(final int index) {
+  public Value<?> peek(final int index) {
     return registers.get(index);
   }
 

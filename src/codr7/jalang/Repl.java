@@ -22,7 +22,7 @@ public class Repl {
         var pc = vm.emitPc();
         vm.emit(Stop.instance);
         vm.evaluate(pc);
-        var result = vm.getRegister(0);
+        var result = vm.peek(0);
         out.println((result == null) ? "_" : result.dump());
       } else {
         buffer.append(line);

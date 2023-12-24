@@ -5,7 +5,7 @@ import codr7.jalang.Value;
 
 public class SetRegister extends Operation {
   public SetRegister(final int register, Value<?> value) {
-    super(Code.SetRegister);
+    super(Code.Poke);
     this.register = register;
     this.value = value;
   }
