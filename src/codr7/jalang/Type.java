@@ -15,5 +15,10 @@ public class Type<D> {
   public String say(final D value) {
     return dump(value);
   }
-  public final String name;
+
+  public final String toString() {
+    return name;
+  }
+
+  private final String name;
 }

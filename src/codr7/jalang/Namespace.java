@@ -21,6 +21,7 @@ public class Namespace {
   public final void put(final String key, final Value<?> value) {
     bindings.put(key, value);
   }
+
   private final Namespace parentNamespace;
   private final Map<String, Value> bindings = new HashMap<>();
 }

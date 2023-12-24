@@ -8,7 +8,9 @@ import codr7.jalang.operations.*;
 import codr7.jalang.types.Pair;
 
 public class Vm {
+  public static final int DEFAULT_REGISTER = 0;
   public static final int REGISTER_COUNT = 10;
+  public static final int VERSION = 1;
 
   public Vm() {
     for (var i = 0; i < REGISTER_COUNT; i++) {
@@ -56,7 +58,7 @@ public class Vm {
           pc++;
           break;
         case Poke:
-          var sro = (SetRegister)op;
+          var sro = (Poke)op;
           registers.set(sro.register, sro.value);
           pc++;
           break;

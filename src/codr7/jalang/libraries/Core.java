@@ -35,8 +35,8 @@ public class Core extends Library {
     }
   }
 
-  public static class StrType extends Type<String> {
-    public StrType(final String name) {
+  public static class StringType extends Type<String> {
+    public StringType(final String name) {
       super(name);
     }
 
@@ -53,5 +53,5 @@ public class Core extends Library {
   public final BitType bitType = new BitType("Bit");
   public final IntType intType = new IntType("Int");
   public final PairType pairType = new PairType("Pair");
-  public final StrType strType = new StrType("Str");
+  public final StringType stringType = new StringType("String");
 }

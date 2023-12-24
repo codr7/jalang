@@ -5,5 +5,10 @@ public class Library extends Namespace {
     super(parentNamespace);
     this.name = name;
   }
-  public final String name;
+
+  public final String name() {
+    return name;
+  }
+
+  private final String name;
 }
