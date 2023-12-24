@@ -11,8 +11,12 @@ public class Core extends Library {
       super(name);
     }
 
-    public boolean isTrue(Value<Boolean> value) {
-      return value.data();
+    public String dump(final Boolean value) {
+      return value ? "T" : "F";
+    }
+
+    public boolean isTrue(final Boolean value) {
+      return value;
     }
   }
   public static class IntType extends Type<Integer> {
@@ -20,8 +24,8 @@ public class Core extends Library {
       super(name);
     }
 
-    public boolean isTrue(Value<Integer> value) {
-      return value.data() != 0;
+    public boolean isTrue(final Integer value) {
+      return value != 0;
     }
   }
 
@@ -30,8 +34,8 @@ public class Core extends Library {
       super(name);
     }
 
-    public boolean isTrue(Value<Pair> value) {
-      return value.data().left().isTrue();
+    public boolean isTrue(final Pair value) {
+      return value.left().isTrue();
     }
   }
 
@@ -40,14 +44,16 @@ public class Core extends Library {
       super(name);
     }
 
-    public boolean isTrue(Value<String> value) {
-      return !value.data().isEmpty();
+    public boolean isTrue(String value) {
+      return !value.isEmpty();
     }
   }
 
   public static final Core instance = new Core();
   public Core() {
     super("core", null);
+    bind("T", new Value<Boolean>(bitType, true));
+    bind("F", new Value<Boolean>(bitType, false));
   }
 
   public final BitType bitType = new BitType("Bit");

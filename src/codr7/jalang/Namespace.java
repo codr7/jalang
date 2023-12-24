@@ -8,18 +8,18 @@ public class Namespace {
     this.parentNamespace = parentNamespace;
   }
 
-  public final Value<?> get(final String key) {
+  public final void bind(final String key, final Value<?> value) {
+    bindings.put(key, value);
+  }
+
+  public final Value<?> find(final String key) {
     var v = bindings.get(key);
 
     if (v == null && parentNamespace != null) {
-      return parentNamespace.get(key);
+      return parentNamespace.find(key);
     }
 
     return v;
-  }
-
-  public final void put(final String key, final Value<?> value) {
-    bindings.put(key, value);
   }
 
   private final Namespace parentNamespace;

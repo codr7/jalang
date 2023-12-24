@@ -26,6 +26,8 @@ public class FormReader implements Reader {
           SkipReader.instance.read(in, out, location);
           return read(in, out, location);
         }
+
+        return IdentifierReader.instance.read(in, out, location);
     }
 
     return false;
