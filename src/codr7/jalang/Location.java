@@ -9,7 +9,7 @@ public final class Location {
     return new Location(source, line, column);
   }
 
-  public final void update(final char c) {
+  public void update(final char c) {
     if (c == '\n') {
       line++;
       column = 1;
@@ -18,7 +18,7 @@ public final class Location {
     }
   }
 
-  public final String toString() {
+  public String toString() {
     return String.format("%s@%d:%d", source, line, column);
   }
 

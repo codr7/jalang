@@ -1,9 +1,9 @@
 package codr7.jalang.libraries;
 
 import codr7.jalang.Library;
-import codr7.jalang.types.Pair;
 import codr7.jalang.Type;
 import codr7.jalang.Value;
+import codr7.jalang.types.Pair;
 
 public class Core extends Library {
   public static class BitType extends Type<Boolean> {

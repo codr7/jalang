@@ -2,7 +2,6 @@ import codr7.jalang.Namespace;
 import codr7.jalang.Repl;
 import codr7.jalang.Vm;
 import codr7.jalang.libraries.Core;
-import codr7.jalang.operations.*;
 
 import java.io.IOException;
 

@@ -1,7 +1,5 @@
 package codr7.jalang;
 
-import codr7.jalang.libraries.Core;
-
 import java.util.HashMap;
 import java.util.Map;
 

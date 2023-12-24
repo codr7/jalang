@@ -1,11 +1,14 @@
 package codr7.jalang;
 
+import codr7.jalang.libraries.Core;
+import codr7.jalang.operations.Goto;
+import codr7.jalang.operations.MakePair;
+import codr7.jalang.operations.Poke;
+import codr7.jalang.operations.Trace;
+import codr7.jalang.types.Pair;
+
 import java.util.ArrayList;
 import java.util.List;
-
-import codr7.jalang.libraries.Core;
-import codr7.jalang.operations.*;
-import codr7.jalang.types.Pair;
 
 public class Vm {
   public static final int DEFAULT_REGISTER = 0;
