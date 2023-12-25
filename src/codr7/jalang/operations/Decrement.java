@@ -3,10 +3,12 @@ package codr7.jalang.operations;
 import codr7.jalang.Operation;
 
 public class Decrement extends Operation {
-  public Decrement(final int register) {
+  public Decrement(final int valueRegister, final int resultRegister) {
     super(Code.Increment);
-    this.register = register;
+    this.valueRegister = valueRegister;
+    this.resultRegister = resultRegister;
   }
 
-  public final int register;
+  public final int resultRegister;
+  public final int valueRegister;
 }

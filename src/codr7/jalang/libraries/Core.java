@@ -2,6 +2,7 @@ package codr7.jalang.libraries;
 
 import codr7.jalang.*;
 import codr7.jalang.forms.Identifier;
+import codr7.jalang.forms.Literal;
 import codr7.jalang.operations.Decrement;
 import codr7.jalang.operations.Increment;
 import codr7.jalang.types.Pair;
@@ -67,46 +68,58 @@ public class Core extends Library {
 
     bindMacro("+1", 1, (vm, namespace, location, arguments, register) -> {
       final var a = arguments[0];
+      int valueRegister = -1;
 
-      if (!(a instanceof Identifier)) {
-        throw new EmitError(location, "Invalid increment target: %s", a.toString());
+      if (a instanceof Identifier) {
+        final var v = namespace.find(((Identifier) a).name());
+
+        if (v.type() != registerType) {
+          throw new EmitError(location, "Invalid target: %s", v.toString());
+        }
+
+        final var r = (Register) v.data();
+
+        if (r.type() != null && r.type() != intType) {
+          throw new EmitError(location, "Invalid target: %s", r.type());
+        }
+
+        valueRegister = r.index();
+      } if (a instanceof Literal) {
+        valueRegister = 1;
+        vm.poke(valueRegister, ((Literal)a).value());
+      } else {
+        throw new EmitError(location, "Invalid target: %s", a.toString());
       }
 
-      final var v = namespace.find(((Identifier)a).name());
-
-      if (v.type() != registerType) {
-        throw new EmitError(location, "Invalid increment target: %s", v.toString());
-      }
-
-      final var r = (Register)v.data();
-
-      if (r.type() != null && r.type() != intType) {
-        throw new EmitError(location, "Invalid increment target: %s", r.type());
-      }
-
-      vm.emit(new Increment(r.index()));
+      vm.emit(new Increment(valueRegister, register));
     });
 
     bindMacro("-1", 1, (vm, namespace, location, arguments, register) -> {
       final var a = arguments[0];
+      int valueRegister = -1;
 
-      if (!(a instanceof Identifier)) {
-        throw new EmitError(location, "Invalid decrement target: %s", a.toString());
+      if (a instanceof Identifier) {
+        final var v = namespace.find(((Identifier) a).name());
+
+        if (v.type() != registerType) {
+          throw new EmitError(location, "Invalid target: %s", v.toString());
+        }
+
+        final var r = (Register) v.data();
+
+        if (r.type() != null && r.type() != intType) {
+          throw new EmitError(location, "Invalid target: %s", r.type());
+        }
+
+        valueRegister = r.index();
+      } if (a instanceof Literal) {
+        valueRegister = 1;
+        vm.poke(valueRegister, ((Literal)a).value());
+      } else {
+        throw new EmitError(location, "Invalid target: %s", a.toString());
       }
 
-      final var v = namespace.find(((Identifier)a).name());
-
-      if (v.type() != registerType) {
-        throw new EmitError(location, "Invalid decrement target: %s", v.toString());
-      }
-
-      final var r = (Register)v.data();
-
-      if (r.type() != null && r.type() != intType) {
-        throw new EmitError(location, "Invalid decrement target: %s", r.type());
-      }
-
-      vm.emit(new Decrement(r.index()));
+      vm.emit(new Decrement(valueRegister, register));
     });
 
     bindFunction("+", -1, (vm, location, arity, register) -> {
