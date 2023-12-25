@@ -84,7 +84,7 @@ public class Core extends Library {
         }
 
         valueRegister = r.index();
-      } if (a instanceof Literal) {
+      } else if (a instanceof Literal) {
         valueRegister = 1;
         vm.poke(valueRegister, ((Literal)a).value());
       } else {
@@ -112,7 +112,7 @@ public class Core extends Library {
         }
 
         valueRegister = r.index();
-      } if (a instanceof Literal) {
+      } else if (a instanceof Literal) {
         valueRegister = 1;
         vm.poke(valueRegister, ((Literal)a).value());
       } else {
