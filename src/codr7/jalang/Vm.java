@@ -46,7 +46,7 @@ public class Vm {
       switch (op.code) {
         case Call: {
           final var co = (Call) op;
-          co.target.call(this, co.location, co.arity, co.register);
+          co.target.call(this, co.location, co.arity, co.resultRegister);
           pc++;
           break;
         }
@@ -70,9 +70,9 @@ public class Vm {
         }
         case MakePair: {
           final var o = (MakePair) op;
-          registers.set(o.result,
+          registers.set(o.resultRegister,
               new Value<>(Core.instance.pairType,
-                  new Pair(registers.get(o.left), registers.get(o.right))));
+                  new Pair(registers.get(o.leftRegister), registers.get(o.rightRegister))));
           pc++;
           break;
         }

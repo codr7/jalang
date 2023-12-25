@@ -3,11 +3,11 @@ package codr7.jalang.operations;
 import codr7.jalang.Operation;
 
 public class MakePair extends Operation {
-  public MakePair(final int left, final int right, final int result) {
+  public MakePair(final int leftRegister, final int rightRegister, final int resultRegister) {
     super(Code.MakePair);
-    this.left = left;
-    this.right = right;
-    this.result = result;
+    this.leftRegister = leftRegister;
+    this.rightRegister = rightRegister;
+    this.resultRegister = resultRegister;
   }
-  public final int left, right, result;
+  public final int leftRegister, rightRegister, resultRegister;
 }
