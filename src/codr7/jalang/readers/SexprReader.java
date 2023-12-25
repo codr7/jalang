@@ -24,11 +24,6 @@ public class SexprReader implements Reader {
     location.update(in.pop());
     SkipReader.instance.read(in, out, location);
 
-    if (!IdentifierReader.instance.read(in, out, location)) {
-      throw new ReadError(location, "Missing target.");
-    }
-
-    final var target = ((Identifier)out.removeLast()).name();
     final var body = new ArrayDeque<Form>();
 
     for (;;) {
@@ -44,7 +39,7 @@ public class SexprReader implements Reader {
       }
     }
 
-    out.addLast(new Sexpr(formLocation, target, body.toArray(new Form[0])));
+    out.addLast(new Sexpr(formLocation, body.toArray(new Form[0])));
     return true;
   }
 }
