@@ -46,9 +46,7 @@ public class Sexpr extends Form {
 
       final Form[] arguments = new Form[arity];
 
-      for (int i = 0; i < arity; i++) {
-        arguments[i] = body[i + 1];
-      }
+      System.arraycopy(body, 1, arguments, 0, arity);
 
       macro.call(vm, namespace, location(), arguments, register);
     } else {

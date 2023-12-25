@@ -6,11 +6,11 @@ public record Function(String name, int arity, Body body) {
     void call(final Vm vm, final Location location, final int arity, final int register);
   }
 
-  public final void call(final Vm vm, final Location location, final int arity, final int register) {
+  public void call(final Vm vm, final Location location, final int arity, final int register) {
     body.call(vm, location, arity, register);
   }
 
-  public final String toString() {
+  public String toString() {
     return String.format("(Function %s/%d)", name, arity);
   }
 }

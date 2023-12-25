@@ -10,15 +10,15 @@ public record Macro(String name, int arity, Body body) {
               final int register);
   }
 
-  public final void call(final Vm vm,
-                         final Namespace namespace,
-                         final Location location,
-                         final Form[] arguments,
-                         final int register) {
+  public void call(final Vm vm,
+                   final Namespace namespace,
+                   final Location location,
+                   final Form[] arguments,
+                   final int register) {
     body.call(vm, namespace, location, arguments, register);
   }
 
-  public final String toString() {
+  public String toString() {
     return String.format("(Macro %s/%d)", name, arity);
   }
 }
