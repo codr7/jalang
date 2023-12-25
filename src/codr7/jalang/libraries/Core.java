@@ -70,6 +70,22 @@ public class Core extends Library {
 
       vm.poke(register, new Value<>(intType, result));
     });
+
+    bindFunction("-", -1, (vm, location, arity, register) -> {
+      if (arity > 0) {
+        int result = (int) vm.peek(1).data();
+
+        if (arity == 1) {
+          result = -result;
+        } else {
+          for (int i = 2; i <= arity; i++) {
+            result -= (int) vm.peek(i).data();
+          }
+        }
+
+        vm.poke(register, new Value<>(intType, result));
+      }
+    });
   }
 
   public final BitType bitType = new BitType("Bit");
