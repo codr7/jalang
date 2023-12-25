@@ -1,3 +1,7 @@
+* Add let bindings
+** Allocate registers
+** Test increment/decrement
+
 * Add pair form/reader
 
 1:2:3
@@ -9,8 +13,6 @@
 *** Keep collection in register
 
 [1 2 3]
-
-* Add macros
 
 * Add user defined functions
 

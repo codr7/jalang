@@ -1,9 +1,9 @@
 package codr7.jalang.libraries;
 
-import codr7.jalang.Function;
-import codr7.jalang.Library;
-import codr7.jalang.Type;
-import codr7.jalang.Value;
+import codr7.jalang.*;
+import codr7.jalang.forms.Identifier;
+import codr7.jalang.operations.Decrement;
+import codr7.jalang.operations.Increment;
 import codr7.jalang.types.Pair;
 
 public class Core extends Library {
@@ -56,12 +56,58 @@ public class Core extends Library {
     bindType(bitType);
     bindType(Function.type);
     bindType(intType);
+    bindType(Macro.type);
     bindType(Type.meta);
     bindType(pairType);
+    bindType(registerType);
     bindType(stringType);
 
     bind("T", new Value<>(bitType, true));
     bind("F", new Value<>(bitType, false));
+
+    bindMacro("+1", 1, (vm, namespace, location, arguments, register) -> {
+      final var a = arguments[0];
+
+      if (!(a instanceof Identifier)) {
+        throw new EmitError(location, "Invalid increment target: %s", a.toString());
+      }
+
+      final var v = namespace.find(((Identifier)a).name());
+
+      if (v.type() != registerType) {
+        throw new EmitError(location, "Invalid increment target: %s", v.toString());
+      }
+
+      final var r = (Register)v.data();
+
+      if (r.type() != null && r.type() != intType) {
+        throw new EmitError(location, "Invalid increment target: %s", r.type());
+      }
+
+      vm.emit(new Increment(r.index()));
+    });
+
+    bindMacro("-1", 1, (vm, namespace, location, arguments, register) -> {
+      final var a = arguments[0];
+
+      if (!(a instanceof Identifier)) {
+        throw new EmitError(location, "Invalid decrement target: %s", a.toString());
+      }
+
+      final var v = namespace.find(((Identifier)a).name());
+
+      if (v.type() != registerType) {
+        throw new EmitError(location, "Invalid decrement target: %s", v.toString());
+      }
+
+      final var r = (Register)v.data();
+
+      if (r.type() != null && r.type() != intType) {
+        throw new EmitError(location, "Invalid decrement target: %s", r.type());
+      }
+
+      vm.emit(new Decrement(r.index()));
+    });
 
     bindFunction("+", -1, (vm, location, arity, register) -> {
       int result = 0;
@@ -93,5 +139,6 @@ public class Core extends Library {
   public final BitType bitType = new BitType("Bit");
   public final IntType intType = new IntType("Int");
   public final PairType pairType = new PairType("Pair");
+  public final Type<Register> registerType = new Type<>("Register");
   public final StringType stringType = new StringType("String");
 }

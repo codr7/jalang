@@ -31,6 +31,14 @@ public class Sexpr extends Form {
       }
 
       vm.emit(new Call(function, arguments.length, register, location()));
+    } else if (target.type() == Macro.type) {
+      final var macro = (Macro)target.data();
+
+      if (macro.arity() != -1 && arguments.length < macro.arity()) {
+        throw new EmitError(location(), "Not enough arguments.");
+      }
+
+      macro.call(vm, namespace, location(), arguments, register);
     } else {
       throw new EmitError(location(), "Invalid target: %s", target);
     }

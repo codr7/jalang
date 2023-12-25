@@ -44,36 +44,57 @@ public class Vm {
       final var op = code.get(pc);
 
       switch (op.code) {
-        case Call:
-          var co = (Call)op;
+        case Call: {
+          final var co = (Call) op;
           co.target.call(this, co.location, co.arity, co.register);
           pc++;
           break;
-        case Goto:
-          pc = ((Goto)op).pc;
+        }
+        case Decrement: {
+          final var o = (Increment) op;
+          final var v = registers.get(o.register);
+          registers.set(o.register, new Value<>(Core.instance.intType, ((int) v.data()) - 1));
+          pc++;
           break;
-        case MakePair:
-          var mpo = (MakePair)op;
-          registers.set(mpo.result,
+        }
+        case Goto: {
+          pc = ((Goto) op).pc;
+          break;
+        }
+        case Increment: {
+          final var o = (Increment) op;
+          final var v = registers.get(o.register);
+          registers.set(o.register, new Value<>(Core.instance.intType, ((int) v.data()) + 1));
+          pc++;
+          break;
+        }
+        case MakePair: {
+          final var o = (MakePair) op;
+          registers.set(o.result,
               new Value<>(Core.instance.pairType,
-                  new Pair(registers.get(mpo.left), registers.get(mpo.right))));
+                  new Pair(registers.get(o.left), registers.get(o.right))));
           pc++;
           break;
-        case Nop:
+        }
+        case Nop: {
           pc++;
           break;
-        case Poke:
-          var sro = (Poke)op;
-          registers.set(sro.register, sro.value);
+        }
+        case Poke: {
+          final var o = (Poke) op;
+          registers.set(o.register, o.value);
           pc++;
           break;
-        case Stop:
+        }
+        case Stop: {
           pc++;
           return;
-        case Trace:
+        }
+        case Trace: {
           pc++;
           System.out.printf("%d %s\n", pc, code.get(pc));
           break;
+        }
       }
     }
   }
