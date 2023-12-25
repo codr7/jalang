@@ -1,5 +1,6 @@
 package codr7.jalang.libraries;
 
+import codr7.jalang.Function;
 import codr7.jalang.Library;
 import codr7.jalang.Type;
 import codr7.jalang.Value;
@@ -53,6 +54,7 @@ public class Core extends Library {
   public Core() {
     super("core", null);
     bindType(bitType);
+    bindType(Function.type);
     bindType(intType);
     bindType(Type.meta);
     bindType(pairType);
