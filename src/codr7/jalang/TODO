@@ -1,10 +1,3 @@
-* Implement functions
-** Add forms.Sexpr
-** Add Call op
-*** Add Callable interface
-
-(function (x:Int):Int x)
-
 * Add pair form/reader
 
 1:2:3
@@ -16,3 +9,9 @@
 *** Keep collection in register
 
 [1 2 3]
+
+* Add macros
+
+* Add user defined functions
+
+(function (x:Int):Int x)

@@ -1,10 +1,7 @@
 package codr7.jalang;
 
 import codr7.jalang.libraries.Core;
-import codr7.jalang.operations.Goto;
-import codr7.jalang.operations.MakePair;
-import codr7.jalang.operations.Poke;
-import codr7.jalang.operations.Trace;
+import codr7.jalang.operations.*;
 import codr7.jalang.types.Pair;
 
 import java.util.ArrayList;
@@ -47,6 +44,11 @@ public class Vm {
       final var op = code.get(pc);
 
       switch (op.code) {
+        case Call:
+          var co = (Call)op;
+          co.target.call(this, co.location, co.arity, co.register);
+          pc++;
+          break;
         case Goto:
           pc = ((Goto)op).pc;
           break;

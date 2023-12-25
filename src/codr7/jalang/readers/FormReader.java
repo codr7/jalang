@@ -18,6 +18,8 @@ public class FormReader implements Reader {
     switch(c) {
       case 0:
         break;
+      case '(':
+        return SexprReader.instance.read(in, out, location);
       default:
         if (Character.isDigit(c)) {
           return IntReader.instance.read(in, out, location);
