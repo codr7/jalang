@@ -50,9 +50,17 @@ public class Vm {
       final var op = code.get(pc);
 
       switch (op.code) {
+        case AddLast: {
+          final var o = (AddLast) op;
+          final var result = registers.get(o.resultRegister).as(Core.instance.dequeType);
+          final var item = registers.get(o.itemRegister);
+          result.add(item);
+          pc++;
+          break;
+        }
         case Call: {
-          final var co = (Call) op;
-          co.target.call(this, co.location, co.arity, co.resultRegister);
+          final var o = (Call) op;
+          o.target.call(this, o.location, o.arity, o.resultRegister);
           pc++;
           break;
         }

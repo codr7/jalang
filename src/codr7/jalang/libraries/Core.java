@@ -11,6 +11,7 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.Deque;
 
 public class Core extends Library {
   public static class BitType extends Type<Boolean> {
@@ -26,6 +27,35 @@ public class Core extends Library {
       return value;
     }
   }
+
+  public static class DequeType extends Type<Deque<Value<?>>> {
+    public DequeType(final String name) {
+      super(name);
+    }
+
+    public String dump(final Deque<Value<?>> value) {
+      final var result = new StringBuilder();
+      result.append('[');
+      var first = true;
+
+      for (final var v: value) {
+        if (!first) {
+          result.append(' ');
+        }
+
+        result.append(v.toString());
+        first = false;
+      }
+
+      result.append(']');
+      return result.toString();
+    }
+
+    public boolean isTrue(final Deque<Value<?>> value) {
+      return !value.isEmpty();
+    }
+  }
+
   public static class IntType extends Type<Integer> {
     public IntType(final String name) {
       super(name);
@@ -68,6 +98,7 @@ public class Core extends Library {
   public Core() {
     super("core", null);
     bindType(bitType);
+    bindType(dequeType);
     bindType(Function.type);
     bindType(intType);
     bindType(Macro.type);
@@ -178,6 +209,7 @@ public class Core extends Library {
   }
 
   public final BitType bitType = new BitType("Bit");
+  public final DequeType dequeType = new DequeType("Deque");
   public final IntType intType = new IntType("Int");
   public final PairType pairType = new PairType("Pair");
   public final Type<Register> registerType = new Type<>("Register");

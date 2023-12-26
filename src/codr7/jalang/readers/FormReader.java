@@ -22,6 +22,8 @@ public class FormReader implements Reader {
         return PairReader.instance.read(in, out, location);
       case '(':
         return SexprReader.instance.read(in, out, location);
+      case '[':
+        return DequeReader.instance.read(in, out, location);
       case '"':
         return StringReader.instance.read(in, out, location);
       default:

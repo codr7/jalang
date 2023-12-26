@@ -20,7 +20,8 @@ public class IdentifierReader implements Reader {
     for (;;) {
       var c = in.peek();
 
-      if (Character.isWhitespace(c) || c == '(' || c == ')') {
+      if (Character.isWhitespace(c) ||
+          c == '(' || c == ')' || c == '[' || c == ']' || c == ':') {
         break;
       }
 

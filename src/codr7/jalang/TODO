@@ -1,15 +1,6 @@
 * Add head/tail(Pair):Any functions
 ** Add Any type
 
-* Add deques
-** Add forms.Deque
-** add readers.DequeReader
-** add dequeType
-** Add one item at a time
-*** Keep collection in register
-
-[1 2 3]
-
 * add split function
 ** (split "foo bar baz" " ")
 
@@ -26,4 +17,4 @@ String[] parts = string.split(Pattern.quote("."));
 
 * Add user defined functions
 
-(function (x:Int):Int x)
+(function [x:Int]:Int x)
