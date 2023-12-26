@@ -10,6 +10,7 @@ import codr7.jalang.types.Pair;
 import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayDeque;
 import java.util.Arrays;
@@ -107,6 +108,7 @@ public class Core extends Library {
     bindType(Macro.type);
     bindType(Type.meta);
     bindType(pairType);
+    bindType(pathType);
     bindType(registerType);
     bindType(stringType);
 
@@ -116,7 +118,7 @@ public class Core extends Library {
     bindFunction("+", null, intType, (vm, location, arity, register) -> {
       int result = 0;
 
-      for (int i = 1; i <= arity; i++) {
+      for (var i = 1; i <= arity; i++) {
         result += vm.peek(i).as(intType);
       }
 
@@ -130,7 +132,7 @@ public class Core extends Library {
         if (arity == 1) {
           result = -result;
         } else {
-          for (int i = 2; i <= arity; i++) {
+          for (var i = 2; i <= arity; i++) {
             result -= vm.peek(i).as(intType);
           }
         }
@@ -201,6 +203,12 @@ public class Core extends Library {
       vm.poke(register, vm.peek(1).as(pairType).left());
     });
 
+    bindFunction("path",
+        new Parameter[]{new Parameter("path", stringType)}, pathType,
+        (vm, location, arity, register) -> {
+      vm.poke(register, new Value<>(pathType, Paths.get(vm.peek(1).as(stringType))));
+    });
+
     bindFunction("say",
         null, null,
         (vm, location, arity, register) -> {
@@ -218,10 +226,11 @@ public class Core extends Library {
     });
 
     bindFunction("slurp",
-        new Parameter[]{new Parameter("path", stringType)}, stringType,
+        new Parameter[]{new Parameter("path", pathType)}, stringType,
         (vm, location, arity, register) -> {
       try {
-        final String data = Files.readString(Paths.get(vm.peek(1).as(stringType)));
+        final var p = vm.loadPath().resolve(vm.peek(1).as(pathType));
+        final String data = Files.readString(p);
         vm.poke(register, new Value<>(stringType, data));
       } catch (final IOException e) {
         throw new EvaluationError(location, "Failed reading file: %s", e);
@@ -260,6 +269,7 @@ public class Core extends Library {
   public final DequeType dequeType = new DequeType("Deque");
   public final IntType intType = new IntType("Int");
   public final PairType pairType = new PairType("Pair");
+  public final Type<Path> pathType = new Type<>("Path");
   public final Type<Register> registerType = new Type<>("Register");
   public final StringType stringType = new StringType("String");
 }

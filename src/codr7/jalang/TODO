@@ -1,3 +1,7 @@
+* Finish load
+** add argv support
+** commit
+
 * Add let macro
 ** Allocate registers
 *** Bind in namespace

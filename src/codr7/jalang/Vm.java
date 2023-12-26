@@ -2,8 +2,15 @@ package codr7.jalang;
 
 import codr7.jalang.libraries.Core;
 import codr7.jalang.operations.*;
+import codr7.jalang.readers.FormReader;
 import codr7.jalang.types.Pair;
 
+import java.io.IOException;
+import java.io.StringReader;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -113,15 +120,40 @@ public class Vm {
     }
   }
 
-  public Value<?> peek(final int index) {
+  public final void load(final Path path, final Namespace namespace) throws IOException {
+    final var p = loadPath.resolve(path);
+    final var previousLoadPath = loadPath;
+    loadPath = p.getParent();
+
+    try {
+      final String code = Files.readString(path);
+      final var input = new Input(new StringReader(code));
+      final var location = new Location(p.toString());
+      final var forms = new ArrayDeque<Form>();
+      while (FormReader.instance.read(input, forms, location));
+
+      for (final var f: forms) {
+        f.emit(this, namespace, Vm.DEFAULT_REGISTER);
+      }
+    } finally {
+      loadPath = previousLoadPath;
+    }
+  }
+
+  public final Path loadPath() {
+    return loadPath;
+  }
+
+  public final Value<?> peek(final int index) {
     return registers.get(index);
   }
 
-  public void poke(final int index, Value<?> value) {
+  public final void poke(final int index, Value<?> value) {
     registers.set(index, value);
   }
 
   private final List<Operation> code = new ArrayList<>();
+  private Path loadPath = Paths.get("");
   private int pc = -1;
   private final ArrayList<Value<?>> registers = new ArrayList<>();
   private boolean tracingEnabled = false;
