@@ -1,9 +1,13 @@
 * add support for \n in string literals
 
+* add SequenceType<D>
+** deque / int / pair / string
+
+* add length function
+** add length sequence type method
+
 * add iterator function
-** add iterator type method
-** default single value
-** implement for deque / int / pair / string
+** add iterator sequence type method
 
 * add map function
 ** call iterator on arguments
