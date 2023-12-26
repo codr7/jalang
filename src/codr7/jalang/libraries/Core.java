@@ -243,6 +243,21 @@ public class Core extends Library {
       vm.poke(register, vm.peek(1).as(pairType).left());
     });
 
+    bindFunction("int/parse",
+        new Parameter[]{new Parameter("input", stringType)}, pairType,
+        (vm, location, arity, register) -> {
+      final var input = vm.peek(1).as(stringType);
+      final var match = Pattern.compile("^\\s*(\\d+).*").matcher(input);
+
+      if (!match.find()) {
+        throw new EvaluationError(location, "Invalid integer: %s", input);
+      }
+
+      vm.poke(register, new Value<>(pairType, new Pair(
+          new Value<>(intType, Integer.valueOf(match.group(1))),
+          new Value<>(intType, match.end(1)))));
+    });
+
     bindFunction("path",
         new Parameter[]{new Parameter("path", stringType)}, pathType,
         (vm, location, arity, register) -> {

@@ -18,3 +18,5 @@
 (check "1 2 3" (string 1 " " 2 " " 3))
 
 (check "oof" (string/reverse "foo"))
+
+(check 42:3 (int/parse " 42foo"))
