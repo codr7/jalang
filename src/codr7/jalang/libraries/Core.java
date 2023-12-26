@@ -11,7 +11,10 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.ArrayDeque;
+import java.util.Arrays;
 import java.util.Deque;
+import java.util.regex.Pattern;
 
 public class Core extends Library {
   public static class BitType extends Type<Boolean> {
@@ -218,14 +221,30 @@ public class Core extends Library {
         new Parameter[]{new Parameter("path", stringType)}, stringType,
         (vm, location, arity, register) -> {
       try {
-        String data = Files.readString(Paths.get(vm.peek(1).as(stringType)));
+        final String data = Files.readString(Paths.get(vm.peek(1).as(stringType)));
         vm.poke(register, new Value<>(stringType, data));
       } catch (final IOException e) {
         throw new EvaluationError(location, "Failed reading file: %s", e);
       }
     });
 
-    bindFunction("tail",
+    bindFunction("split",
+        new Parameter[]{new Parameter("whole", stringType),
+            new Parameter("separator", stringType)}, anyType,
+        (vm, location, arity, register) -> {
+          final var w = vm.peek(1).as(stringType);
+          final var s = vm.peek(2).as(stringType);
+          final String[] parts = w.split(Pattern.quote(s));
+          final var result = new ArrayDeque<Value<?>>();
+
+          for (final var p: parts) {
+            result.add(new Value<>(stringType, p));
+          }
+
+          vm.poke(register, new Value<>(dequeType, result));
+        });
+
+        bindFunction("tail",
         new Parameter[]{new Parameter("pair", pairType)}, anyType,
         (vm, location, arity, register) -> {
           vm.poke(register, vm.peek(1).as(pairType).right());
