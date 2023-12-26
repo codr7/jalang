@@ -18,6 +18,12 @@ public class Vm {
     }
   }
 
+  public final int allocateRegister() {
+    final var i = registers.size();
+    registers.add(null);
+    return i;
+  }
+
   public final int emit(final Operation operation) {
     if (tracingEnabled) { code.add(Trace.instance); }
     final var pc = code.size();

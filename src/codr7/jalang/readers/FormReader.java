@@ -18,6 +18,8 @@ public class FormReader implements Reader {
     switch(c) {
       case 0:
         break;
+      case ':':
+        return PairReader.instance.read(in, out, location);
       case '(':
         return SexprReader.instance.read(in, out, location);
       case '"':

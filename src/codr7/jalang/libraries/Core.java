@@ -41,6 +41,10 @@ public class Core extends Library {
       super(name);
     }
 
+    public String dump(final Pair value) {
+      return String.format("%s:%s", value.left().toString(), value.right().toString());
+    }
+
     public boolean isTrue(final Pair value) {
       return value.left().isTrue();
     }

@@ -1,3 +1,6 @@
+* Add head/tail(Pair):Any functions
+** Add Any type
+
 * Add deques
 ** Add forms.Deque
 ** add readers.DequeReader
@@ -20,10 +23,6 @@ String[] parts = string.split(Pattern.quote("."));
 * add =/</> functions
 ** add equalValues Type method
 *** use to implement Value.equals
-
-* Add pair form/reader
-
-1:2:3
 
 * Add user defined functions
 
