@@ -277,6 +277,13 @@ public class Core extends Library {
           vm.poke(register, new Value<>(stringType, result.toString()));
     });
 
+    bindFunction("string/reverse",
+        new Parameter[]{new Parameter("input", stringType)}, stringType,
+        (vm, location, arity, register) -> {
+      final var result = new StringBuilder(vm.peek(1).as(stringType)).reverse().toString();
+      vm.poke(register, new Value<>(stringType, result));
+    });
+
     bindFunction("slurp",
         new Parameter[]{new Parameter("path", pathType)}, stringType,
         (vm, location, arity, register) -> {
