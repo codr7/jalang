@@ -126,7 +126,7 @@ public class Core extends Library {
       vm.emit(new Decrement(valueRegister, register));
     });
 
-    bindFunction("+", -1, (vm, location, arity, register) -> {
+    bindFunction("+", null, intType, (vm, location, arity, register) -> {
       int result = 0;
 
       for (int i = 1; i <= arity; i++) {
@@ -136,7 +136,7 @@ public class Core extends Library {
       vm.poke(register, new Value<>(intType, result));
     });
 
-    bindFunction("-", -1, (vm, location, arity, register) -> {
+    bindFunction("-", null, intType, (vm, location, arity, register) -> {
       if (arity > 0) {
         int result = (int) vm.peek(1).data();
 

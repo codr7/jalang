@@ -1,9 +1,5 @@
 * Add (slurp path) function
 
-* Add parameter types to functions
-
-* Add result type to functions
-
 * Add let macro
 ** Allocate registers
 *** Bind in namespace
