@@ -23,5 +23,9 @@ public class Identifier extends Form {
     return name;
   }
 
+  public String toString() {
+    return name;
+  }
+
   private final String name;
 }

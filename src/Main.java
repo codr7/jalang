@@ -8,7 +8,7 @@ import java.io.IOException;
 public class Main {
   public static void main(final String[] args) throws IOException {
     final var vm = new Vm();
-    vm.enableTracing(true);
+    vm.toggleTracing();
     System.out.printf("jalang v%d\n", Vm.VERSION);
     System.out.println("May the source be with you!\n");
     final var repl = new Repl(vm, new Namespace(Core.instance), System.in, System.out);

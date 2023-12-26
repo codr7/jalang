@@ -33,8 +33,8 @@ public class Vm {
     return code.size();
   }
 
-  public final void enableTracing(boolean enabled) {
-    tracingEnabled = enabled;
+  public final void toggleTracing() {
+    tracingEnabled = !tracingEnabled;
   }
 
   public final void evaluate(final int startPc) {

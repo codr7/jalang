@@ -46,6 +46,10 @@ public class Core extends Library {
       super(name);
     }
 
+    public String dump(final String value) {
+      return String.format("\"%s\"", value);
+    }
+
     public boolean isTrue(String value) {
       return !value.isEmpty();
     }
@@ -146,6 +150,10 @@ public class Core extends Library {
 
         vm.poke(register, new Value<>(intType, result));
       }
+    });
+
+    bindMacro("trace", 1, (vm, namespace, location, arguments, register) -> {
+      vm.toggleTracing();
     });
   }
 

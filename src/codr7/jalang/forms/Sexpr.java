@@ -54,5 +54,21 @@ public class Sexpr extends Form {
     }
   }
 
+  public String toString() {
+    final var result = new StringBuilder();
+    result.append('(');
+
+    for (var i = 0; i < body.length; i++) {
+      if (i > 0) {
+        result.append(' ');
+      }
+
+      result.append(body[i].toString());
+    }
+
+    result.append(')');
+    return result.toString();
+  }
+
   private final Form[] body;
 }

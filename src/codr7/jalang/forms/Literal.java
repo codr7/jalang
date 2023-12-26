@@ -13,6 +13,10 @@ public class Literal extends Form {
     vm.emit(new Poke(register, value));
   }
 
+  public String toString() {
+    return value.toString();
+  }
+
   public final Value<?> value() {
     return value;
   }

@@ -1,6 +1,17 @@
-* Add let bindings
+* Add (slurp path) function
+
+* Add parameter types to functions
+
+* Add result type to functions
+
+* Add let macro
 ** Allocate registers
+*** Bind in namespace
 ** Test increment/decrement
+
+* add =/</> functions
+** add equalValues Type method
+*** use to implement Value.equals
 
 * Add pair form/reader
 

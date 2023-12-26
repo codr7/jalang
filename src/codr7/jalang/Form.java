@@ -11,5 +11,7 @@ public abstract class Form {
     return location;
   }
 
+  public abstract String toString();
+
   private final Location location;
 }
