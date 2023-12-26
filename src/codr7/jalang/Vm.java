@@ -71,6 +71,19 @@ public class Vm {
           pc++;
           break;
         }
+        case Check: {
+          final var o = (Check) op;
+          final var expected = registers.get(o.expectedRegister);
+          evaluate(pc+1);
+          final var actual = registers.get(o.actualRegister);
+
+          if (!actual.equals(expected)) {
+            throw new EvaluationError(o.location,
+                "Test failed; expected: %s, actual: %s.", expected, actual);
+          }
+
+          break;
+        }
         case Decrement: {
           final var o = (Decrement) op;
           final var v = registers.get(o.valueRegister);

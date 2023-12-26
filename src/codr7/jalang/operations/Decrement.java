@@ -4,7 +4,7 @@ import codr7.jalang.Operation;
 
 public class Decrement extends Operation {
   public Decrement(final int valueRegister, final int resultRegister) {
-    super(Code.Increment);
+    super(Code.Decrement);
     this.valueRegister = valueRegister;
     this.resultRegister = resultRegister;
   }

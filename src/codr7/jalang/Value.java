@@ -12,6 +12,14 @@ public record Value<D>(Type<D> type, D data) {
     return type.dump(data);
   }
 
+  public boolean equals(Value<?> other) {
+    if (other.type() != type) {
+      return false;
+    }
+
+    return type.equalValues(data, (D)other.data());
+  }
+
   public boolean isTrue() {
     return type.isTrue(data);
   }

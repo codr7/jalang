@@ -3,8 +3,10 @@ package codr7.jalang.libraries;
 import codr7.jalang.*;
 import codr7.jalang.forms.Identifier;
 import codr7.jalang.forms.Literal;
+import codr7.jalang.operations.Check;
 import codr7.jalang.operations.Decrement;
 import codr7.jalang.operations.Increment;
+import codr7.jalang.operations.Stop;
 import codr7.jalang.types.Pair;
 
 import java.io.IOException;
@@ -35,6 +37,22 @@ public class Core extends Library {
   public static class DequeType extends Type<Deque<Value<?>>> {
     public DequeType(final String name) {
       super(name);
+    }
+
+    public boolean equalValues(final Deque<Value<?>> left, final Deque<Value<?>> right) {
+      if (left.size() != right.size()) {
+        return false;
+      }
+
+      final var li = left.iterator();
+      final var ri = right.iterator();
+
+      while (li.hasNext()) {
+        if (!li.next().equals(ri.next())) {
+          return false;
+        }
+      }
+      return true;
     }
 
     public String dump(final Deque<Value<?>> value) {
@@ -115,6 +133,14 @@ public class Core extends Library {
     bind("T", new Value<>(bitType, true));
     bind("F", new Value<>(bitType, false));
 
+    bindFunction("=",
+        new Parameter[]{new Parameter("left", anyType),
+            new Parameter("right", anyType)}, bitType,
+        (vm, location, arity, register) -> {
+      final var result = vm.peek(1).equals(vm.peek(2));
+      vm.poke(register, new Value<>(bitType, result));
+    });
+
     bindFunction("+", null, intType, (vm, location, arity, register) -> {
       int result = 0;
 
@@ -160,7 +186,7 @@ public class Core extends Library {
 
         valueRegister = r.index();
       } else if (a instanceof Literal) {
-        valueRegister = 1;
+        valueRegister = vm.allocateRegister();
         vm.poke(valueRegister, ((Literal)a).value());
       } else {
         throw new EmitError(location, "Invalid target: %s", a.toString());
@@ -188,13 +214,26 @@ public class Core extends Library {
 
         valueRegister = r.index();
       } else if (a instanceof Literal) {
-        valueRegister = 1;
+        valueRegister = vm.allocateRegister();
         vm.poke(valueRegister, ((Literal)a).value());
       } else {
         throw new EmitError(location, "Invalid target: %s", a.toString());
       }
 
       vm.emit(new Decrement(valueRegister, register));
+    });
+
+    bindMacro("check", 2, (vm, namespace, location, arguments, register) -> {
+      final var expectedRegister = vm.allocateRegister();
+      arguments[0].emit(vm, namespace, expectedRegister);
+      final var actualRegister = vm.allocateRegister();
+      vm.emit(new Check(expectedRegister, actualRegister, location));
+
+      for (var i = 1; i < arguments.length; i++) {
+        arguments[i].emit(vm, namespace, actualRegister);
+      }
+
+      vm.emit(Stop.instance);
     });
 
     bindFunction("head",

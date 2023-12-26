@@ -2,6 +2,7 @@ import codr7.jalang.Namespace;
 import codr7.jalang.Repl;
 import codr7.jalang.Vm;
 import codr7.jalang.libraries.Core;
+import codr7.jalang.operations.Stop;
 
 import java.io.IOException;
 import java.nio.file.Paths;
@@ -19,6 +20,7 @@ public class Main {
         vm.load(Paths.get(a), namespace);
       }
 
+      vm.emit(Stop.instance);
       vm.evaluate(pc);
     } else {
       System.out.printf("jalang v%d\n", Vm.VERSION);

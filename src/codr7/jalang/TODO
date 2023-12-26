@@ -1,6 +1,9 @@
-* Finish load
-** add argv support
-** commit
+* add string function
+** use say to convert arguments
+
+* add String/reverse function
+
+* add Int/parse function
 
 * Add let macro
 ** Allocate registers
@@ -11,9 +14,8 @@
   (+1 x))
 
 * add =/</> functions
-** add equalValues Type method
-*** use to implement Value.equals
-
 * Add user defined functions
 
 (func [x:Int]:Int x)
+
+* Check argument types

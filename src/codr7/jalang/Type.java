@@ -11,6 +11,10 @@ public class Type<D> {
     return value.toString();
   }
 
+  public boolean equalValues(final D left, final D right) {
+    return left.equals(right);
+  }
+
   public final String name() {
     return name;
   }
