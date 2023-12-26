@@ -1,3 +1,22 @@
+* add support for \n in string literals
+
+* add iterator function
+** add iterator type method
+** default single value
+** implement for deque / int / pair / string
+
+* add map function
+** call iterator on arguments
+
+* add reduce function
+** call iterator on argument
+
+* Add user defined functions
+
+(func [x:Int]:Int x)
+
+* aoc/code1.jl
+
 * Add let macro
 ** Allocate registers
 *** Bind in namespace
@@ -7,8 +26,5 @@
   (+1 x))
 
 * add =/</> functions
-* Add user defined functions
 
-(func [x:Int]:Int x)
-
-* Check argument types
+* Check function argument types
