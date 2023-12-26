@@ -1,6 +1,3 @@
-* Add head/tail(Pair):Any functions
-** Add Any type
-
 * add split function
 ** (split "foo bar baz" " ")
 
@@ -11,10 +8,13 @@ String[] parts = string.split(Pattern.quote("."));
 *** Bind in namespace
 ** Test increment/decrement
 
+(let [x 1]
+  (+1 x))
+
 * add =/</> functions
 ** add equalValues Type method
 *** use to implement Value.equals
 
 * Add user defined functions
 
-(function [x:Int]:Int x)
+(func [x:Int]:Int x)

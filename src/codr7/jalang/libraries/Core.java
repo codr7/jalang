@@ -192,6 +192,28 @@ public class Core extends Library {
       vm.emit(new Decrement(valueRegister, register));
     });
 
+    bindFunction("head",
+        new Parameter[]{new Parameter("pair", pairType)}, anyType,
+        (vm, location, arity, register) -> {
+      vm.poke(register, vm.peek(1).as(pairType).left());
+    });
+
+    bindFunction("say",
+        null, null,
+        (vm, location, arity, register) -> {
+      final var what = new StringBuilder();
+
+      for (var i = 1; i <= arity; i++) {
+        if (i > 1) {
+          what.append(' ');
+        }
+
+        what.append(vm.peek(i).say());
+      }
+
+      System.out.println(what.toString());
+    });
+
     bindFunction("slurp",
         new Parameter[]{new Parameter("path", stringType)}, stringType,
         (vm, location, arity, register) -> {
@@ -203,11 +225,18 @@ public class Core extends Library {
       }
     });
 
+    bindFunction("tail",
+        new Parameter[]{new Parameter("pair", pairType)}, anyType,
+        (vm, location, arity, register) -> {
+          vm.poke(register, vm.peek(1).as(pairType).right());
+        });
+
     bindMacro("trace", 1, (vm, namespace, location, arguments, register) -> {
       vm.toggleTracing();
     });
   }
 
+  public final Type<Object> anyType = new Type<>("Any");
   public final BitType bitType = new BitType("Bit");
   public final DequeType dequeType = new DequeType("Deque");
   public final IntType intType = new IntType("Int");

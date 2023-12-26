@@ -27,6 +27,16 @@ public class PairReader implements Reader {
       throw new ReadError(location, "Invalid pair.");
     }
 
+    for (;;) {
+      SkipReader.instance.read(in, out, location);
+
+      if (in.peek() != ':') {
+        break;
+      }
+
+      read(in, out, location);
+    }
+
     out.addLast(new Pair.Form(formLocation, left, out.removeLast()));
     return true;
   }

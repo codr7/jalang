@@ -16,7 +16,11 @@ public record Value<D>(Type<D> type, D data) {
     return type.isTrue(data);
   }
 
+  public String say() {
+    return type.say(data);
+  }
+
   public String toString() {
-    return type.dump(data);
+    return dump();
   }
 }
