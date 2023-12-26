@@ -1,5 +1,3 @@
-* Add (slurp path) function
-
 * Add let macro
 ** Allocate registers
 *** Bind in namespace

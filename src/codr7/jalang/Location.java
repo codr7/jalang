@@ -9,13 +9,15 @@ public final class Location {
     return new Location(source, line, column);
   }
 
-  public void update(final char c) {
+  public char update(final char c) {
     if (c == '\n') {
       line++;
       column = 1;
     } else {
       column++;
     }
+
+    return c;
   }
 
   public String toString() {
