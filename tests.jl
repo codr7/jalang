@@ -14,3 +14,5 @@
 (check 2:3 (tail 1:2:3))
 
 (check ["foo" "bar" "baz"] (split "foo bar baz" " "))
+
+(check "1 2 3" (string 1 " " 2 " " 3))

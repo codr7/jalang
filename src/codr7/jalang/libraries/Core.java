@@ -106,13 +106,14 @@ public class Core extends Library {
     public StringType(final String name) {
       super(name);
     }
-
     public String dump(final String value) {
       return String.format("\"%s\"", value);
     }
-
     public boolean isTrue(String value) {
       return !value.isEmpty();
+    }
+    public String say(final String value) {
+      return value;
     }
   }
 
@@ -262,6 +263,18 @@ public class Core extends Library {
       }
 
       System.out.println(what.toString());
+    });
+
+    bindFunction("string",
+        null, stringType,
+        (vm, location, arity, register) -> {
+          final var result = new StringBuilder();
+
+          for (var i = 1; i <= arity; i++) {
+            result.append(vm.peek(i).say());
+          }
+
+          vm.poke(register, new Value<>(stringType, result.toString()));
     });
 
     bindFunction("slurp",
