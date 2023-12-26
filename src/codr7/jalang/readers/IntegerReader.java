@@ -7,8 +7,8 @@ import codr7.jalang.libraries.Core;
 import java.io.IOException;
 import java.util.Deque;
 
-public class IntReader implements Reader {
-  public static final IntReader instance = new IntReader();
+public class IntegerReader implements Reader {
+  public static final IntegerReader instance = new IntegerReader();
 
   public boolean read(final Input in, final Deque<Form> out, final Location location)
       throws IOException {
@@ -27,7 +27,7 @@ public class IntReader implements Reader {
       location.update(c);
     }
 
-    out.addLast(new Literal(formLocation, new Value<>(Core.instance.intType, v)));
+    out.addLast(new Literal(formLocation, new Value<>(Core.instance.integerType, v)));
     return true;
   }
 }

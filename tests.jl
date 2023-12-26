@@ -17,6 +17,6 @@
 
 (check "1 2 3" (string 1 " " 2 " " 3))
 
-(check "oof" (string/reverse "foo"))
+(check "oof" (reverse-string "foo"))
 
-(check 42:3 (int/parse " 42foo"))
+(check 42:3 (parse-integer " 42foo"))

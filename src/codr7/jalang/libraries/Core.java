@@ -78,8 +78,8 @@ public class Core extends Library {
     }
   }
 
-  public static class IntType extends Type<Integer> {
-    public IntType(final String name) {
+  public static class IntegerType extends Type<Integer> {
+    public IntegerType(final String name) {
       super(name);
     }
 
@@ -123,7 +123,7 @@ public class Core extends Library {
     bindType(bitType);
     bindType(dequeType);
     bindType(Function.type);
-    bindType(intType);
+    bindType(integerType);
     bindType(Macro.type);
     bindType(Type.meta);
     bindType(pairType);
@@ -142,29 +142,29 @@ public class Core extends Library {
       vm.poke(register, new Value<>(bitType, result));
     });
 
-    bindFunction("+", null, intType, (vm, location, arity, register) -> {
+    bindFunction("+", null, integerType, (vm, location, arity, register) -> {
       int result = 0;
 
       for (var i = 1; i <= arity; i++) {
-        result += vm.peek(i).as(intType);
+        result += vm.peek(i).as(integerType);
       }
 
-      vm.poke(register, new Value<>(intType, result));
+      vm.poke(register, new Value<>(integerType, result));
     });
 
-    bindFunction("-", null, intType, (vm, location, arity, register) -> {
+    bindFunction("-", null, integerType, (vm, location, arity, register) -> {
       if (arity > 0) {
-        int result = vm.peek(1).as(intType);
+        int result = vm.peek(1).as(integerType);
 
         if (arity == 1) {
           result = -result;
         } else {
           for (var i = 2; i <= arity; i++) {
-            result -= vm.peek(i).as(intType);
+            result -= vm.peek(i).as(integerType);
           }
         }
 
-        vm.poke(register, new Value<>(intType, result));
+        vm.poke(register, new Value<>(integerType, result));
       }
     });
 
@@ -181,7 +181,7 @@ public class Core extends Library {
 
         final var r = (Register) v.data();
 
-        if (r.type() != null && r.type() != intType) {
+        if (r.type() != null && r.type() != integerType) {
           throw new EmitError(location, "Invalid target: %s", r.type());
         }
 
@@ -209,7 +209,7 @@ public class Core extends Library {
 
         final var r = (Register) v.data();
 
-        if (r.type() != null && r.type() != intType) {
+        if (r.type() != null && r.type() != integerType) {
           throw new EmitError(location, "Invalid target: %s", r.type());
         }
 
@@ -243,7 +243,7 @@ public class Core extends Library {
       vm.poke(register, vm.peek(1).as(pairType).left());
     });
 
-    bindFunction("int/parse",
+    bindFunction("parse-integer",
         new Parameter[]{new Parameter("input", stringType)}, pairType,
         (vm, location, arity, register) -> {
       final var input = vm.peek(1).as(stringType);
@@ -254,8 +254,8 @@ public class Core extends Library {
       }
 
       vm.poke(register, new Value<>(pairType, new Pair(
-          new Value<>(intType, Integer.valueOf(match.group(1))),
-          new Value<>(intType, match.end(1)))));
+          new Value<>(integerType, Integer.valueOf(match.group(1))),
+          new Value<>(integerType, match.end(1)))));
     });
 
     bindFunction("path",
@@ -292,7 +292,7 @@ public class Core extends Library {
           vm.poke(register, new Value<>(stringType, result.toString()));
     });
 
-    bindFunction("string/reverse",
+    bindFunction("reverse-string",
         new Parameter[]{new Parameter("input", stringType)}, stringType,
         (vm, location, arity, register) -> {
       final var result = new StringBuilder(vm.peek(1).as(stringType)).reverse().toString();
@@ -341,7 +341,7 @@ public class Core extends Library {
   public final Type<Object> anyType = new Type<>("Any");
   public final BitType bitType = new BitType("Bit");
   public final DequeType dequeType = new DequeType("Deque");
-  public final IntType intType = new IntType("Int");
+  public final IntegerType integerType = new IntegerType("Integer");
   public final PairType pairType = new PairType("Pair");
   public final Type<Path> pathType = new Type<>("Path");
   public final Type<Register> registerType = new Type<>("Register");

@@ -28,7 +28,7 @@ public class FormReader implements Reader {
         return StringReader.instance.read(in, out, location);
       default:
         if (Character.isDigit(c)) {
-          return IntReader.instance.read(in, out, location);
+          return IntegerReader.instance.read(in, out, location);
         }
 
         if (Character.isWhitespace(c)) {

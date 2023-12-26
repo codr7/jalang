@@ -87,7 +87,8 @@ public class Vm {
         case Decrement: {
           final var o = (Decrement) op;
           final var v = registers.get(o.valueRegister);
-          registers.set(o.resultRegister, new Value<>(Core.instance.intType, v.as(Core.instance.intType) - 1));
+          registers.set(o.resultRegister,
+              new Value<>(Core.instance.integerType, v.as(Core.instance.integerType) - 1));
           pc++;
           break;
         }
@@ -98,7 +99,8 @@ public class Vm {
         case Increment: {
           final var o = (Increment) op;
           final var v = registers.get(o.valueRegister);
-          registers.set(o.resultRegister, new Value<>(Core.instance.intType, v.as(Core.instance.intType) + 1));
+          registers.set(o.resultRegister,
+              new Value<>(Core.instance.integerType, v.as(Core.instance.integerType) + 1));
           pc++;
           break;
         }

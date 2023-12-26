@@ -13,8 +13,8 @@ class VmTest {
   @Test
   public void testPair() {
     final var vm = new Vm();
-    final var left = new Value<Integer>(Core.instance.intType, 1);
-    final var right = new Value<Integer>(Core.instance.intType, 2);
+    final var left = new Value<Integer>(Core.instance.integerType, 1);
+    final var right = new Value<Integer>(Core.instance.integerType, 2);
     vm.emit(new Poke(1, left));
     vm.emit(new Poke(2, right));
     vm.emit(new MakePair(1, 2, 3));
