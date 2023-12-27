@@ -14,6 +14,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayDeque;
+import java.util.ArrayList;
 import java.util.Deque;
 import java.util.Iterator;
 import java.util.regex.Pattern;
@@ -336,6 +337,44 @@ public class Core extends Library {
         final var ct = (CollectionTrait)c.type();
         vm.poke(register, new Value<>(integerType, ct.length(c.data())));
     });
+
+    bindFunction("map",
+        new Parameter[]{new Parameter("function", Function.type),
+            new Parameter("input1", sequenceType)}, anyType,
+        (vm, location, arity, register) -> {
+          final var inputs = new ArrayList<Iterator<Value<?>>>();
+
+          for (var i = 2; i <= arity; i++) {
+            final var v = vm.peek(i);
+            inputs.add(((SequenceTrait<Value<?>>)v.type()).iterator(v.data()));
+          }
+
+          final var f = vm.peek(1).as(Function.type);
+          final var result = new ArrayDeque<Value<?>>();
+          var done = false;
+
+          while (!done) {
+            for (var i = 0; i < inputs.size(); i++) {
+              final var in = inputs.get(i);
+
+              if (!in.hasNext()) {
+                done = true;
+                break;
+              }
+
+              vm.poke(i + 1, in.next());
+            }
+
+            if (done) {
+              break;
+            }
+
+            f.call(vm, location, inputs.size(), register);
+            result.add(vm.peek(register));
+          }
+
+          vm.poke(register, new Value<>(dequeType, result));
+        });
 
     bindFunction("parse-integer",
         new Parameter[]{new Parameter("input", stringType)}, pairType,

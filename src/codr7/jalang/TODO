@@ -1,5 +1,5 @@
-* add map function
-** call iterator on arguments
+* convert map output to custom iterator
+** add MapIterator type
 
 * add reduce function
 ** call iterator on argument
@@ -7,6 +7,8 @@
 * add user defined functions
 
 (func [x:Int]:Int x)
+
+* figure out how to map/reduce user defined functions
 
 * aoc/code1.jl
 

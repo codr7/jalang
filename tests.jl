@@ -20,3 +20,8 @@
 (check "oof" (reverse-string "foo"))
 
 (check 42:3 (parse-integer " 42foo"))
+
+(check 3 (length "foo"))
+(check 3 (length [1 2 3]))
+
+(check [5 7 9] (map + [1 2 3] [4 5 6 7]))
