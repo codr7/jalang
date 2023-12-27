@@ -104,10 +104,12 @@ public class Core extends Library {
       return !value.isEmpty();
     }
 
+    @SuppressWarnings("unchecked")
     public Iterator<Value<?>> iterator(final Object value) {
       return ((Deque<Value<?>>)value).iterator();
     }
 
+    @SuppressWarnings("unchecked")
     public int length(final Object value) {
       return ((Deque<Value<?>>)value).size();
     }
@@ -141,6 +143,7 @@ public class Core extends Library {
       return value.hasNext();
     }
 
+    @SuppressWarnings("unchecked")
     public Iterator<Value<?>> iterator(final Object value) {
       return (Iterator<Value<?>>) value;
     }
@@ -181,7 +184,7 @@ public class Core extends Library {
 
     public Iterator<Value<Character>> iterator(final Object value) {
       return ((String)value).codePoints()
-          .mapToObj((c) -> new Value<Character>(Core.instance.characterType, (char)c))
+          .mapToObj((c) -> new Value<>(Core.instance.characterType, (char)c))
           .iterator();
     }
 
@@ -249,7 +252,7 @@ public class Core extends Library {
 
     bindMacro("+1", 1, (vm, namespace, location, arguments, register) -> {
       final var a = arguments[0];
-      int valueRegister = -1;
+      int valueRegister;
 
       if (a instanceof Identifier) {
         final var v = namespace.find(((Identifier) a).name());
@@ -277,7 +280,7 @@ public class Core extends Library {
 
     bindMacro("-1", 1, (vm, namespace, location, arguments, register) -> {
       final var a = arguments[0];
-      int valueRegister = -1;
+      int valueRegister;
 
       if (a instanceof Identifier) {
         final var v = namespace.find(((Identifier) a).name());
@@ -320,6 +323,8 @@ public class Core extends Library {
         new Parameter[]{new Parameter("input", sequenceType)}, dequeType,
         (vm, location, arity, register) -> {
       final var input = vm.peek(1);
+
+      @SuppressWarnings("unchecked")
       final var iterator = ((SequenceTrait<Value<?>>)input.type()).iterator(input.data());
       final var result = new ArrayDeque<Value<?>>();
 
@@ -340,6 +345,8 @@ public class Core extends Library {
         new Parameter[]{new Parameter("sequence", sequenceType)}, iteratorType,
         (vm, location, arity, register) -> {
           final var s = vm.peek(1);
+
+          @SuppressWarnings("unchecked")
           final var st = (SequenceTrait<Value<?>>)s.type();
           vm.poke(register, new Value<>(iteratorType, st.iterator(s.data())));
         });
@@ -355,7 +362,7 @@ public class Core extends Library {
     bindFunction("map",
         new Parameter[]{new Parameter("function", Function.type),
             new Parameter("input1", sequenceType)}, anyType,
-        (vm, location, arity, register) -> {
+    (vm, location, arity, register) -> {
           final var inputs = new ArrayList<Iterator<Value<?>>>();
 
           for (var i = 2; i <= arity; i++) {
@@ -430,7 +437,7 @@ public class Core extends Library {
         what.append(vm.peek(i).say());
       }
 
-      System.out.println(what.toString());
+      System.out.println(what);
     });
 
     bindFunction("string",
