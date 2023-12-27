@@ -1,32 +1,25 @@
-* add SequenceType<D>
-** deque / int / pair / string
-
-* add length function
-** add length sequence type method
-
-* add iterator function
-** add iterator sequence type method
-
 * add map function
 ** call iterator on arguments
 
 * add reduce function
 ** call iterator on argument
 
-* Add user defined functions
+* add user defined functions
 
 (func [x:Int]:Int x)
 
 * aoc/code1.jl
 
-* Add let macro
-** Allocate registers
-*** Bind in namespace
-** Test increment/decrement
+* add let macro
+** allocate registers
+*** bind in namespace
+** test increment/decrement
 
 (let [x 1]
   (+1 x))
 
 * add =/</> functions
 
-* Check function argument types
+* check function argument types
+
+* turn pair into collection/sequence type

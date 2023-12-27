@@ -10,16 +10,24 @@ import codr7.jalang.operations.Stop;
 import codr7.jalang.types.Pair;
 
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayDeque;
-import java.util.Arrays;
 import java.util.Deque;
+import java.util.Iterator;
 import java.util.regex.Pattern;
+import java.util.stream.Stream;
 
 public class Core extends Library {
+  public interface CollectionTrait {
+    int length(final Object value);
+  }
+
+  public interface SequenceTrait<T> {
+    Iterator<T> iterator(final Object value);
+  }
+
   public static class BitType extends Type<Boolean> {
     public BitType(final String name) {
       super(name);
@@ -34,25 +42,27 @@ public class Core extends Library {
     }
   }
 
-  public static class DequeType extends Type<Deque<Value<?>>> {
-    public DequeType(final String name) {
+  public static class CharacterType extends Type<Character> {
+    public CharacterType(final String name) {
       super(name);
     }
 
-    public boolean equalValues(final Deque<Value<?>> left, final Deque<Value<?>> right) {
-      if (left.size() != right.size()) {
-        return false;
-      }
+    public boolean isTrue(final Character value) {
+      return value != 0;
+    }
+  }
 
-      final var li = left.iterator();
-      final var ri = right.iterator();
+  public static class CollectionType extends Type<Object> {
+    public CollectionType(final String name) {
+      super(name);
+    }
+  }
 
-      while (li.hasNext()) {
-        if (!li.next().equals(ri.next())) {
-          return false;
-        }
-      }
-      return true;
+  public static class DequeType
+      extends Type<Deque<Value<?>>>
+      implements CollectionTrait, SequenceTrait<Value<?>> {
+    public DequeType(final String name) {
+      super(name);
     }
 
     public String dump(final Deque<Value<?>> value) {
@@ -73,18 +83,65 @@ public class Core extends Library {
       return result.toString();
     }
 
+    public boolean equalValues(final Deque<Value<?>> left, final Deque<Value<?>> right) {
+      if (left.size() != right.size()) {
+        return false;
+      }
+
+      final var li = left.iterator();
+      final var ri = right.iterator();
+
+      while (li.hasNext()) {
+        if (!li.next().equals(ri.next())) {
+          return false;
+        }
+      }
+      return true;
+    }
+
     public boolean isTrue(final Deque<Value<?>> value) {
       return !value.isEmpty();
     }
+
+    public Iterator<Value<?>> iterator(final Object value) {
+      return ((Deque<Value<?>>)value).iterator();
+    }
+
+    public int length(final Object value) {
+      return ((Deque<Value<?>>)value).size();
+    }
   }
 
-  public static class IntegerType extends Type<Integer> {
+  public static class IntegerType extends Type<Integer> implements SequenceTrait<Value<Integer>> {
     public IntegerType(final String name) {
       super(name);
     }
 
     public boolean isTrue(final Integer value) {
       return value != 0;
+    }
+
+    public Iterator<Value<Integer>> iterator(final Object value) {
+      return Stream
+          .iterate(1, x -> x + 1)
+          .limit((Integer)value)
+          .map(v -> new Value<>(Core.instance.integerType, v))
+          .iterator();
+    }
+  }
+
+  public static class IteratorType
+      extends Type<Iterator<Value<?>>>
+      implements SequenceTrait<Value<?>> {
+    public IteratorType(final String name) {
+      super(name);
+    }
+    public boolean isTrue(final Iterator<Value<?>> value) {
+      return value.hasNext();
+    }
+
+    public Iterator<Value<?>> iterator(final Object value) {
+      return (Iterator<Value<?>>) value;
     }
   }
 
@@ -102,7 +159,15 @@ public class Core extends Library {
     }
   }
 
-  public static class StringType extends Type<String> {
+  public static class SequenceType extends Type<Object> {
+    public SequenceType(final String name) {
+      super(name);
+    }
+  }
+
+  public static class StringType
+      extends Type<String>
+      implements CollectionTrait, SequenceTrait<Value<Character>> {
     public StringType(final String name) {
       super(name);
     }
@@ -112,6 +177,17 @@ public class Core extends Library {
     public boolean isTrue(String value) {
       return !value.isEmpty();
     }
+
+    public Iterator<Value<Character>> iterator(final Object value) {
+      return ((String)value).codePoints()
+          .mapToObj((c) -> new Value<Character>(Core.instance.characterType, (char)c))
+          .iterator();
+    }
+
+    public int length(final Object value) {
+      return ((String)value).length();
+    }
+
     public String say(final String value) {
       return value;
     }
@@ -121,9 +197,11 @@ public class Core extends Library {
   public Core() {
     super("core", null);
     bindType(bitType);
+    bindType(characterType);
     bindType(dequeType);
     bindType(Function.type);
     bindType(integerType);
+    bindType(iteratorType);
     bindType(Macro.type);
     bindType(Type.meta);
     bindType(pairType);
@@ -243,6 +321,22 @@ public class Core extends Library {
       vm.poke(register, vm.peek(1).as(pairType).left());
     });
 
+    bindFunction("iterator",
+        new Parameter[]{new Parameter("sequence", sequenceType)}, iteratorType,
+        (vm, location, arity, register) -> {
+          final var s = vm.peek(1);
+          final var st = (SequenceTrait<Value<?>>)s.type();
+          vm.poke(register, new Value<>(iteratorType, st.iterator(s.data())));
+        });
+
+    bindFunction("length",
+        new Parameter[]{new Parameter("collection", collectionType)}, integerType,
+        (vm, location, arity, register) -> {
+        final var c = vm.peek(1);
+        final var ct = (CollectionTrait)c.type();
+        vm.poke(register, new Value<>(integerType, ct.length(c.data())));
+    });
+
     bindFunction("parse-integer",
         new Parameter[]{new Parameter("input", stringType)}, pairType,
         (vm, location, arity, register) -> {
@@ -340,10 +434,14 @@ public class Core extends Library {
 
   public final Type<Object> anyType = new Type<>("Any");
   public final BitType bitType = new BitType("Bit");
+  public final CharacterType characterType = new CharacterType("Character");
+  public final CollectionType collectionType = new CollectionType("Collection");
   public final DequeType dequeType = new DequeType("Deque");
   public final IntegerType integerType = new IntegerType("Integer");
+  public final IteratorType iteratorType = new IteratorType("Iterator");
   public final PairType pairType = new PairType("Pair");
   public final Type<Path> pathType = new Type<>("Path");
   public final Type<Register> registerType = new Type<>("Register");
+  public final SequenceType sequenceType = new SequenceType("Sequence");
   public final StringType stringType = new StringType("String");
 }
