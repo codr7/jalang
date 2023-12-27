@@ -7,6 +7,7 @@ import codr7.jalang.operations.Check;
 import codr7.jalang.operations.Decrement;
 import codr7.jalang.operations.Increment;
 import codr7.jalang.operations.Stop;
+import codr7.jalang.types.Compare;
 import codr7.jalang.types.Pair;
 
 import java.io.IOException;
@@ -23,6 +24,10 @@ import java.util.stream.Stream;
 public class Core extends Library {
   public interface CollectionTrait {
     int length(final Object value);
+  }
+
+  public interface ComparableTrait {
+    Compare compare(final Object left, final Object right);
   }
 
   public interface SequenceTrait<T> {
@@ -43,9 +48,24 @@ public class Core extends Library {
     }
   }
 
-  public static class CharacterType extends Type<Character> {
+  public static class CharacterType extends Type<Character> implements ComparableTrait {
     public CharacterType(final String name) {
       super(name);
+    }
+
+    public Compare compare(final Object left, final Object right) {
+      final char l = (Character)left;
+      final char r = (Character)right;
+
+      if (l < r) {
+        return Compare.LessThan;
+      }
+
+      if (l > r) {
+        return Compare.GreaterThan;
+      }
+
+      return Compare.Equal;
     }
 
     public boolean isTrue(final Character value) {
@@ -55,6 +75,12 @@ public class Core extends Library {
 
   public static class CollectionType extends Type<Object> {
     public CollectionType(final String name) {
+      super(name);
+    }
+  }
+
+  public static class ComparableType extends Type<Object> {
+    public ComparableType(final String name) {
       super(name);
     }
   }
@@ -115,9 +141,26 @@ public class Core extends Library {
     }
   }
 
-  public static class IntegerType extends Type<Integer> implements SequenceTrait<Value<Integer>> {
+  public static class IntegerType
+      extends Type<Integer>
+      implements ComparableTrait, SequenceTrait<Value<Integer>> {
     public IntegerType(final String name) {
       super(name);
+    }
+
+    public Compare compare(final Object left, final Object right) {
+      final int l = (Integer)left;
+      final int r = (Integer)right;
+
+      if (l < r) {
+        return Compare.LessThan;
+      }
+
+      if (l > r) {
+        return Compare.GreaterThan;
+      }
+
+      return Compare.Equal;
     }
 
     public boolean isTrue(final Integer value) {
@@ -172,9 +215,25 @@ public class Core extends Library {
 
   public static class StringType
       extends Type<String>
-      implements CollectionTrait, SequenceTrait<Value<Character>> {
+      implements CollectionTrait, ComparableTrait, SequenceTrait<Value<Character>> {
     public StringType(final String name) {
       super(name);
+    }
+
+    public Compare compare(final Object left, final Object right) {
+      final var l = (String)left;
+      final var r = (String)right;
+      final var result = l.compareTo(r);
+
+      if (result < 0) {
+        return Compare.LessThan;
+      }
+
+      if (result > 0) {
+        return Compare.GreaterThan;
+      }
+
+      return Compare.Equal;
     }
 
     public String dump(final String value) {
@@ -206,6 +265,7 @@ public class Core extends Library {
     super("core", null);
     bindType(bitType);
     bindType(characterType);
+    bindType(comparableType);
     bindType(dequeType);
     bindType(Function.type);
     bindType(integerType);
@@ -225,6 +285,56 @@ public class Core extends Library {
             new Parameter("right", anyType)}, bitType,
         (vm, location, arity, register) -> {
           final var result = vm.peek(1).equals(vm.peek(2));
+          vm.poke(register, new Value<>(bitType, result));
+        });
+
+    bindFunction("<",
+        new Parameter[]{new Parameter("value1", comparableType)}, bitType,
+        (vm, location, arity, register) -> {
+          var left = vm.peek(1);
+          var type = (ComparableTrait)left.type();
+          var result = true;
+
+          for (var i = 2; i <= arity; i++) {
+            final var right = vm.peek(i);
+
+            if (right.type() != left.type()) {
+              throw new EvaluationError(location, "Type mismatch: %s/%s.", left.type(), right.type());
+            }
+
+            if (type.compare(left.data(), right.data()) != Compare.LessThan) {
+              result = false;
+              break;
+            }
+
+            left = right;
+          }
+
+          vm.poke(register, new Value<>(bitType, result));
+        });
+
+    bindFunction(">",
+        new Parameter[]{new Parameter("value1", comparableType)}, bitType,
+        (vm, location, arity, register) -> {
+          var left = vm.peek(1);
+          var type = (ComparableTrait)left.type();
+          var result = true;
+
+          for (var i = 2; i <= arity; i++) {
+            final var right = vm.peek(i);
+
+            if (right.type() != left.type()) {
+              throw new EvaluationError(location, "Type mismatch: %s/%s.", left.type(), right.type());
+            }
+
+            if (type.compare(left.data(), right.data()) != Compare.GreaterThan) {
+              result = false;
+              break;
+            }
+
+            left = right;
+          }
+
           vm.poke(register, new Value<>(bitType, result));
         });
 
@@ -522,6 +632,7 @@ public class Core extends Library {
   public final BitType bitType = new BitType("Bit");
   public final CharacterType characterType = new CharacterType("Character");
   public final CollectionType collectionType = new CollectionType("Collection");
+  public final ComparableType comparableType = new ComparableType("Comparable");
   public final DequeType dequeType = new DequeType("Deque");
   public final IntegerType integerType = new IntegerType("Integer");
   public final IteratorType iteratorType = new IteratorType("Iterator");

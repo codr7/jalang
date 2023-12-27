@@ -2,7 +2,9 @@
 
 (func [x:Int]:Int x)
 
-* figure out how to map/reduce user defined functions
+* handle user defined functions in map/reduce
+** add Function.evaluate() with same args as call
+*** use in map/reduce
 
 * aoc/code1.jl
 
@@ -14,7 +16,6 @@
 (let [x 1]
   (+1 x))
 
-* add =/</> functions
 
 * check function argument types
 

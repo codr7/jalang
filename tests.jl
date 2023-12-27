@@ -1,6 +1,11 @@
 (check T (= 42 42))
 (check F (= 42 41))
 
+(check T (< "abc" "def" "ghi"))
+(check F (< "abc" "ghi" "def"))
+(check T (> "ghi" "def" "abc"))
+(check F (> "ghi" "abc" "def"))
+
 (check 5 (+ 3 2))
 (check 1 (- 3 2))
 
