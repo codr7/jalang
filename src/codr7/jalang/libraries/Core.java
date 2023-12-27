@@ -124,7 +124,7 @@ public class Core extends Library {
 
     public Iterator<Value<Integer>> iterator(final Object value) {
       return Stream
-          .iterate(1, x -> x + 1)
+          .iterate(0, x -> x + 1)
           .limit((Integer)value)
           .map(v -> new Value<>(Core.instance.integerType, v))
           .iterator();
@@ -316,6 +316,20 @@ public class Core extends Library {
       vm.emit(Stop.instance);
     });
 
+    bindFunction("deque",
+        new Parameter[]{new Parameter("input", sequenceType)}, dequeType,
+        (vm, location, arity, register) -> {
+      final var input = vm.peek(1);
+      final var iterator = ((SequenceTrait<Value<?>>)input.type()).iterator(input.data());
+      final var result = new ArrayDeque<Value<?>>();
+
+      while (iterator.hasNext()) {
+        result.add(iterator.next());
+      }
+
+      vm.poke(register, new Value<>(dequeType, result));
+    });
+
     bindFunction("head",
         new Parameter[]{new Parameter("pair", pairType)}, anyType,
         (vm, location, arity, register) -> {
@@ -350,30 +364,36 @@ public class Core extends Library {
           }
 
           final var f = vm.peek(1).as(Function.type);
-          final var result = new ArrayDeque<Value<?>>();
-          var done = false;
 
-          while (!done) {
-            for (var i = 0; i < inputs.size(); i++) {
-              final var in = inputs.get(i);
+          final var result = new Iterator<Value<?>>() {
+            @Override
+            public boolean hasNext() {
+              for (var i = 0; i < inputs.size(); i++) {
+                final var in = inputs.get(i);
 
-              if (!in.hasNext()) {
-                done = true;
-                break;
+                if (!in.hasNext()) {
+                  return false;
+                }
+
+                vm.poke(i + 1, in.next());
               }
 
-              vm.poke(i + 1, in.next());
+              return true;
             }
 
-            if (done) {
-              break;
+            @Override
+            public Value<?> next() {
+              f.call(vm, location, inputs.size(), register);
+              return vm.peek(register);
             }
 
-            f.call(vm, location, inputs.size(), register);
-            result.add(vm.peek(register));
-          }
+            @Override
+            public void remove() {
+              throw new UnsupportedOperationException();
+            }
+          };
 
-          vm.poke(register, new Value<>(dequeType, result));
+          vm.poke(register, new Value<>(iteratorType, result));
         });
 
     bindFunction("parse-integer",

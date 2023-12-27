@@ -24,4 +24,5 @@
 (check 3 (length "foo"))
 (check 3 (length [1 2 3]))
 
-(check [5 7 9] (map + [1 2 3] [4 5 6 7]))
+(check [0 1 2] (deque 3))
+(check [5 7 9] (deque (map + [1 2 3] [4 5 6 7])))

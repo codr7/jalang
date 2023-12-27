@@ -1,6 +1,3 @@
-* convert map output to custom iterator
-** add MapIterator type
-
 * add reduce function
 ** call iterator on argument
 
