@@ -426,6 +426,24 @@ public class Core extends Library {
           vm.poke(register, new Value<>(pathType, Paths.get(vm.peek(1).as(stringType))));
         });
 
+    bindFunction("reduce",
+        new Parameter[]{new Parameter("function", Function.type),
+            new Parameter("input", sequenceType),
+        new Parameter("seed", anyType)}, anyType,
+        (vm, location, arity, register) -> {
+      final var f = vm.peek(1).as(Function.type);
+      final var input = vm.peek(2);
+      final var iterator = ((SequenceTrait<Value<?>>)input.type()).iterator(input.data());
+      var result = vm.peek(3);
+
+      while (iterator.hasNext()) {
+        vm.poke(1, iterator.next());
+        vm.poke(2, result);
+        f.call(vm, location, 2, register);
+        result = vm.peek(register);
+      }
+    });
+
     bindFunction("say",
         null, null,
         (vm, location, arity, register) -> {

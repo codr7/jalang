@@ -26,3 +26,5 @@
 
 (check [0 1 2] (deque 3))
 (check [5 7 9] (deque (map + [1 2 3] [4 5 6 7])))
+
+(check 7 (reduce + [1 2 3] 1))
