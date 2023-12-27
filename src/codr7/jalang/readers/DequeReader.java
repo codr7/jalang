@@ -2,7 +2,6 @@ package codr7.jalang.readers;
 
 import codr7.jalang.*;
 import codr7.jalang.forms.DequeForm;
-import codr7.jalang.forms.Sexpr;
 
 import java.io.IOException;
 import java.util.ArrayDeque;
@@ -24,7 +23,7 @@ public class DequeReader implements Reader {
 
     final var body = new ArrayDeque<Form>();
 
-    for (;;) {
+    for (; ; ) {
       SkipReader.instance.read(in, out, location);
 
       if (in.peek() == ']') {

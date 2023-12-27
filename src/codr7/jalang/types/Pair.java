@@ -1,9 +1,10 @@
 package codr7.jalang.types;
 
-import codr7.jalang.*;
-import codr7.jalang.libraries.Core;
+import codr7.jalang.Location;
+import codr7.jalang.Namespace;
+import codr7.jalang.Value;
+import codr7.jalang.Vm;
 import codr7.jalang.operations.MakePair;
-import codr7.jalang.operations.Poke;
 
 public record Pair(Value<?> left, Value<?> right) {
   public static class Form extends codr7.jalang.Form {

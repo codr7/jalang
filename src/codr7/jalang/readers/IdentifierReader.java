@@ -17,7 +17,7 @@ public class IdentifierReader implements Reader {
     final var formLocation = location.clone();
     final var buffer = new StringBuilder();
 
-    for (;;) {
+    for (; ; ) {
       var c = in.peek();
 
       if (c == 0 ||

@@ -15,7 +15,7 @@ public class FormReader implements Reader {
       throws IOException {
     final var c = in.peek();
 
-    switch(c) {
+    switch (c) {
       case 0:
         break;
       case ':':

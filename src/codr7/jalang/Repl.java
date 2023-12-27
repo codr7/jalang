@@ -17,7 +17,7 @@ public class Repl {
   public void run() throws IOException {
     var inputBuffer = new StringBuilder();
 
-    for (;;) {
+    for (; ; ) {
       out.print("  ");
       final var line = in.readLine();
 
@@ -27,14 +27,14 @@ public class Repl {
         try {
           final var input = new Input(new StringReader(inputBuffer.toString()));
           final var location = new Location("repl");
-          while (FormReader.instance.read(input, forms, location));
+          while (FormReader.instance.read(input, forms, location)) ;
         } finally {
           inputBuffer.setLength(0);
         }
 
         var pc = vm.emitPc();
 
-        for (final var f: forms) {
+        for (final var f : forms) {
           f.emit(vm, namespace, Vm.DEFAULT_REGISTER);
         }
 

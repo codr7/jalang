@@ -2,11 +2,9 @@ package codr7.jalang.readers;
 
 import codr7.jalang.*;
 import codr7.jalang.forms.Literal;
-import codr7.jalang.forms.Sexpr;
 import codr7.jalang.libraries.Core;
 
 import java.io.IOException;
-import java.util.ArrayDeque;
 import java.util.Deque;
 
 public class StringReader implements Reader {
@@ -23,7 +21,7 @@ public class StringReader implements Reader {
     location.update(in.pop());
     final var data = new StringBuilder();
 
-    for (;;) {
+    for (; ; ) {
       if (in.peek() == '"') {
         location.update(in.pop());
         break;

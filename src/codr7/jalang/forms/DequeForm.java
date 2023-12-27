@@ -8,7 +8,7 @@ import codr7.jalang.operations.Poke;
 import java.util.ArrayDeque;
 
 public class DequeForm extends Form {
-  public DequeForm(final Location location, Form...body) {
+  public DequeForm(final Location location, Form... body) {
     super(location);
     this.body = body;
   }
@@ -17,7 +17,7 @@ public class DequeForm extends Form {
     vm.emit(new Poke(register, new Value<>(Core.instance.dequeType, new ArrayDeque<>())));
     final var itemRegister = vm.allocateRegister();
 
-    for (final var f: body) {
+    for (final var f : body) {
       f.emit(vm, namespace, itemRegister);
       vm.emit(new AddLast(itemRegister, register));
     }

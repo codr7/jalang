@@ -1,11 +1,9 @@
 package codr7.jalang.readers;
 
 import codr7.jalang.*;
-import codr7.jalang.forms.Sexpr;
 import codr7.jalang.types.Pair;
 
 import java.io.IOException;
-import java.util.ArrayDeque;
 import java.util.Deque;
 
 public class PairReader implements Reader {
@@ -27,7 +25,7 @@ public class PairReader implements Reader {
       throw new ReadError(location, "Invalid pair.");
     }
 
-    for (;;) {
+    for (; ; ) {
       SkipReader.instance.read(in, out, location);
 
       if (in.peek() != ':') {

@@ -23,7 +23,7 @@ public class SexprReader implements Reader {
 
     final var body = new ArrayDeque<Form>();
 
-    for (;;) {
+    for (; ; ) {
       SkipReader.instance.read(in, out, location);
 
       if (in.peek() == ')') {

@@ -13,7 +13,7 @@ public class SkipReader implements Reader {
 
   public boolean read(final Input in, final Deque<Form> out, final Location location)
       throws IOException {
-    for (;;) {
+    for (; ; ) {
       final var c = in.peek();
 
       if (Character.isWhitespace(c)) {

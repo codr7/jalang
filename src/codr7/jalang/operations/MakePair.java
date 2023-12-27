@@ -9,5 +9,6 @@ public class MakePair extends Operation {
     this.rightRegister = rightRegister;
     this.resultRegister = resultRegister;
   }
+
   public final int leftRegister, rightRegister, resultRegister;
 }

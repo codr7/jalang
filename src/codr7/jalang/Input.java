@@ -42,7 +42,7 @@ public class Input {
     final var cp = in.read();
 
     if (cp != -1) {
-      for (final var c: Character.toChars(cp)) {
+      for (final var c : Character.toChars(cp)) {
         buffer.addLast(c);
       }
     }

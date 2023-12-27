@@ -7,5 +7,6 @@ public class Goto extends Operation {
     super(Code.Goto);
     this.pc = pc;
   }
+
   public final int pc;
 }

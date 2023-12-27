@@ -32,7 +32,9 @@ public class Vm {
   }
 
   public final int emit(final Operation operation) {
-    if (tracingEnabled) { code.add(Trace.instance); }
+    if (tracingEnabled) {
+      code.add(Trace.instance);
+    }
     final var pc = code.size();
     code.add(operation);
     return pc;
@@ -53,7 +55,7 @@ public class Vm {
   public final void evaluate(final int startPc) {
     pc = startPc;
 
-    for(;;) {
+    for (; ; ) {
       final var op = code.get(pc);
 
       switch (op.code) {
@@ -74,7 +76,7 @@ public class Vm {
         case Check: {
           final var o = (Check) op;
           final var expected = registers.get(o.expectedRegister);
-          evaluate(pc+1);
+          evaluate(pc + 1);
           final var actual = registers.get(o.actualRegister);
 
           if (!actual.equals(expected)) {
@@ -145,9 +147,9 @@ public class Vm {
       final var input = new Input(new StringReader(code));
       final var location = new Location(p.toString());
       final var forms = new ArrayDeque<Form>();
-      while (FormReader.instance.read(input, forms, location));
+      while (FormReader.instance.read(input, forms, location)) ;
 
-      for (final var f: forms) {
+      for (final var f : forms) {
         f.emit(this, namespace, Vm.DEFAULT_REGISTER);
       }
     } finally {

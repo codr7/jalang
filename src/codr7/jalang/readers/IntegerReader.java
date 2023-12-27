@@ -15,7 +15,7 @@ public class IntegerReader implements Reader {
     final var formLocation = location.clone();
     int v = 0;
 
-    for (;;) {
+    for (; ; ) {
       var c = in.peek();
 
       if (!Character.isDigit(c)) {

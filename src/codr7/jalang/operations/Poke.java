@@ -9,6 +9,7 @@ public class Poke extends Operation {
     this.register = register;
     this.value = value;
   }
+
   public final int register;
   public final Value<?> value;
 }

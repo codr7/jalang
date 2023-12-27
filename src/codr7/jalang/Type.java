@@ -22,6 +22,7 @@ public class Type<D> {
   public boolean isTrue(final D value) {
     return true;
   }
+
   public String say(final D value) {
     return dump(value);
   }

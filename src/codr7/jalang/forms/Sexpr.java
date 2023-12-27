@@ -4,7 +4,7 @@ import codr7.jalang.*;
 import codr7.jalang.operations.Call;
 
 public class Sexpr extends Form {
-  public Sexpr(final Location location, Form...body) {
+  public Sexpr(final Location location, Form... body) {
     super(location);
     this.body = body;
   }
@@ -16,7 +16,7 @@ public class Sexpr extends Form {
       throw new EmitError(location(), "Invalid target: %s", targetForm);
     }
 
-    final var targetName = ((Identifier)targetForm).name();
+    final var targetName = ((Identifier) targetForm).name();
     final var target = namespace.find(targetName);
 
     if (target == null) {
@@ -26,7 +26,7 @@ public class Sexpr extends Form {
     final var arity = body.length - 1;
 
     if (target.type() == Function.type) {
-      final var function = (Function)target.data();
+      final var function = (Function) target.data();
 
       if (function.arity() != -1 && arity < function.arity()) {
         throw new EmitError(location(), "Not enough arguments.");
@@ -38,7 +38,7 @@ public class Sexpr extends Form {
 
       vm.emit(new Call(function, arity, register, location()));
     } else if (target.type() == Macro.type) {
-      final var macro = (Macro)target.data();
+      final var macro = (Macro) target.data();
 
       if (macro.arity() != -1 && arity < macro.arity()) {
         throw new EmitError(location(), "Not enough arguments.");

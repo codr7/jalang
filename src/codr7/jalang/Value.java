@@ -6,8 +6,9 @@ public record Value<D>(Type<D> type, D data) {
       throw new RuntimeException(String.format("Type mismatch: %s/%s", this.type, type));
     }
 
-    return (D)data;
+    return (D) data;
   }
+
   public String dump() {
     return type.dump(data);
   }
@@ -17,7 +18,7 @@ public record Value<D>(Type<D> type, D data) {
       return false;
     }
 
-    return type.equalValues(data, (D)other.data());
+    return type.equalValues(data, (D) other.data());
   }
 
   public boolean isTrue() {

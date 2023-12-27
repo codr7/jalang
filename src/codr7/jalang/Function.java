@@ -2,6 +2,7 @@ package codr7.jalang;
 
 public record Function(String name, Parameter[] parameters, Type<?> resultType, Body body) {
   public static final Type<Function> type = new Type<>("Function");
+
   public interface Body {
     void call(final Vm vm, final Location location, final int arity, final int register);
   }
