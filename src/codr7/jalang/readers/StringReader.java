@@ -29,7 +29,19 @@ public class StringReader implements Reader {
         break;
       }
 
-      data.append(location.update(in.pop()));
+      var c = location.update(in.pop());
+
+      if (c == '\\') {
+        c = location.update(in.pop());
+
+        if (c == 'n') {
+          c = '\n';
+        } else {
+          throw new ReadError(location, "Invalid escape character: %c.", c);
+        }
+      }
+
+      data.append(c);
     }
 
     out.addLast(new Literal(formLocation, new Value<>(Core.instance.stringType, data.toString())));

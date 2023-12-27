@@ -1,5 +1,3 @@
-* add support for \n in string literals
-
 * add SequenceType<D>
 ** deque / int / pair / string
 
