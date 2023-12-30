@@ -1,7 +1,5 @@
-* finish function macro
-** map arguments
-
-(function foo []:Integer 42)
+* add if macro
+* add benchmark macro
 
 * handle user defined functions in map/reduce
 ** add Function.evaluate() with same args as call

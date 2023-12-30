@@ -1,6 +1,8 @@
 package codr7.jalang.forms;
 
 import codr7.jalang.*;
+import codr7.jalang.libraries.Core;
+import codr7.jalang.operations.Peek;
 import codr7.jalang.operations.Poke;
 
 public class Identifier extends Form {
@@ -14,6 +16,10 @@ public class Identifier extends Form {
 
     if (value == null) {
       throw new EmitError(location(), "Unknown identifer: %s", name);
+    }
+
+    if (value.type() == Core.instance.registerType) {
+      vm.emit(new Peek(value.as(Core.instance.registerType).index(), register));
     }
 
     vm.emit(new Poke(register, value));

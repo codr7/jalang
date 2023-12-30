@@ -23,6 +23,10 @@ public class DequeForm extends Form {
     }
   }
 
+  public final Form[] body() {
+    return body;
+  }
+
   public String toString() {
     final var result = new StringBuilder();
     result.append('[');

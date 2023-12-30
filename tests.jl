@@ -37,3 +37,13 @@
 (check 42
   (function foo []:Integer 42)
   (foo))
+
+(check 43
+  (function foo [x]:Integer
+    (+ x 42))
+  (foo 1))
+
+(check 45
+  (function foo [x:Integer y:Integer]:Integer
+    (+ x y 42))
+  (foo 1 2))

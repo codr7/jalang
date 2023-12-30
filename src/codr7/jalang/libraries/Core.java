@@ -1,6 +1,7 @@
 package codr7.jalang.libraries;
 
 import codr7.jalang.*;
+import codr7.jalang.forms.DequeForm;
 import codr7.jalang.forms.Identifier;
 import codr7.jalang.forms.Literal;
 import codr7.jalang.operations.*;
@@ -468,12 +469,44 @@ public class Core extends Library {
           }
 
           resultType = tv.as(Type.meta);
-          psForm = p.right();
+          psForm = p.left();
         }
 
-        final var ps = new Parameter[]{};
+        if (!(psForm instanceof DequeForm)) {
+          throw new EmitError(psForm.location(), "Invalid parameter specification: %s.", psForm);
+        }
+
+        final var ps = Arrays.stream(((DequeForm)psForm).body()).map((f) -> {
+          var pn = "";
+          Type<?> pt = anyType;
+
+          if (f instanceof Pair.Form) {
+            final var pf = (Pair.Form)f;
+            if (!((pf.left() instanceof Identifier) && (pf.right() instanceof Identifier))) {
+              throw new EmitError(f.location(), "Invalid parameter: %s.", pf);
+            }
+
+            final var tf = ((Identifier)pf.left());
+            pn = tf.name();
+            final var tv = namespace.find(((Identifier)pf.right()).name());
+
+            if (tv == null) {
+              throw new EmitError(tf.location(), "Type not found: %s.", tf);
+            }
+
+            pt = tv.as(Type.meta);
+          } else if (f instanceof Identifier){
+            pn = ((Identifier)f).name();
+          } else {
+            throw new EmitError(f.location(), "Invalid parameter: %s.", f);
+          }
+
+          return new Parameter(pn, pt);
+        }).toArray(Parameter[]::new);
+
         final var skipPc = vm.emit(Nop.instance);
         final var startPc = vm.emitPc();
+
         final var function = new Function(name, ps, resultType,
             (_function, _vm, _location, _arity, _register) -> {
               _vm.pushCall(_function, _location, startPc, _register);
@@ -485,12 +518,18 @@ public class Core extends Library {
           namespace.bind(name, v);
         }
 
-        final var resultRegister = vm.allocateRegister();
-        for (final var f: as) {
-          f.emit(vm, namespace, resultRegister);
+        final var bodyNamespace = new Namespace(namespace);
+
+        for (var i = 0; i < ps.length; i++) {
+          final var p = ps[i];
+          bodyNamespace.bind(p.name(), new Value<>(registerType, new Register(i+1, p.type())));
         }
 
-        vm.emit(new Return(resultRegister));
+        for (final var f: as) {
+          f.emit(vm, bodyNamespace, register);
+        }
+
+        vm.emit(new Return(register));
         vm.emit(skipPc, new Goto(vm.emitPc()));
 
         if (name.isEmpty()) {
