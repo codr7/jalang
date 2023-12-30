@@ -11,6 +11,11 @@ public class Check extends Operation {
     this.location = location;
   }
 
+  public String toString() {
+    return String.format("%s actual: %d expected: %d location: %s",
+        super.toString(), actualRegister, expectedRegister, location);
+  }
+
   public final int actualRegister;
   public final int expectedRegister;
   public final Location location;

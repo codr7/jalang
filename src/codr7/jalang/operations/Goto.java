@@ -8,5 +8,9 @@ public class Goto extends Operation {
     this.pc = pc;
   }
 
+  public String toString() {
+    return String.format("%s pc: %d", super.toString(), pc);
+  }
+
   public final int pc;
 }

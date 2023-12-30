@@ -10,5 +10,10 @@ public class MakePair extends Operation {
     this.resultRegister = resultRegister;
   }
 
+  public String toString() {
+    return String.format("%s left: %d right: %d result: %d",
+        super.toString(), leftRegister, rightRegister, resultRegister);
+  }
+
   public final int leftRegister, rightRegister, resultRegister;
 }

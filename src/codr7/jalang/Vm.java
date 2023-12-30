@@ -12,6 +12,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 public class Vm {
@@ -69,8 +70,8 @@ public class Vm {
         }
         case Call: {
           final var o = (Call) op;
-          o.target.call(this, o.location, o.arity, o.resultRegister);
           pc++;
+          o.target.call(this, o.location, o.arity, o.resultRegister);
           break;
         }
         case Check: {
@@ -124,6 +125,15 @@ public class Vm {
           pc++;
           break;
         }
+        case Return: {
+          final var o = (Return) op;
+          final var result = registers.get(o.resultRegister);
+          registers.clear();
+          Collections.addAll(registers, callFrame.registers());
+          registers.set(callFrame.resultRegister(), result);
+          pc = callFrame.returnPc();
+          callFrame = callFrame.parentFrame();
+        }
         case Stop: {
           pc++;
           return;
@@ -169,6 +179,22 @@ public class Vm {
     registers.set(index, value);
   }
 
+  public final void pushCall(final Function target,
+                             final Location location,
+                             final int pc,
+                             final int resultRegister) {
+    callFrame = new CallFrame(
+        callFrame,
+        target,
+        location,
+        registers.toArray(new Value<?>[0]),
+        this.pc,
+        resultRegister);
+
+    this.pc = pc;
+  }
+
+  private CallFrame callFrame;
   private final List<Operation> code = new ArrayList<>();
   private Path loadPath = Paths.get("");
   private int pc = -1;

@@ -1,12 +1,26 @@
-* add user defined functions
+* finish function macro
+** map arguments
 
-(func [x:Int]:Int x)
+(function foo []:Integer 42)
 
 * handle user defined functions in map/reduce
 ** add Function.evaluate() with same args as call
 *** use in map/reduce
 
 * aoc/code1.jl
+
+* add union types
+** Integer|Null
+** Add NullType
+** relaxing requirements should not break callers
+** strengthening promises should not break callers
+** add X? as alias for X|Null
+
+* enable using Collections as Sexpr targets
+** add find method to CollectionTrait
+** lookup argument using find
+** add get method
+*** throw exception if not found
 
 * add let macro
 ** allocate registers
@@ -16,6 +30,9 @@
 (let [x 1]
   (+1 x))
 
+* add ordered maps
+** {1 2 3:4}
+** use TreeMap
 
 * check function argument types
 

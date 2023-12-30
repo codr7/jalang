@@ -4,7 +4,11 @@ public record Function(String name, Parameter[] parameters, Type<?> resultType, 
   public static final Type<Function> type = new Type<>("Function");
 
   public interface Body {
-    void call(final Vm vm, final Location location, final int arity, final int register);
+    void call(final Function function,
+              final Vm vm,
+              final Location location,
+              final int arity,
+              final int register);
   }
 
   public int arity() {
@@ -12,7 +16,7 @@ public record Function(String name, Parameter[] parameters, Type<?> resultType, 
   }
 
   public void call(final Vm vm, final Location location, final int arity, final int register) {
-    body.call(vm, location, arity, register);
+    body.call(this, vm, location, arity, register);
   }
 
   public String toString() {

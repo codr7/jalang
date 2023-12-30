@@ -9,6 +9,10 @@ public class AddLast extends Operation {
     this.resultRegister = resultRegister;
   }
 
+  public String toString() {
+    return String.format("%s item: %d result: %d", super.toString(), itemRegister, resultRegister);
+  }
+
   public final int itemRegister;
   public final int resultRegister;
 }

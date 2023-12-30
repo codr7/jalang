@@ -22,6 +22,14 @@ public record Pair(Value<?> left, Value<?> right) {
       vm.emit(new MakePair(leftRegister, rightRegister, register));
     }
 
+    public final codr7.jalang.Form left() {
+      return left;
+    }
+
+    public final codr7.jalang.Form right() {
+      return right;
+    }
+
     public final String toString() {
       return String.format("%s:%s", left.toString(), right.toString());
     }

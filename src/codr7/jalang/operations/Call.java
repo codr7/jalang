@@ -13,6 +13,11 @@ public class Call extends Operation {
     this.location = location;
   }
 
+  public String toString() {
+    return String.format("%s target: %s arity: %d result: %d location: %s",
+        super.toString(), target, arity, resultRegister, location);
+  }
+
   public final int arity;
   public final Location location;
   public final int resultRegister;

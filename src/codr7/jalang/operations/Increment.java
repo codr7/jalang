@@ -9,6 +9,10 @@ public class Increment extends Operation {
     this.resultRegister = resultRegister;
   }
 
+  public String toString() {
+    return String.format("%s value: %d result: %d", super.toString(), valueRegister, resultRegister);
+  }
+
   public final int resultRegister;
   public final int valueRegister;
 }

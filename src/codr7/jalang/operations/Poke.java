@@ -10,6 +10,10 @@ public class Poke extends Operation {
     this.value = value;
   }
 
+  public String toString() {
+    return String.format("%s register: %d value: %s", super.toString(), register, value);
+  }
+
   public final int register;
   public final Value<?> value;
 }
