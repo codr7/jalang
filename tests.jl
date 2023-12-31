@@ -53,7 +53,7 @@
 
 (check 6
   (function sum [n:Integer]:Integer
-    (if (> n 0) (+ n (sum (-1 n))) n))
+    (if (> n 0) (+ n (sum (- n 1))) n))
   (sum 3))
 
 (check 55
