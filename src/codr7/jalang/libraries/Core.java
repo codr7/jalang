@@ -522,7 +522,9 @@ public class Core extends Library {
 
         for (var i = 0; i < ps.length; i++) {
           final var p = ps[i];
-          bodyNamespace.bind(p.name(), new Value<>(registerType, new Register(i+1, p.type())));
+          final var r = vm.allocateRegister();
+          vm.emit(new Peek(i+1, r));
+          bodyNamespace.bind(p.name(), new Value<>(registerType, new Register(r, p.type())));
         }
 
         for (final var f: as) {
@@ -541,6 +543,20 @@ public class Core extends Library {
         new Parameter[]{new Parameter("pair", pairType)}, anyType,
         (function, vm, location, arity, register) -> {
           vm.poke(register, vm.peek(1).as(pairType).left());
+        });
+
+    bindMacro("if", 2,
+        (vm, namespace, location, arguments, register) -> {
+          arguments[0].emit(vm, namespace, register);
+          final var ifPc = vm.emit(Nop.instance);
+          arguments[1].emit(vm, namespace, register);
+          final var skipPc = (arguments.length > 2) ? vm.emit(Nop.instance) : -1;
+          vm.emit(ifPc, new If(register, vm.emitPc()));
+
+          if (skipPc != -1) {
+            arguments[2].emit(vm, namespace, register);
+            vm.emit(skipPc, new Goto(vm.emitPc()));
+          }
         });
 
     bindFunction("iterator",

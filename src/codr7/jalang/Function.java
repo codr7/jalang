@@ -21,24 +21,22 @@ public record Function(String name, Parameter[] parameters, Type<?> resultType, 
 
   public String toString() {
     final var result = new StringBuilder();
-    result.append("(Function ").append(name);
+    result.append("(Function ").append(name).append('[');
 
     if (parameters != null) {
-      for (var i = 0; i < parameters.length; i++) {
-        if (i > 0) {
-          result.append(' ');
-        }
-
-        result.append(parameters[i]);
+      for (final var p: parameters) {
+        result.append(' ');
+        result.append(p);
       }
     }
 
-    result.append(')');
+    result.append(']');
 
     if (resultType != null) {
       result.append(':').append(resultType);
     }
 
+    result.append(')');
     return result.toString();
   }
 }

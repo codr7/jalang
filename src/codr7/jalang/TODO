@@ -1,5 +1,12 @@
-* add if macro
+** commit function improvements
+
 * add benchmark macro
+
+* debug sum/fib
+** add vm arg to operation toString
+*** add abstract method to operation
+*** lookup values for registers
+**** value: 15 (...)
 
 * handle user defined functions in map/reduce
 ** add Function.evaluate() with same args as call

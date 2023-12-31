@@ -5,7 +5,7 @@ import codr7.jalang.Value;
 
 public class Peek extends Operation {
   public Peek(final int valueRegister, final int resultRegister) {
-    super(Code.Poke);
+    super(Code.Peek);
     this.valueRegister = valueRegister;
     this.resultRegister = resultRegister;
   }

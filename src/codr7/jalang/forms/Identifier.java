@@ -19,10 +19,14 @@ public class Identifier extends Form {
     }
 
     if (value.type() == Core.instance.registerType) {
-      vm.emit(new Peek(value.as(Core.instance.registerType).index(), register));
-    }
+      final var source = value.as(Core.instance.registerType).index();
 
-    vm.emit(new Poke(register, value));
+      if (source != register) {
+        vm.emit(new Peek(source, register));
+      }
+    } else {
+      vm.emit(new Poke(register, value));
+    }
   }
 
   public final String name() {

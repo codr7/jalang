@@ -99,6 +99,17 @@ public class Vm {
           pc = ((Goto) op).pc;
           break;
         }
+        case If: {
+          final var o = (If) op;
+
+          if (registers.get(o.conditionRegister).isTrue()) {
+            pc++;
+          } else {
+            pc = o.elsePc;
+          }
+
+          break;
+        }
         case Increment: {
           final var o = (Increment) op;
           final var v = registers.get(o.valueRegister);
@@ -119,6 +130,12 @@ public class Vm {
           pc++;
           break;
         }
+        case Peek: {
+          final var o = (Peek) op;
+          registers.set(o.resultRegister, registers.get(o.valueRegister));
+          pc++;
+          break;
+        }
         case Poke: {
           final var o = (Poke) op;
           registers.set(o.register, o.value);
@@ -133,6 +150,7 @@ public class Vm {
           registers.set(callFrame.resultRegister(), result);
           pc = callFrame.returnPc();
           callFrame = callFrame.parentFrame();
+          break;
         }
         case Stop: {
           pc++;
@@ -142,6 +160,9 @@ public class Vm {
           pc++;
           System.out.printf("%d %s\n", pc, code.get(pc));
           break;
+        }
+        default: {
+          throw new RuntimeException(String.format("Invalid operation: %s.", op));
         }
       }
     }

@@ -34,6 +34,9 @@
 
 (check 7 (reduce + [1 2 3] 1))
 
+(check "foo" (if T "foo" "bar"))
+(check "bar" (if F "foo" "bar"))
+
 (check 42
   (function foo []:Integer 42)
   (foo))
@@ -47,3 +50,13 @@
   (function foo [x:Integer y:Integer]:Integer
     (+ x y 42))
   (foo 1 2))
+
+(check 6
+  (function sum [n:Integer]:Integer
+    (if (> n 0) (+ n (sum (-1 n))) n))
+  (sum 3))
+
+(check 55
+  (function fib[n:Integer]:Integer
+    (if (< n 2) n (+ (fib (-1 n)) (fib (-1 n)))))
+  (fib 10))
