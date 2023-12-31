@@ -1,7 +1,6 @@
 package codr7.jalang.operations;
 
 import codr7.jalang.Operation;
-import codr7.jalang.Value;
 
 public class Peek extends Operation {
   public Peek(final int valueRegister, final int resultRegister) {

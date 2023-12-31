@@ -1,5 +1,6 @@
 package codr7.jalang;
 
+import codr7.jalang.errors.EvaluationError;
 import codr7.jalang.libraries.Core;
 import codr7.jalang.operations.*;
 import codr7.jalang.readers.FormReader;

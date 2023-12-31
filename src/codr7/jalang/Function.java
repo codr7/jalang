@@ -24,7 +24,7 @@ public record Function(String name, Parameter[] parameters, Type<?> resultType, 
     result.append("(Function ").append(name).append('[');
 
     if (parameters != null) {
-      for (final var p: parameters) {
+      for (final var p : parameters) {
         result.append(' ');
         result.append(p);
       }

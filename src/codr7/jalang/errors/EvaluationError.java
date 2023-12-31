@@ -1,4 +1,6 @@
-package codr7.jalang;
+package codr7.jalang.errors;
+
+import codr7.jalang.Location;
 
 public class EvaluationError extends RuntimeException {
   public EvaluationError(final Location location, final String format, final Object... arguments) {

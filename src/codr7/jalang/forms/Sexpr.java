@@ -1,6 +1,7 @@
 package codr7.jalang.forms;
 
 import codr7.jalang.*;
+import codr7.jalang.errors.EmitError;
 import codr7.jalang.operations.Call;
 
 public class Sexpr extends Form {

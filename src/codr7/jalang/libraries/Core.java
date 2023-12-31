@@ -1,6 +1,8 @@
 package codr7.jalang.libraries;
 
 import codr7.jalang.*;
+import codr7.jalang.errors.EmitError;
+import codr7.jalang.errors.EvaluationError;
 import codr7.jalang.forms.DequeForm;
 import codr7.jalang.forms.Identifier;
 import codr7.jalang.forms.Literal;
@@ -49,8 +51,8 @@ public class Core extends Library {
     }
 
     public Compare compare(final Object left, final Object right) {
-      final char l = (Character)left;
-      final char r = (Character)right;
+      final char l = (Character) left;
+      final char r = (Character) right;
 
       if (l < r) {
         return Compare.LessThan;
@@ -144,8 +146,8 @@ public class Core extends Library {
     }
 
     public Compare compare(final Object left, final Object right) {
-      final int l = (Integer)left;
-      final int r = (Integer)right;
+      final int l = (Integer) left;
+      final int r = (Integer) right;
 
       if (l < r) {
         return Compare.LessThan;
@@ -216,8 +218,8 @@ public class Core extends Library {
     }
 
     public Compare compare(final Object left, final Object right) {
-      final var l = (String)left;
-      final var r = (String)right;
+      final var l = (String) left;
+      final var r = (String) right;
       final var result = l.compareTo(r);
 
       if (result < 0) {
@@ -287,7 +289,7 @@ public class Core extends Library {
         new Parameter[]{new Parameter("value1", comparableType)}, bitType,
         (function, vm, location, arity, register) -> {
           var left = vm.peek(1);
-          var type = (ComparableTrait)left.type();
+          var type = (ComparableTrait) left.type();
           var result = true;
 
           for (var i = 2; i <= arity; i++) {
@@ -312,7 +314,7 @@ public class Core extends Library {
         new Parameter[]{new Parameter("value1", comparableType)}, bitType,
         (function, vm, location, arity, register) -> {
           var left = vm.peek(1);
-          var type = (ComparableTrait)left.type();
+          var type = (ComparableTrait) left.type();
           var result = true;
 
           for (var i = 2; i <= arity; i++) {
@@ -335,31 +337,31 @@ public class Core extends Library {
 
     bindFunction("+", null, integerType,
         (function, vm, location, arity, register) -> {
-      int result = 0;
+          int result = 0;
 
-      for (var i = 1; i <= arity; i++) {
-        result += vm.peek(i).as(integerType);
-      }
+          for (var i = 1; i <= arity; i++) {
+            result += vm.peek(i).as(integerType);
+          }
 
-      vm.poke(register, new Value<>(integerType, result));
-    });
+          vm.poke(register, new Value<>(integerType, result));
+        });
 
     bindFunction("-", null, integerType,
         (function, vm, location, arity, register) -> {
-      if (arity > 0) {
-        int result = vm.peek(1).as(integerType);
+          if (arity > 0) {
+            int result = vm.peek(1).as(integerType);
 
-        if (arity == 1) {
-          result = -result;
-        } else {
-          for (var i = 2; i <= arity; i++) {
-            result -= vm.peek(i).as(integerType);
+            if (arity == 1) {
+              result = -result;
+            } else {
+              for (var i = 2; i <= arity; i++) {
+                result -= vm.peek(i).as(integerType);
+              }
+            }
+
+            vm.poke(register, new Value<>(integerType, result));
           }
-        }
-
-        vm.poke(register, new Value<>(integerType, result));
-      }
-    });
+        });
 
     bindMacro("+1", 1, (vm, namespace, location, arguments, register) -> {
       final var a = arguments[0];
@@ -446,100 +448,100 @@ public class Core extends Library {
           vm.poke(register, new Value<>(dequeType, result));
         });
 
-      bindMacro("function", 1,
-          (vm, namespace, location, arguments, register) -> {
-        final var as = new ArrayDeque<Form>();
-        Collections.addAll(as, arguments);
-        var name = "";
+    bindMacro("function", 1,
+        (vm, namespace, location, arguments, register) -> {
+          final var as = new ArrayDeque<Form>();
+          Collections.addAll(as, arguments);
+          var name = "";
 
-        if (arguments[0] instanceof Identifier) {
-          name = ((Identifier)as.removeFirst()).name();
-        }
-
-        var psForm = as.removeFirst();
-        Type<?> resultType = null;
-
-        if (psForm instanceof Pair.Form) {
-          var p = (Pair.Form)psForm;
-          var tnf = p.right();
-          var tv = namespace.find(((Identifier)tnf).name());
-
-          if (tv == null) {
-            throw new EmitError(tnf.location(), "Type not found: %s.", tnf);
+          if (arguments[0] instanceof Identifier) {
+            name = ((Identifier) as.removeFirst()).name();
           }
 
-          resultType = tv.as(Type.meta);
-          psForm = p.left();
-        }
+          var psForm = as.removeFirst();
+          Type<?> resultType = null;
 
-        if (!(psForm instanceof DequeForm)) {
-          throw new EmitError(psForm.location(), "Invalid parameter specification: %s.", psForm);
-        }
-
-        final var ps = Arrays.stream(((DequeForm)psForm).body()).map((f) -> {
-          var pn = "";
-          Type<?> pt = anyType;
-
-          if (f instanceof Pair.Form) {
-            final var pf = (Pair.Form)f;
-            if (!((pf.left() instanceof Identifier) && (pf.right() instanceof Identifier))) {
-              throw new EmitError(f.location(), "Invalid parameter: %s.", pf);
-            }
-
-            final var tf = ((Identifier)pf.left());
-            pn = tf.name();
-            final var tv = namespace.find(((Identifier)pf.right()).name());
+          if (psForm instanceof Pair.Form) {
+            var p = (Pair.Form) psForm;
+            var tnf = p.right();
+            var tv = namespace.find(((Identifier) tnf).name());
 
             if (tv == null) {
-              throw new EmitError(tf.location(), "Type not found: %s.", tf);
+              throw new EmitError(tnf.location(), "Type not found: %s.", tnf);
             }
 
-            pt = tv.as(Type.meta);
-          } else if (f instanceof Identifier){
-            pn = ((Identifier)f).name();
-          } else {
-            throw new EmitError(f.location(), "Invalid parameter: %s.", f);
+            resultType = tv.as(Type.meta);
+            psForm = p.left();
           }
 
-          return new Parameter(pn, pt);
-        }).toArray(Parameter[]::new);
+          if (!(psForm instanceof DequeForm)) {
+            throw new EmitError(psForm.location(), "Invalid parameter specification: %s.", psForm);
+          }
 
-        final var skipPc = vm.emit(Nop.instance);
-        final var startPc = vm.emitPc();
+          final var ps = Arrays.stream(((DequeForm) psForm).body()).map((f) -> {
+            var pn = "";
+            Type<?> pt = anyType;
 
-        final var function = new Function(name, ps, resultType,
-            (_function, _vm, _location, _arity, _register) -> {
-              _vm.pushCall(_function, _location, startPc, _register);
-            });
+            if (f instanceof Pair.Form) {
+              final var pf = (Pair.Form) f;
+              if (!((pf.left() instanceof Identifier) && (pf.right() instanceof Identifier))) {
+                throw new EmitError(f.location(), "Invalid parameter: %s.", pf);
+              }
 
-        final var v = new Value<>(Function.type, function);
+              final var tf = ((Identifier) pf.left());
+              pn = tf.name();
+              final var tv = namespace.find(((Identifier) pf.right()).name());
 
-        if (!name.isEmpty()) {
-          namespace.bind(name, v);
-        }
+              if (tv == null) {
+                throw new EmitError(tf.location(), "Type not found: %s.", tf);
+              }
 
-        final var bodyNamespace = new Namespace(namespace);
+              pt = tv.as(Type.meta);
+            } else if (f instanceof Identifier) {
+              pn = ((Identifier) f).name();
+            } else {
+              throw new EmitError(f.location(), "Invalid parameter: %s.", f);
+            }
 
-        for (var i = 0; i < ps.length; i++) {
-          final var p = ps[i];
-          final var r = vm.allocateRegister();
-          vm.emit(new Peek(i+1, r));
-          bodyNamespace.bind(p.name(), new Value<>(registerType, new Register(r, p.type())));
-        }
+            return new Parameter(pn, pt);
+          }).toArray(Parameter[]::new);
 
-        for (final var f: as) {
-          f.emit(vm, bodyNamespace, register);
-        }
+          final var skipPc = vm.emit(Nop.instance);
+          final var startPc = vm.emitPc();
 
-        vm.emit(new Return(register));
-        vm.emit(skipPc, new Goto(vm.emitPc()));
+          final var function = new Function(name, ps, resultType,
+              (_function, _vm, _location, _arity, _register) -> {
+                _vm.pushCall(_function, _location, startPc, _register);
+              });
 
-        if (name.isEmpty()) {
-          vm.emit(new Poke(register, v));
-        }
-          });
+          final var v = new Value<>(Function.type, function);
 
-      bindFunction("head",
+          if (!name.isEmpty()) {
+            namespace.bind(name, v);
+          }
+
+          final var bodyNamespace = new Namespace(namespace);
+
+          for (var i = 0; i < ps.length; i++) {
+            final var p = ps[i];
+            final var r = vm.allocateRegister();
+            vm.emit(new Peek(i + 1, r));
+            bodyNamespace.bind(p.name(), new Value<>(registerType, new Register(r, p.type())));
+          }
+
+          for (final var f : as) {
+            f.emit(vm, bodyNamespace, register);
+          }
+
+          vm.emit(new Return(register));
+          vm.emit(skipPc, new Goto(vm.emitPc()));
+
+          if (name.isEmpty()) {
+            vm.emit(new Poke(register, v));
+          }
+        });
+
+    bindFunction("head",
         new Parameter[]{new Parameter("pair", pairType)}, anyType,
         (function, vm, location, arity, register) -> {
           vm.poke(register, vm.peek(1).as(pairType).left());
@@ -644,20 +646,20 @@ public class Core extends Library {
     bindFunction("reduce",
         new Parameter[]{new Parameter("function", Function.type),
             new Parameter("input", sequenceType),
-        new Parameter("seed", anyType)}, anyType,
+            new Parameter("seed", anyType)}, anyType,
         (function, vm, location, arity, register) -> {
-      final var f = vm.peek(1).as(Function.type);
-      final var input = vm.peek(2);
-      final var iterator = ((SequenceTrait<Value<?>>)input.type()).iterator(input.data());
-      var result = vm.peek(3);
+          final var f = vm.peek(1).as(Function.type);
+          final var input = vm.peek(2);
+          final var iterator = ((SequenceTrait<Value<?>>) input.type()).iterator(input.data());
+          var result = vm.peek(3);
 
-      while (iterator.hasNext()) {
-        vm.poke(1, iterator.next());
-        vm.poke(2, result);
-        f.call(vm, location, 2, register);
-        result = vm.peek(register);
-      }
-    });
+          while (iterator.hasNext()) {
+            vm.poke(1, iterator.next());
+            vm.poke(2, result);
+            f.call(vm, location, 2, register);
+            result = vm.peek(register);
+          }
+        });
 
     bindFunction("say",
         null, null,

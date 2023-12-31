@@ -1,4 +1,6 @@
-package codr7.jalang;
+package codr7.jalang.errors;
+
+import codr7.jalang.Location;
 
 public class ReadError extends RuntimeException {
   public ReadError(final Location location, final String format, final Object... arguments) {
