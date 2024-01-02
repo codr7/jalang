@@ -33,11 +33,15 @@ public class Sexpr extends Form {
         throw new EmitError(location(), "Not enough arguments.");
       }
 
+      final var parameters = new int[body.length-1];
+
       for (int i = 1; i < body.length; i++) {
-        body[i].emit(vm, namespace, i);
+        final var pr = vm.allocateRegister();
+        parameters[i-1] = pr;
+        body[i].emit(vm, namespace, pr);
       }
 
-      vm.emit(new Call(function, arity, register, location()));
+      vm.emit(new Call(function, parameters, register, location()));
     } else if (target.type() == Macro.type) {
       final var macro = (Macro) target.data();
 

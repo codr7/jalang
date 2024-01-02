@@ -7,16 +7,16 @@ public record Function(String name, Parameter[] parameters, Type<?> resultType, 
     void call(final Function function,
               final Vm vm,
               final Location location,
-              final int arity,
-              final int register);
+              final int[] parameters,
+              final int result);
   }
 
   public int arity() {
     return (parameters == null) ? -1 : parameters.length;
   }
 
-  public void call(final Vm vm, final Location location, final int arity, final int register) {
-    body.call(this, vm, location, arity, register);
+  public void call(final Vm vm, final Location location, final int[] parameters, final int result) {
+    body.call(this, vm, location, parameters, result);
   }
 
   public String toString() {

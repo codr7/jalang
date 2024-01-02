@@ -72,7 +72,7 @@ public class Vm {
         case Call: {
           final var o = (Call) op;
           pc++;
-          o.target.call(this, o.location, o.arity, o.resultRegister);
+          o.target.call(this, o.location, o.parameters, o.result);
           break;
         }
         case Check: {

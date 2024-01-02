@@ -1,15 +1,9 @@
 * add benchmark macro
 
-* debug sum/fib
-** add vm arg to operation toString
-*** add abstract method to operation
-*** lookup values for registers
-**** value: 15 (...)
-** allocate parameter registers in Sexpr.emit
-*** pass to Call op instead of arity
-*** move into place in Call op eval after backup in frame
-** create call frames for all calls
-*** remove register allocation for params in function emit
+* add vm arg to operation toString
+** add abstract method to operation
+** lookup values for registers
+*** value: 15 (...)
 
 * handle user defined functions in map/reduce
 ** add Function.evaluate() with same args as call

@@ -5,21 +5,24 @@ import codr7.jalang.Location;
 import codr7.jalang.Operation;
 
 public class Call extends Operation {
-  public Call(final Function target, final int arity, final int resultRegister, final Location location) {
+  public Call(final Function target,
+              final int[] parameters,
+              final int result,
+              final Location location) {
     super(Code.Call);
     this.target = target;
-    this.arity = arity;
-    this.resultRegister = resultRegister;
+    this.parameters = parameters;
+    this.result = result;
     this.location = location;
   }
 
   public String toString() {
-    return String.format("%s target: %s arity: %d result: %d location: %s",
-        super.toString(), target, arity, resultRegister, location);
+    return String.format("%s target: %s parameters: %s result: %d location: %s",
+        super.toString(), target, parameters, result, location);
   }
 
-  public final int arity;
   public final Location location;
-  public final int resultRegister;
+  public final int[] parameters;
+  public final int result;
   public final Function target;
 }
