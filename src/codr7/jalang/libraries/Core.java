@@ -426,32 +426,32 @@ public class Core extends Library {
 
     bindMacro("-1", 1,
         (vm, namespace, location, arguments, register) -> {
-      final var a = arguments[0];
-      int valueRegister;
+          final var a = arguments[0];
+          int valueRegister;
 
-      if (a instanceof Identifier) {
-        final var v = namespace.find(((Identifier) a).name());
+          if (a instanceof Identifier) {
+            final var v = namespace.find(((Identifier) a).name());
 
-        if (v.type() != registerType) {
-          throw new EmitError(location, "Invalid target: %s", v.toString());
-        }
+            if (v.type() != registerType) {
+              throw new EmitError(location, "Invalid target: %s", v.toString());
+            }
 
-        final var r = (Register) v.data();
+            final var r = (Register) v.data();
 
-        if (r.type() != null && r.type() != integerType) {
-          throw new EmitError(location, "Invalid target: %s", r.type());
-        }
+            if (r.type() != null && r.type() != integerType) {
+              throw new EmitError(location, "Invalid target: %s", r.type());
+            }
 
-        valueRegister = r.index();
-      } else if (a instanceof Literal) {
-        valueRegister = vm.allocateRegister();
-        vm.poke(valueRegister, ((Literal) a).value());
-      } else {
-        throw new EmitError(location, "Invalid target: %s", a.toString());
-      }
+            valueRegister = r.index();
+          } else if (a instanceof Literal) {
+            valueRegister = vm.allocateRegister();
+            vm.poke(valueRegister, ((Literal) a).value());
+          } else {
+            throw new EmitError(location, "Invalid target: %s", a.toString());
+          }
 
-      vm.emit(new Decrement(valueRegister, register));
-    });
+          vm.emit(new Decrement(valueRegister, register));
+        });
 
     bindMacro("benchmark", 1,
         (vm, namespace, location, arguments, register) -> {
@@ -637,7 +637,7 @@ public class Core extends Library {
           } catch (final IOException e) {
             throw new EmitError(location, e.toString());
           }
-          });
+        });
 
     bindFunction("map",
         new Parameter[]{new Parameter("function", Function.type),

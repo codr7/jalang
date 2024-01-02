@@ -1,6 +1,5 @@
 package codr7.jalang.operations;
 
-import codr7.jalang.Location;
 import codr7.jalang.Operation;
 
 public class Benchmark extends Operation {

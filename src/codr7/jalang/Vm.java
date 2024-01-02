@@ -80,7 +80,7 @@ public class Vm {
           }
 
           registers.set(o.register,
-              new Value<>(Core.instance.floatType, (float)((System.nanoTime() - t) / 1000000000.0)));
+              new Value<>(Core.instance.floatType, (float) ((System.nanoTime() - t) / 1000000000.0)));
           break;
         }
         case Call: {
@@ -211,7 +211,7 @@ public class Vm {
       final var input = new Input(new StringReader(code));
       final var location = new Location(p.toString());
       final var forms = new ArrayDeque<Form>();
-      while (FormReader.instance.read(input, forms, location));
+      while (FormReader.instance.read(input, forms, location)) ;
 
       for (final var f : forms) {
         f.emit(this, namespace, register);
