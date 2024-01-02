@@ -1,6 +1,14 @@
 0.4604128
 0.14301105
 
+* remove Vm.namespace
+
+* rename all registers to rFoo
+** ops, core, forms
+** find register
+
+* add tail call support
+
 * add symbol macro register-count
 ** check benchmark
 
