@@ -7,8 +7,9 @@ import java.io.*;
 import java.util.ArrayDeque;
 
 public class Repl {
-  public Repl(final Vm vm, final InputStream in, final PrintStream out) {
+  public Repl(final Vm vm, final Namespace namespace, final InputStream in, final PrintStream out) {
     this.vm = vm;
+    this.namespace = namespace;
     this.in = new BufferedReader(new InputStreamReader(in));
     this.out = out;
   }
@@ -34,7 +35,7 @@ public class Repl {
         var pc = vm.emitPc();
 
         for (final var f : forms) {
-          f.emit(vm, vm.namespace(), Vm.DEFAULT_REGISTER);
+          f.emit(vm, namespace, Vm.DEFAULT_REGISTER);
         }
 
         vm.emit(Stop.instance);
@@ -49,6 +50,7 @@ public class Repl {
   }
 
   private final BufferedReader in;
+  private final Namespace namespace;
   private final PrintStream out;
   private final Vm vm;
 }

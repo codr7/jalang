@@ -192,7 +192,7 @@ public class Vm {
     }
   }
 
-  public final void evaluate(final Form form, final int register) {
+  public final void evaluate(final Form form, final Namespace namespace, final int register) {
     final var skipPc = emit(Nop.instance);
     final var startPc = emitPc();
     form.emit(this, namespace, register);
@@ -224,15 +224,9 @@ public class Vm {
   public final Path loadPath() {
     return loadPath;
   }
-
-  public final Namespace namespace() {
-    return namespace;
-  }
-
   public final Value<?> peek(final int index) {
     return registers.get(index);
   }
-
   public final void poke(final int index, Value<?> value) {
     registers.set(index, value);
   }
@@ -255,7 +249,6 @@ public class Vm {
   private CallFrame callFrame;
   private final List<Operation> code = new ArrayList<>();
   private Path loadPath = Paths.get("");
-  private final Namespace namespace = new Namespace(null);
   private int pc = -1;
   private final ArrayList<Value<?>> registers = new ArrayList<>();
   private boolean tracingEnabled = false;

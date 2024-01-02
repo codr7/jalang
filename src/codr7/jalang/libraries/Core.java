@@ -628,7 +628,7 @@ public class Core extends Library {
 
     bindMacro("load", 1,
         (vm, namespace, location, arguments, register) -> {
-          vm.evaluate(arguments[0], register);
+          vm.evaluate(arguments[0], namespace, register);
           final var path = vm.peek(register).as(pathType);
           vm.poke(register, null);
 

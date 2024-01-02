@@ -8,6 +8,10 @@ public class Namespace {
     this.parentNamespace = parentNamespace;
   }
 
+  public Namespace() {
+    this(null);
+  }
+
   public final void bind(final String key, final Value<?> value) {
     bindings.put(key, value);
   }
