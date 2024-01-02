@@ -22,41 +22,65 @@
 
 (check "1 2 3" (string 1 " " 2 " " 3))
 
-(check "oof" (reverse-string "foo"))
+(check "oof"
+  (reverse-string "foo"))
 
-(check 42:3 (parse-integer " 42foo"))
+(check 42:3
+  (parse-integer " 42foo"))
 
-(check 3 (length "foo"))
-(check 3 (length [1 2 3]))
+(check 3
+  (length "foo"))
+  
+(check 3
+  (length [1 2 3]))
 
-(check [0 1 2] (deque 3))
-(check [5 7 9] (deque (map + [1 2 3] [4 5 6 7])))
+(check [0 1 2]
+  (deque 3))
+  
+(check [5 7 9]
+  (deque (map + [1 2 3] [4 5 6 7])))
 
-(check 7 (reduce + [1 2 3] 1))
+(check 7
+  (reduce + [1 2 3] 1))
 
-(check "foo" (if T "foo" "bar"))
-(check "bar" (if F "foo" "bar"))
+(check "foo"
+  (if T "foo" "bar"))
+
+(check "bar"
+  (if F "foo" "bar"))
 
 (check 42
   (function foo []:Integer 42)
+  
   (foo))
 
 (check 43
   (function foo [x]:Integer
     (+ x 42))
+    
   (foo 1))
 
 (check 45
   (function foo [x:Integer y:Integer]:Integer
     (+ x y 42))
+    
   (foo 1 2))
 
 (check 6
   (function sum [n:Integer]:Integer
     (if (> n 0) (+ n (sum (- n 1))) n))
+    
   (sum 3))
 
 (check 55
   (function fib[n:Integer]:Integer
     (if (< n 2) n (+ (fib (-1 n)) (fib (-1 n)))))
+    
   (fib 10))
+
+(check 55
+  (function fib[n:Integer a:Integer b:Integer]:Integer
+    (if (> n 1) (fib (-1 n) b (+ a b)) (if (=0 n) a b)))
+    
+  (fib 10 0 1))
+

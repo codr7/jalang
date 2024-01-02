@@ -1,8 +1,6 @@
 0.4604128
 0.14301105
 
-* add fib benchmark to tests
-
 * rename all registers to rFoo
 ** ops, core, forms
 ** find register
