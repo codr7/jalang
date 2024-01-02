@@ -1,8 +1,5 @@
-* remove namespace emit argument
-** use vm.namespace()
-
-* add =0 macro
-** add Zero op
+0.4604128
+0.14301105
 
 * add symbol macro register-count
 ** check benchmark

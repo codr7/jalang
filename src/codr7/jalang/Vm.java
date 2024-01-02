@@ -111,6 +111,13 @@ public class Vm {
           pc++;
           break;
         }
+        case EqualsZero: {
+          final var o = (EqualsZero) op;
+          final var value = registers.get(o.value).as(Core.instance.integerType);
+          registers.set(o.register, new Value<>(Core.instance.bitType, value == 0));
+          pc++;
+          break;
+        }
         case Goto: {
           pc = ((Goto) op).pc;
           break;
@@ -194,7 +201,7 @@ public class Vm {
     evaluate(startPc);
   }
 
-  public final void load(final Path path, final int register) throws IOException {
+  public final void load(final Path path, final Namespace namespace, final int register) throws IOException {
     final var p = loadPath.resolve(path);
     final var previousLoadPath = loadPath;
     loadPath = p.getParent();

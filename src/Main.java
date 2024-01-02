@@ -16,7 +16,7 @@ public class Main {
       final var pc = vm.emitPc();
 
       for (final var a : args) {
-        vm.load(Paths.get(a), Vm.DEFAULT_REGISTER);
+        vm.load(Paths.get(a), vm.namespace(), Vm.DEFAULT_REGISTER);
       }
 
       vm.emit(Stop.instance);

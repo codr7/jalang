@@ -4,6 +4,6 @@
 (say (benchmark 100 (fib 20)))
 
 (function fib[n:Integer a:Integer b:Integer]:Integer
-  (if (> n 1) (fib (-1 n) b (+ a b)) (if (= n 0) a b)))
+  (if (> n 1) (fib (-1 n) b (+ a b)) (if (=0 n) a b)))
 
 (say (benchmark 10000 (fib 70 0 1)))

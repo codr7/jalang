@@ -389,6 +389,12 @@ public class Core extends Library {
           vm.poke(out, new Value<>(integerType, result));
         });
 
+    bindMacro("=0", 1,
+        (vm, namespace, location, arguments, register) -> {
+          arguments[0].emit(vm, namespace, register);
+          vm.emit(new EqualsZero(register, register));
+        });
+
     bindMacro("+1", 1,
         (vm, namespace, location, arguments, register) -> {
           final var a = arguments[0];
@@ -418,7 +424,8 @@ public class Core extends Library {
           vm.emit(new Increment(valueRegister, register));
         });
 
-    bindMacro("-1", 1, (vm, namespace, location, arguments, register) -> {
+    bindMacro("-1", 1,
+        (vm, namespace, location, arguments, register) -> {
       final var a = arguments[0];
       int valueRegister;
 
@@ -626,7 +633,7 @@ public class Core extends Library {
           vm.poke(register, null);
 
           try {
-            vm.load(path, register);
+            vm.load(path, namespace, register);
           } catch (final IOException e) {
             throw new EmitError(location, e.toString());
           }

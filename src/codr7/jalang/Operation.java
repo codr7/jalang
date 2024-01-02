@@ -6,6 +6,7 @@ public abstract class Operation {
     Benchmark,
     Call, Check,
     Decrement,
+    EqualsZero,
     Goto,
     If, Increment,
     MakePair,
