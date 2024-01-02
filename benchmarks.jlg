@@ -1,5 +1,9 @@
-(function fib1[n:Integer]:Integer
-  (if (< n 2) n (+ (fib1 (-1 n)) (fib1 (-1 n)))))
+(function fib[n:Integer]:Integer
+  (if (< n 2) n (+ (fib (-1 n)) (fib (-1 n)))))
 
-(say (benchmark 100
-  (fib1 20)))
+(say (benchmark 100 (fib 20)))
+
+(function fib[n:Integer a:Integer b:Integer]:Integer
+  (if (> n 1) (fib (-1 n) b (+ a b)) (if (= n 0) a b)))
+
+(say (benchmark 10000 (fib 70 0 1)))

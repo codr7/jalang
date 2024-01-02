@@ -734,6 +734,7 @@ public class Core extends Library {
           }
 
           System.out.println(what);
+          System.out.flush();
         });
 
     bindFunction("string",

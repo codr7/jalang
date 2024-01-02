@@ -73,8 +73,9 @@ public class Vm {
           final var o = (Benchmark) op;
           final var t = System.nanoTime();
           final var bodyPc = pc + 1;
+          final var repetitions = registers.get(o.repetitions).as(Core.instance.integerType);
 
-          for (int i = 0; i < registers.get(o.repetitions).as(Core.instance.integerType); i++) {
+          for (int i = 0; i < repetitions; i++) {
             evaluate(bodyPc);
           }
 
