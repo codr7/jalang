@@ -69,10 +69,23 @@ public class Vm {
           pc++;
           break;
         }
+        case Benchmark: {
+          final var o = (Benchmark) op;
+          final var t = System.nanoTime();
+          final var bodyPc = pc + 1;
+
+          for (int i = 0; i < registers.get(o.repetitions).as(Core.instance.integerType); i++) {
+            evaluate(bodyPc);
+          }
+
+          registers.set(o.register,
+              new Value<>(Core.instance.floatType, (float)((System.nanoTime() - t) / 1000000000.0)));
+          break;
+        }
         case Call: {
           final var o = (Call) op;
           pc++;
-          o.target.call(this, o.location, o.parameters, o.result);
+          o.target.call(this, o.location, o.parameters, o.register);
           break;
         }
         case Check: {
@@ -171,7 +184,16 @@ public class Vm {
     }
   }
 
-  public final void load(final Path path, final Namespace namespace) throws IOException {
+  public final void evaluate(final Form form, final int register) {
+    final var skipPc = emit(Nop.instance);
+    final var startPc = emitPc();
+    form.emit(this, namespace, register);
+    emit(Stop.instance);
+    emit(skipPc, new Goto(emitPc()));
+    evaluate(startPc);
+  }
+
+  public final void load(final Path path, final int register) throws IOException {
     final var p = loadPath.resolve(path);
     final var previousLoadPath = loadPath;
     loadPath = p.getParent();
@@ -181,10 +203,10 @@ public class Vm {
       final var input = new Input(new StringReader(code));
       final var location = new Location(p.toString());
       final var forms = new ArrayDeque<Form>();
-      while (FormReader.instance.read(input, forms, location)) ;
+      while (FormReader.instance.read(input, forms, location));
 
       for (final var f : forms) {
-        f.emit(this, namespace, Vm.DEFAULT_REGISTER);
+        f.emit(this, namespace, register);
       }
     } finally {
       loadPath = previousLoadPath;
@@ -193,6 +215,10 @@ public class Vm {
 
   public final Path loadPath() {
     return loadPath;
+  }
+
+  public final Namespace namespace() {
+    return namespace;
   }
 
   public final Value<?> peek(final int index) {
@@ -221,6 +247,7 @@ public class Vm {
   private CallFrame callFrame;
   private final List<Operation> code = new ArrayList<>();
   private Path loadPath = Paths.get("");
+  private final Namespace namespace = new Namespace(null);
   private int pc = -1;
   private final ArrayList<Value<?>> registers = new ArrayList<>();
   private boolean tracingEnabled = false;

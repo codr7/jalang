@@ -1,4 +1,8 @@
-* add benchmark macro
+* remove namespace emit argument
+** use vm.namespace()
+
+* add symbol macro register-count
+** check benchmark
 
 * add vm arg to operation toString
 ** add abstract method to operation

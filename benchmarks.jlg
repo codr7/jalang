@@ -1,0 +1,5 @@
+(function fib1[n:Integer]:Integer
+  (if (< n 2) n (+ (fib1 (-1 n)) (fib1 (-1 n)))))
+
+(say (benchmark 100
+  (fib1 20)))

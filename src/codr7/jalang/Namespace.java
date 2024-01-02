@@ -37,6 +37,10 @@ public class Namespace {
     return v;
   }
 
+  public final void include(final Namespace source) {
+    bindings.putAll(source.bindings);
+  }
+
   private final Namespace parentNamespace;
-  private final Map<String, Value> bindings = new HashMap<>();
+  private final Map<String, Value<?>> bindings = new HashMap<>();
 }

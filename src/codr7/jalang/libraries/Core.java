@@ -138,6 +138,33 @@ public class Core extends Library {
     }
   }
 
+  public static class FloatType
+      extends Type<Float>
+      implements ComparableTrait {
+    public FloatType(final String name) {
+      super(name);
+    }
+
+    public Compare compare(final Object left, final Object right) {
+      final float l = (Float) left;
+      final float r = (Float) right;
+
+      if (l < r) {
+        return Compare.LessThan;
+      }
+
+      if (l > r) {
+        return Compare.GreaterThan;
+      }
+
+      return Compare.Equal;
+    }
+
+    public boolean isTrue(final Float value) {
+      return value != 0;
+    }
+  }
+
   public static class IntegerType
       extends Type<Integer>
       implements ComparableTrait, SequenceTrait<Value<Integer>> {
@@ -264,6 +291,7 @@ public class Core extends Library {
     bindType(characterType);
     bindType(comparableType);
     bindType(dequeType);
+    bindType(floatType);
     bindType(Function.type);
     bindType(integerType);
     bindType(iteratorType);
@@ -417,6 +445,19 @@ public class Core extends Library {
 
       vm.emit(new Decrement(valueRegister, register));
     });
+
+    bindMacro("benchmark", 1,
+        (vm, namespace, location, arguments, register) -> {
+          final var repetitions = vm.allocateRegister();
+          arguments[0].emit(vm, namespace, repetitions);
+          vm.emit(new Benchmark(repetitions, register));
+
+          for (int i = 1; i < arguments.length; i++) {
+            arguments[i].emit(vm, namespace, repetitions);
+          }
+
+          vm.emit(Stop.instance);
+        });
 
     bindMacro("check", 2, (vm, namespace, location, arguments, register) -> {
       final var expectedRegister = vm.allocateRegister();
@@ -578,6 +619,19 @@ public class Core extends Library {
           vm.poke(out, new Value<>(integerType, ct.length(c.data())));
         });
 
+    bindMacro("load", 1,
+        (vm, namespace, location, arguments, register) -> {
+          vm.evaluate(arguments[0], register);
+          final var path = vm.peek(register).as(pathType);
+          vm.poke(register, null);
+
+          try {
+            vm.load(path, register);
+          } catch (final IOException e) {
+            throw new EmitError(location, e.toString());
+          }
+          });
+
     bindFunction("map",
         new Parameter[]{new Parameter("function", Function.type),
             new Parameter("input1", sequenceType)}, anyType,
@@ -735,7 +789,7 @@ public class Core extends Library {
           vm.poke(out, vm.peek(in[0]).as(pairType).right());
         });
 
-    bindMacro("trace", 1,
+    bindMacro("trace", 0,
         (vm, namespace, location, in, out) -> {
           vm.toggleTracing();
         });
@@ -747,6 +801,7 @@ public class Core extends Library {
   public final CollectionType collectionType = new CollectionType("Collection");
   public final ComparableType comparableType = new ComparableType("Comparable");
   public final DequeType dequeType = new DequeType("Deque");
+  public final FloatType floatType = new FloatType("Float");
   public final IntegerType integerType = new IntegerType("Integer");
   public final IteratorType iteratorType = new IteratorType("Iterator");
   public final PairType pairType = new PairType("Pair");
