@@ -1,6 +1,8 @@
 0.4604128
 0.14301105
 
+* add fib benchmark to tests
+
 * remove Vm.namespace
 
 * rename all registers to rFoo
@@ -8,6 +10,7 @@
 ** find register
 
 * add tail call support
+** add return macro
 
 * add symbol macro register-count
 ** check benchmark
