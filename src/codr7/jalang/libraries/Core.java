@@ -348,47 +348,47 @@ public class Core extends Library {
 
     bindFunction("-", null, integerType,
         (function, vm, location, in, out) -> {
-            int result = vm.peek(in[0]).as(integerType);
+          int result = vm.peek(in[0]).as(integerType);
 
-            if (in.length == 1) {
-              result = -result;
-            } else {
-              for (var i = 1; i < in.length; i++) {
-                result -= vm.peek(in[i]).as(integerType);
-              }
+          if (in.length == 1) {
+            result = -result;
+          } else {
+            for (var i = 1; i < in.length; i++) {
+              result -= vm.peek(in[i]).as(integerType);
             }
+          }
 
-            vm.poke(out, new Value<>(integerType, result));
+          vm.poke(out, new Value<>(integerType, result));
         });
 
     bindMacro("+1", 1,
         (vm, namespace, location, arguments, register) -> {
-      final var a = arguments[0];
-      int valueRegister;
+          final var a = arguments[0];
+          int valueRegister;
 
-      if (a instanceof Identifier) {
-        final var v = namespace.find(((Identifier) a).name());
+          if (a instanceof Identifier) {
+            final var v = namespace.find(((Identifier) a).name());
 
-        if (v.type() != registerType) {
-          throw new EmitError(location, "Invalid target: %s", v.toString());
-        }
+            if (v.type() != registerType) {
+              throw new EmitError(location, "Invalid target: %s", v.toString());
+            }
 
-        final var r = (Register) v.data();
+            final var r = (Register) v.data();
 
-        if (r.type() != null && r.type() != integerType) {
-          throw new EmitError(location, "Invalid target: %s", r.type());
-        }
+            if (r.type() != null && r.type() != integerType) {
+              throw new EmitError(location, "Invalid target: %s", r.type());
+            }
 
-        valueRegister = r.index();
-      } else if (a instanceof Literal) {
-        valueRegister = vm.allocateRegister();
-        vm.poke(valueRegister, ((Literal) a).value());
-      } else {
-        throw new EmitError(location, "Invalid target: %s", a.toString());
-      }
+            valueRegister = r.index();
+          } else if (a instanceof Literal) {
+            valueRegister = vm.allocateRegister();
+            vm.poke(valueRegister, ((Literal) a).value());
+          } else {
+            throw new EmitError(location, "Invalid target: %s", a.toString());
+          }
 
-      vm.emit(new Increment(valueRegister, register));
-    });
+          vm.emit(new Increment(valueRegister, register));
+        });
 
     bindMacro("-1", 1, (vm, namespace, location, arguments, register) -> {
       final var a = arguments[0];
@@ -513,7 +513,7 @@ public class Core extends Library {
                 _vm.pushCall(_function, _location, startPc, _result);
 
                 for (var i = 0; i < _parameters.length; i++) {
-                  vm.poke(i+1, vm.peek(_parameters[i]));
+                  vm.poke(i + 1, vm.peek(_parameters[i]));
                 }
               });
 
@@ -527,7 +527,7 @@ public class Core extends Library {
 
           for (var i = 0; i < ps.length; i++) {
             final var p = ps[i];
-            bodyNamespace.bind(p.name(), new Value<>(registerType, new Register(i+1, p.type())));
+            bodyNamespace.bind(p.name(), new Value<>(registerType, new Register(i + 1, p.type())));
           }
 
           for (final var f : as) {
@@ -737,8 +737,8 @@ public class Core extends Library {
 
     bindMacro("trace", 1,
         (vm, namespace, location, in, out) -> {
-      vm.toggleTracing();
-    });
+          vm.toggleTracing();
+        });
   }
 
   public final Type<Object> anyType = new Type<>("Any");
