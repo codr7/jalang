@@ -224,9 +224,11 @@ public class Vm {
   public final Path loadPath() {
     return loadPath;
   }
+
   public final Value<?> peek(final int index) {
     return registers.get(index);
   }
+
   public final void poke(final int index, Value<?> value) {
     registers.set(index, value);
   }

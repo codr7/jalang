@@ -468,18 +468,18 @@ public class Core extends Library {
 
     bindMacro("check", 2,
         (vm, namespace, location, arguments, rResult) -> {
-      final var rExpected = vm.allocateRegister();
-      arguments[0].emit(vm, namespace, rExpected);
-      final var rActual = vm.allocateRegister();
-      vm.emit(new Check(rExpected, rActual, location));
-      final var bodyNamespace = new Namespace(namespace);
+          final var rExpected = vm.allocateRegister();
+          arguments[0].emit(vm, namespace, rExpected);
+          final var rActual = vm.allocateRegister();
+          vm.emit(new Check(rExpected, rActual, location));
+          final var bodyNamespace = new Namespace(namespace);
 
-      for (var i = 1; i < arguments.length; i++) {
-        arguments[i].emit(vm, bodyNamespace, rActual);
-      }
+          for (var i = 1; i < arguments.length; i++) {
+            arguments[i].emit(vm, bodyNamespace, rActual);
+          }
 
-      vm.emit(Stop.instance);
-    });
+          vm.emit(Stop.instance);
+        });
 
     bindFunction("deque",
         new Parameter[]{new Parameter("input", sequenceType)}, dequeType,
