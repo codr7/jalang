@@ -9,8 +9,8 @@ public class Literal extends Form {
     this.value = value;
   }
 
-  public void emit(final Vm vm, final Namespace namespace, final int register) {
-    vm.emit(new Poke(value, register));
+  public void emit(final Vm vm, final Namespace namespace, final int rResult) {
+    vm.emit(new Poke(value, rResult));
   }
 
   public String toString() {

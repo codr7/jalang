@@ -10,7 +10,7 @@ public class Sexpr extends Form {
     this.body = body;
   }
 
-  public void emit(final Vm vm, final Namespace namespace, final int register) {
+  public void emit(final Vm vm, final Namespace namespace, final int rResult) {
     final var targetForm = body[0];
 
     if (!(targetForm instanceof Identifier)) {
@@ -36,12 +36,12 @@ public class Sexpr extends Form {
       final var parameters = new int[body.length - 1];
 
       for (int i = 1; i < body.length; i++) {
-        final var pr = vm.allocateRegister();
-        parameters[i - 1] = pr;
-        body[i].emit(vm, namespace, pr);
+        final var rParameter = vm.allocateRegister();
+        parameters[i - 1] = rParameter;
+        body[i].emit(vm, namespace, rParameter);
       }
 
-      vm.emit(new Call(function, parameters, register, location()));
+      vm.emit(new Call(function, parameters, rResult, location()));
     } else if (target.type() == Macro.type) {
       final var macro = (Macro) target.data();
 
@@ -53,7 +53,7 @@ public class Sexpr extends Form {
 
       System.arraycopy(body, 1, arguments, 0, arity);
 
-      macro.call(vm, namespace, location(), arguments, register);
+      macro.call(vm, namespace, location(), arguments, rResult);
     } else {
       throw new EmitError(location(), "Invalid target: %s", target);
     }

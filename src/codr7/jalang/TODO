@@ -2,7 +2,7 @@
 0.14301105
 
 * rename all registers to rFoo
-** ops, core, forms
+** core
 ** find 'register' in src/
 
 * add tail call support

@@ -15,7 +15,7 @@ public class Identifier extends Form {
     this.name = name;
   }
 
-  public void emit(final Vm vm, final Namespace namespace, final int register) {
+  public void emit(final Vm vm, final Namespace namespace, final int rResult) {
     final var value = namespace.find(name);
 
     if (value == null) {
@@ -25,11 +25,11 @@ public class Identifier extends Form {
     if (value.type() == Core.instance.registerType) {
       final var source = value.as(Core.instance.registerType).index();
 
-      if (source != register) {
-        vm.emit(new Peek(source, register));
+      if (source != rResult) {
+        vm.emit(new Peek(source, rResult));
       }
     } else {
-      vm.emit(new Poke(value, register));
+      vm.emit(new Poke(value, rResult));
     }
   }
 

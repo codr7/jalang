@@ -13,14 +13,14 @@ public class DequeForm extends Form {
     this.body = body;
   }
 
-  public void emit(final Vm vm, final Namespace namespace, final int register) {
+  public void emit(final Vm vm, final Namespace namespace, final int rResult) {
     final var value = new Value<>(Core.instance.dequeType, new ArrayDeque<>());
-    vm.emit(new Poke(value, register));
-    final var itemRegister = vm.allocateRegister();
+    vm.emit(new Poke(value, rResult));
+    final var rItem = vm.allocateRegister();
 
     for (final var f : body) {
-      f.emit(vm, namespace, itemRegister);
-      vm.emit(new AddLast(itemRegister, register));
+      f.emit(vm, namespace, rItem);
+      vm.emit(new AddLast(rItem, rResult));
     }
   }
 
