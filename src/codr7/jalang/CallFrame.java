@@ -5,5 +5,5 @@ public record CallFrame(CallFrame parentFrame,
                         Location location,
                         Value<?>[] registers,
                         int returnPc,
-                        int resultRegister) {
+                        int rResult) {
 }

@@ -171,7 +171,7 @@ public class Vm {
           final var result = registers.get(o.rResult);
           registers.clear();
           Collections.addAll(registers, callFrame.registers());
-          registers.set(callFrame.resultRegister(), result);
+          registers.set(callFrame.rResult(), result);
           pc = callFrame.returnPc();
           callFrame = callFrame.parentFrame();
           break;

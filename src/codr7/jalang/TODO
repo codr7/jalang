@@ -1,10 +1,6 @@
 0.4604128
 0.14301105
 
-* rename all registers to rFoo
-** core
-** find 'register' in src/
-
 * add tail call support
 ** add startPc to CallFrame
 ** add TailCall op

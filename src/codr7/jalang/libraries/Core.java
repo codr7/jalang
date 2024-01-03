@@ -308,20 +308,20 @@ public class Core extends Library {
     bindFunction("=",
         new Parameter[]{new Parameter("left", anyType),
             new Parameter("right", anyType)}, bitType,
-        (function, vm, location, in, out) -> {
-          final var result = vm.peek(in[0]).equals(vm.peek(in[1]));
-          vm.poke(out, new Value<>(bitType, result));
+        (function, vm, location, rParameters, rResult) -> {
+          final var result = vm.peek(rParameters[0]).equals(vm.peek(rParameters[1]));
+          vm.poke(rResult, new Value<>(bitType, result));
         });
 
     bindFunction("<",
         new Parameter[]{new Parameter("value1", comparableType)}, bitType,
-        (function, vm, location, in, out) -> {
-          var left = vm.peek(in[0]);
+        (function, vm, location, rParameters, rResult) -> {
+          var left = vm.peek(rParameters[0]);
           var type = (ComparableTrait) left.type();
           var result = true;
 
-          for (var i = 1; i < in.length; i++) {
-            final var right = vm.peek(in[i]);
+          for (var i = 1; i < rParameters.length; i++) {
+            final var right = vm.peek(rParameters[i]);
 
             if (right.type() != left.type()) {
               throw new EvaluationError(location, "Type mismatch: %s/%s.", left.type(), right.type());
@@ -335,18 +335,18 @@ public class Core extends Library {
             left = right;
           }
 
-          vm.poke(out, new Value<>(bitType, result));
+          vm.poke(rResult, new Value<>(bitType, result));
         });
 
     bindFunction(">",
         new Parameter[]{new Parameter("value1", comparableType)}, bitType,
-        (function, vm, location, in, out) -> {
-          var left = vm.peek(in[0]);
+        (function, vm, location, rParameters, rResult) -> {
+          var left = vm.peek(rParameters[0]);
           var type = (ComparableTrait) left.type();
           var result = true;
 
-          for (var i = 1; i < in.length; i++) {
-            final var right = vm.peek(in[i]);
+          for (var i = 1; i < rParameters.length; i++) {
+            final var right = vm.peek(rParameters[i]);
 
             if (right.type() != left.type()) {
               throw new EvaluationError(location, "Type mismatch: %s/%s.", left.type(), right.type());
@@ -360,45 +360,45 @@ public class Core extends Library {
             left = right;
           }
 
-          vm.poke(out, new Value<>(bitType, result));
+          vm.poke(rResult, new Value<>(bitType, result));
         });
 
     bindFunction("+", null, integerType,
-        (function, vm, location, in, out) -> {
+        (function, vm, location, rParameters, rResult) -> {
           int result = 0;
 
-          for (var i = 0; i < in.length; i++) {
-            result += vm.peek(in[i]).as(integerType);
+          for (var i = 0; i < rParameters.length; i++) {
+            result += vm.peek(rParameters[i]).as(integerType);
           }
 
-          vm.poke(out, new Value<>(integerType, result));
+          vm.poke(rResult, new Value<>(integerType, result));
         });
 
     bindFunction("-", null, integerType,
-        (function, vm, location, in, out) -> {
-          int result = vm.peek(in[0]).as(integerType);
+        (function, vm, location, rParameters, rResult) -> {
+          int result = vm.peek(rParameters[0]).as(integerType);
 
-          if (in.length == 1) {
+          if (rParameters.length == 1) {
             result = -result;
           } else {
-            for (var i = 1; i < in.length; i++) {
-              result -= vm.peek(in[i]).as(integerType);
+            for (var i = 1; i < rParameters.length; i++) {
+              result -= vm.peek(rParameters[i]).as(integerType);
             }
           }
 
-          vm.poke(out, new Value<>(integerType, result));
+          vm.poke(rResult, new Value<>(integerType, result));
         });
 
     bindMacro("=0", 1,
-        (vm, namespace, location, arguments, register) -> {
-          arguments[0].emit(vm, namespace, register);
-          vm.emit(new EqualsZero(register, register));
+        (vm, namespace, location, arguments, rResult) -> {
+          arguments[0].emit(vm, namespace, rResult);
+          vm.emit(new EqualsZero(rResult, rResult));
         });
 
     bindMacro("+1", 1,
-        (vm, namespace, location, arguments, register) -> {
+        (vm, namespace, location, arguments, rResult) -> {
           final var a = arguments[0];
-          int valueRegister;
+          int rValue;
 
           if (a instanceof Identifier) {
             final var v = namespace.find(((Identifier) a).name());
@@ -413,21 +413,21 @@ public class Core extends Library {
               throw new EmitError(location, "Invalid target: %s", r.type());
             }
 
-            valueRegister = r.index();
+            rValue = r.index();
           } else if (a instanceof Literal) {
-            valueRegister = vm.allocateRegister();
-            vm.poke(valueRegister, ((Literal) a).value());
+            rValue = vm.allocateRegister();
+            vm.poke(rValue, ((Literal) a).value());
           } else {
             throw new EmitError(location, "Invalid target: %s", a.toString());
           }
 
-          vm.emit(new Increment(valueRegister, register));
+          vm.emit(new Increment(rValue, rResult));
         });
 
     bindMacro("-1", 1,
-        (vm, namespace, location, arguments, register) -> {
+        (vm, namespace, location, arguments, rResult) -> {
           final var a = arguments[0];
-          int valueRegister;
+          int rValue;
 
           if (a instanceof Identifier) {
             final var v = namespace.find(((Identifier) a).name());
@@ -442,22 +442,22 @@ public class Core extends Library {
               throw new EmitError(location, "Invalid target: %s", r.type());
             }
 
-            valueRegister = r.index();
+            rValue = r.index();
           } else if (a instanceof Literal) {
-            valueRegister = vm.allocateRegister();
-            vm.poke(valueRegister, ((Literal) a).value());
+            rValue = vm.allocateRegister();
+            vm.poke(rValue, ((Literal) a).value());
           } else {
             throw new EmitError(location, "Invalid target: %s", a.toString());
           }
 
-          vm.emit(new Decrement(valueRegister, register));
+          vm.emit(new Decrement(rValue, rResult));
         });
 
     bindMacro("benchmark", 1,
-        (vm, namespace, location, arguments, register) -> {
+        (vm, namespace, location, arguments, rResult) -> {
           final var repetitions = vm.allocateRegister();
           arguments[0].emit(vm, namespace, repetitions);
-          vm.emit(new Benchmark(repetitions, register));
+          vm.emit(new Benchmark(repetitions, rResult));
 
           for (int i = 1; i < arguments.length; i++) {
             arguments[i].emit(vm, namespace, repetitions);
@@ -466,15 +466,16 @@ public class Core extends Library {
           vm.emit(Stop.instance);
         });
 
-    bindMacro("check", 2, (vm, namespace, location, arguments, register) -> {
-      final var expectedRegister = vm.allocateRegister();
-      arguments[0].emit(vm, namespace, expectedRegister);
-      final var actualRegister = vm.allocateRegister();
-      vm.emit(new Check(expectedRegister, actualRegister, location));
+    bindMacro("check", 2,
+        (vm, namespace, location, arguments, rResult) -> {
+      final var rExpected = vm.allocateRegister();
+      arguments[0].emit(vm, namespace, rExpected);
+      final var rActual = vm.allocateRegister();
+      vm.emit(new Check(rExpected, rActual, location));
       final var bodyNamespace = new Namespace(namespace);
 
       for (var i = 1; i < arguments.length; i++) {
-        arguments[i].emit(vm, bodyNamespace, actualRegister);
+        arguments[i].emit(vm, bodyNamespace, rActual);
       }
 
       vm.emit(Stop.instance);
@@ -482,8 +483,8 @@ public class Core extends Library {
 
     bindFunction("deque",
         new Parameter[]{new Parameter("input", sequenceType)}, dequeType,
-        (function, vm, location, in, out) -> {
-          final var input = vm.peek(in[0]);
+        (function, vm, location, rParameters, rResult) -> {
+          final var input = vm.peek(rParameters[0]);
 
           @SuppressWarnings("unchecked") final var iterator = ((SequenceTrait<Value<?>>) input.type()).iterator(input.data());
           final var result = new ArrayDeque<Value<?>>();
@@ -492,11 +493,11 @@ public class Core extends Library {
             result.add(iterator.next());
           }
 
-          vm.poke(out, new Value<>(dequeType, result));
+          vm.poke(rResult, new Value<>(dequeType, result));
         });
 
     bindMacro("function", 1,
-        (vm, namespace, location, arguments, register) -> {
+        (vm, namespace, location, arguments, rResult) -> {
           final var as = new ArrayDeque<Form>();
           Collections.addAll(as, arguments);
           var name = "";
@@ -579,61 +580,61 @@ public class Core extends Library {
           }
 
           for (final var f : as) {
-            f.emit(vm, bodyNamespace, register);
+            f.emit(vm, bodyNamespace, rResult);
           }
 
-          vm.emit(new Return(register));
+          vm.emit(new Return(rResult));
           vm.emit(skipPc, new Goto(vm.emitPc()));
 
           if (name.isEmpty()) {
-            vm.emit(new Poke(v, register));
+            vm.emit(new Poke(v, rResult));
           }
         });
 
     bindFunction("head",
         new Parameter[]{new Parameter("pair", pairType)}, anyType,
-        (function, vm, location, in, out) -> {
-          vm.poke(out, vm.peek(in[0]).as(pairType).left());
+        (function, vm, location, rParameters, rResult) -> {
+          vm.poke(rResult, vm.peek(rParameters[0]).as(pairType).left());
         });
 
     bindMacro("if", 2,
-        (vm, namespace, location, arguments, register) -> {
-          arguments[0].emit(vm, namespace, register);
+        (vm, namespace, location, arguments, rResult) -> {
+          arguments[0].emit(vm, namespace, rResult);
           final var ifPc = vm.emit(Nop.instance);
-          arguments[1].emit(vm, namespace, register);
+          arguments[1].emit(vm, namespace, rResult);
           final var skipPc = (arguments.length > 2) ? vm.emit(Nop.instance) : -1;
-          vm.emit(ifPc, new If(register, vm.emitPc()));
+          vm.emit(ifPc, new If(rResult, vm.emitPc()));
 
           if (skipPc != -1) {
-            arguments[2].emit(vm, namespace, register);
+            arguments[2].emit(vm, namespace, rResult);
             vm.emit(skipPc, new Goto(vm.emitPc()));
           }
         });
 
     bindFunction("iterator",
         new Parameter[]{new Parameter("sequence", sequenceType)}, iteratorType,
-        (function, vm, location, in, out) -> {
-          final var s = vm.peek(in[0]);
+        (function, vm, location, rParameters, rResult) -> {
+          final var s = vm.peek(rParameters[0]);
           @SuppressWarnings("unchecked") final var st = (SequenceTrait<Value<?>>) s.type();
-          vm.poke(out, new Value<>(iteratorType, st.iterator(s.data())));
+          vm.poke(rResult, new Value<>(iteratorType, st.iterator(s.data())));
         });
 
     bindFunction("length",
         new Parameter[]{new Parameter("collection", collectionType)}, integerType,
-        (function, vm, location, in, out) -> {
-          final var c = vm.peek(in[0]);
+        (function, vm, location, rParameters, rResult) -> {
+          final var c = vm.peek(rParameters[0]);
           final var ct = (CollectionTrait) c.type();
-          vm.poke(out, new Value<>(integerType, ct.length(c.data())));
+          vm.poke(rResult, new Value<>(integerType, ct.length(c.data())));
         });
 
     bindMacro("load", 1,
-        (vm, namespace, location, arguments, register) -> {
-          vm.evaluate(arguments[0], namespace, register);
-          final var path = vm.peek(register).as(pathType);
-          vm.poke(register, null);
+        (vm, namespace, location, arguments, rResult) -> {
+          vm.evaluate(arguments[0], namespace, rResult);
+          final var path = vm.peek(rResult).as(pathType);
+          vm.poke(rResult, null);
 
           try {
-            vm.load(path, namespace, register);
+            vm.load(path, namespace, rResult);
           } catch (final IOException e) {
             throw new EmitError(location, e.toString());
           }
@@ -642,17 +643,17 @@ public class Core extends Library {
     bindFunction("map",
         new Parameter[]{new Parameter("function", Function.type),
             new Parameter("input1", sequenceType)}, anyType,
-        (function, vm, location, in, out) -> {
+        (function, vm, location, rParameters, rResult) -> {
           final var inputs = new ArrayList<Iterator<Value<?>>>();
-          final var inputRegisters = new int[in.length - 1];
+          final var rInput = new int[rParameters.length - 1];
 
-          for (var i = 1; i < in.length; i++) {
-            final var v = vm.peek(in[i]);
+          for (var i = 1; i < rParameters.length; i++) {
+            final var v = vm.peek(rParameters[i]);
             inputs.add(((SequenceTrait<Value<?>>) v.type()).iterator(v.data()));
-            inputRegisters[i - 1] = in[i];
+            rInput[i - 1] = rParameters[i];
           }
 
-          final var f = vm.peek(in[0]).as(Function.type);
+          final var f = vm.peek(rParameters[0]).as(Function.type);
 
           final var result = new Iterator<Value<?>>() {
             @Override
@@ -664,7 +665,7 @@ public class Core extends Library {
                   return false;
                 }
 
-                vm.poke(inputRegisters[i], in.next());
+                vm.poke(rInput[i], in.next());
               }
 
               return true;
@@ -672,8 +673,8 @@ public class Core extends Library {
 
             @Override
             public Value<?> next() {
-              f.call(vm, location, inputRegisters, out);
-              return vm.peek(out);
+              f.call(vm, location, rInput, rResult);
+              return vm.peek(rResult);
             }
 
             @Override
@@ -682,62 +683,62 @@ public class Core extends Library {
             }
           };
 
-          vm.poke(out, new Value<>(iteratorType, result));
+          vm.poke(rResult, new Value<>(iteratorType, result));
         });
 
     bindFunction("parse-integer",
         new Parameter[]{new Parameter("input", stringType)}, pairType,
-        (function, vm, location, in, out) -> {
-          final var input = vm.peek(in[0]).as(stringType);
+        (function, vm, location, rParameters, rResult) -> {
+          final var input = vm.peek(rParameters[0]).as(stringType);
           final var match = Pattern.compile("^\\s*(\\d+).*").matcher(input);
 
           if (!match.find()) {
             throw new EvaluationError(location, "Invalid integer: %s", input);
           }
 
-          vm.poke(out, new Value<>(pairType, new Pair(
+          vm.poke(rResult, new Value<>(pairType, new Pair(
               new Value<>(integerType, Integer.valueOf(match.group(1))),
               new Value<>(integerType, match.end(1)))));
         });
 
     bindFunction("path",
         new Parameter[]{new Parameter("path", stringType)}, pathType,
-        (function, vm, location, in, out) -> {
-          vm.poke(out, new Value<>(pathType, Paths.get(vm.peek(in[0]).as(stringType))));
+        (function, vm, location, rParameters, rResult) -> {
+          vm.poke(rResult, new Value<>(pathType, Paths.get(vm.peek(rParameters[0]).as(stringType))));
         });
 
     bindFunction("reduce",
         new Parameter[]{new Parameter("function", Function.type),
             new Parameter("input", sequenceType),
             new Parameter("seed", anyType)}, anyType,
-        (function, vm, location, in, out) -> {
-          final var f = vm.peek(in[0]).as(Function.type);
-          final var input = vm.peek(in[1]);
+        (function, vm, location, rParameters, rResult) -> {
+          final var f = vm.peek(rParameters[0]).as(Function.type);
+          final var input = vm.peek(rParameters[1]);
           final var iterator = ((SequenceTrait<Value<?>>) input.type()).iterator(input.data());
-          var result = vm.peek(in[2]);
+          var result = vm.peek(rParameters[2]);
           final var inputParameters = new int[2];
-          inputParameters[0] = in[0];
-          inputParameters[1] = in[1];
+          inputParameters[0] = rParameters[0];
+          inputParameters[1] = rParameters[1];
 
           while (iterator.hasNext()) {
             vm.poke(inputParameters[0], iterator.next());
             vm.poke(inputParameters[1], result);
-            f.call(vm, location, inputParameters, out);
-            result = vm.peek(out);
+            f.call(vm, location, inputParameters, rResult);
+            result = vm.peek(rResult);
           }
         });
 
     bindFunction("say",
         null, null,
-        (function, vm, location, in, out) -> {
+        (function, vm, location, rParameters, rResult) -> {
           final var what = new StringBuilder();
 
-          for (var i = 0; i < in.length; i++) {
+          for (var i = 0; i < rParameters.length; i++) {
             if (i > 0) {
               what.append(' ');
             }
 
-            what.append(vm.peek(in[i]).say());
+            what.append(vm.peek(rParameters[i]).say());
           }
 
           System.out.println(what);
@@ -746,30 +747,30 @@ public class Core extends Library {
 
     bindFunction("string",
         null, stringType,
-        (function, vm, location, in, out) -> {
+        (function, vm, location, rParameters, rResult) -> {
           final var result = new StringBuilder();
 
-          for (var i = 0; i < in.length; i++) {
-            result.append(vm.peek(in[i]).say());
+          for (var i = 0; i < rParameters.length; i++) {
+            result.append(vm.peek(rParameters[i]).say());
           }
 
-          vm.poke(out, new Value<>(stringType, result.toString()));
+          vm.poke(rResult, new Value<>(stringType, result.toString()));
         });
 
     bindFunction("reverse-string",
         new Parameter[]{new Parameter("input", stringType)}, stringType,
-        (function, vm, location, in, out) -> {
-          final var result = new StringBuilder(vm.peek(in[0]).as(stringType)).reverse().toString();
-          vm.poke(out, new Value<>(stringType, result));
+        (function, vm, location, rParameters, rResult) -> {
+          final var result = new StringBuilder(vm.peek(rParameters[0]).as(stringType)).reverse().toString();
+          vm.poke(rResult, new Value<>(stringType, result));
         });
 
     bindFunction("slurp",
         new Parameter[]{new Parameter("path", pathType)}, stringType,
-        (function, vm, location, in, out) -> {
+        (function, vm, location, rParameters, rResult) -> {
           try {
-            final var p = vm.loadPath().resolve(vm.peek(in[0]).as(pathType));
+            final var p = vm.loadPath().resolve(vm.peek(rParameters[0]).as(pathType));
             final String data = Files.readString(p);
-            vm.poke(out, new Value<>(stringType, data));
+            vm.poke(rResult, new Value<>(stringType, data));
           } catch (final IOException e) {
             throw new EvaluationError(location, "Failed reading file: %s", e);
           }
@@ -778,9 +779,9 @@ public class Core extends Library {
     bindFunction("split",
         new Parameter[]{new Parameter("whole", stringType),
             new Parameter("separator", stringType)}, anyType,
-        (function, vm, location, in, out) -> {
-          final var w = vm.peek(in[0]).as(stringType);
-          final var s = vm.peek(in[1]).as(stringType);
+        (function, vm, location, rParameters, rResult) -> {
+          final var w = vm.peek(rParameters[0]).as(stringType);
+          final var s = vm.peek(rParameters[1]).as(stringType);
           final String[] parts = w.split(Pattern.quote(s));
           final var result = new ArrayDeque<Value<?>>();
 
@@ -788,17 +789,17 @@ public class Core extends Library {
             result.add(new Value<>(stringType, p));
           }
 
-          vm.poke(out, new Value<>(dequeType, result));
+          vm.poke(rResult, new Value<>(dequeType, result));
         });
 
     bindFunction("tail",
         new Parameter[]{new Parameter("pair", pairType)}, anyType,
-        (function, vm, location, in, out) -> {
-          vm.poke(out, vm.peek(in[0]).as(pairType).right());
+        (function, vm, location, rParameters, rResult) -> {
+          vm.poke(rResult, vm.peek(rParameters[0]).as(pairType).right());
         });
 
     bindMacro("trace", 0,
-        (vm, namespace, location, in, out) -> {
+        (vm, namespace, location, rParameters, rResult) -> {
           vm.toggleTracing();
         });
   }

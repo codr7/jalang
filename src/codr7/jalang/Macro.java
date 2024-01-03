@@ -8,15 +8,15 @@ public record Macro(String name, int arity, Body body) {
               final Namespace namespace,
               final Location location,
               final Form[] arguments,
-              final int register);
+              final int rResult);
   }
 
   public void call(final Vm vm,
                    final Namespace namespace,
                    final Location location,
                    final Form[] arguments,
-                   final int register) {
-    body.call(vm, namespace, location, arguments, register);
+                   final int rResult) {
+    body.call(vm, namespace, location, arguments, rResult);
   }
 
   public String toString() {
