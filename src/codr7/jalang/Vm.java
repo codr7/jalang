@@ -142,6 +142,19 @@ public class Vm {
           pc++;
           break;
         }
+        case Iterate: {
+          final var o = (Iterate) op;
+          final var v = registers.get(o.rValue);
+
+          if (!(v.type() instanceof Core.SequenceTrait<?>)) {
+            throw new EvaluationError(o.location, "Expected sequence: %s.", v);
+          }
+
+          final var i = ((Core.SequenceTrait<Value<?>>)v.type()).iterator(v.data());
+          registers.set(o.rResult, new Value<>(Core.instance.iteratorType, i));
+          pc++;
+          break;
+        }
         case MakePair: {
           final var o = (MakePair) op;
           registers.set(o.rResult,
@@ -164,6 +177,21 @@ public class Vm {
           final var o = (Poke) op;
           registers.set(o.rResult, o.value);
           pc++;
+          break;
+        }
+        case Reduce: {
+          final var o = (Reduce) op;
+          final var f = registers.get(o.rFunction).as(Function.type);
+          final var i = registers.get(o.rIterator).as(Core.instance.iteratorType);
+          final var r = registers.get(o.rResult);
+
+          if (i.hasNext()) {
+            registers.set(o.rValue, i.next());
+            f.call(this, o.location, new int[]{o.rValue, o.rResult}, o.rResult);
+          } else {
+            pc++;
+          }
+
           break;
         }
         case Return: {

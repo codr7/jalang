@@ -43,6 +43,12 @@
 (check 7
   (reduce + [1 2 3] 1))
 
+(check 7
+  (function foo [v:Integer result:Integer]:Integer
+    (+ result v))
+
+  (reduce foo [1 2 3] 1))
+
 (check "foo"
   (if T "foo" "bar"))
 

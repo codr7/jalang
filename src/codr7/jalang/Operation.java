@@ -8,10 +8,11 @@ public abstract class Operation {
     Decrement,
     EqualsZero,
     Goto,
-    If, Increment,
+    If, Increment, Iterate,
     MakePair,
     Nop,
     Peek, Poke,
+    Reduce,
     Return,
     Stop,
     Trace

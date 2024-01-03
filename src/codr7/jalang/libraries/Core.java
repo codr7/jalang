@@ -707,25 +707,17 @@ public class Core extends Library {
           vm.poke(rResult, new Value<>(pathType, Paths.get(vm.peek(rParameters[0]).as(stringType))));
         });
 
-    bindFunction("reduce",
-        new Parameter[]{new Parameter("function", Function.type),
-            new Parameter("input", sequenceType),
-            new Parameter("seed", anyType)}, anyType,
-        (function, vm, location, rParameters, rResult) -> {
-          final var f = vm.peek(rParameters[0]).as(Function.type);
-          final var input = vm.peek(rParameters[1]);
-          final var iterator = ((SequenceTrait<Value<?>>) input.type()).iterator(input.data());
-          var result = vm.peek(rParameters[2]);
-          final var inputParameters = new int[2];
-          inputParameters[0] = rParameters[0];
-          inputParameters[1] = rParameters[1];
 
-          while (iterator.hasNext()) {
-            vm.poke(inputParameters[0], iterator.next());
-            vm.poke(inputParameters[1], result);
-            f.call(vm, location, inputParameters, rResult);
-            result = vm.peek(rResult);
-          }
+    bindMacro("reduce", 3,
+        (vm, namespace, location, arguments, rResult) -> {
+          final var rFunction = vm.allocateRegister();
+          arguments[0].emit(vm, namespace, rFunction);
+          final var rIterator = vm.allocateRegister();
+          arguments[1].emit(vm, namespace, rIterator);
+          vm.emit(new Iterate(rIterator, rIterator, location));
+          final var rValue = vm.allocateRegister();
+          arguments[2].emit(vm, namespace, rResult);
+          vm.emit(new Reduce(rFunction, rIterator, rValue, rResult, location));
         });
 
     bindFunction("say",

@@ -1,18 +1,20 @@
 0.4520028
 0.14301105
 
-* add tail call support
-** add startPc to CallFrame
-** add TailCall op
-** add return macro
+* add Map op
 
-* add For op
-** register for iterator
-** pc+1 if iterator hasNext
-** else goto endPc
-** convert 'reduce' to use For
-*** setup result/iterator
-*** call function and shuffle values in body
+* add ordered maps
+** {1 2 3:4}
+** use TreeMap
+** add lookup fib test/benchmark
+
+* add let macro
+** allocate registers
+*** bind in namespace
+** test increment/decrement
+
+(let [x 1]
+  (+1 x))
 
 * add symbol macro register-count
 ** check benchmark
@@ -34,19 +36,6 @@
 ** lookup argument using find
 ** add get method
 *** throw exception if not found
-
-* add let macro
-** allocate registers
-*** bind in namespace
-** test increment/decrement
-
-(let [x 1]
-  (+1 x))
-
-* add ordered maps
-** {1 2 3:4}
-** use TreeMap
-** add lookup fib test/benchmark
 
 * check function argument types
 
