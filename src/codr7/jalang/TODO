@@ -6,6 +6,14 @@
 ** add TailCall op
 ** add return macro
 
+* add For op
+** register for iterator
+** pc+1 if iterator hasNext
+** else goto endPc
+** convert 'reduce' to use For
+*** setup result/iterator
+*** call function and shuffle values in body
+
 * add symbol macro register-count
 ** check benchmark
 
@@ -13,9 +21,6 @@
 ** add abstract method to operation
 ** lookup values for registers
 *** value: 15 (...)
-
-* handle user defined functions in map/reduce
-** aoc/code1.jl
 
 * add union types
 ** Integer|Null
