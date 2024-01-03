@@ -227,6 +227,18 @@ public class Core extends Library {
     }
   }
 
+  public static class NoneType extends Type<Object> {
+    public NoneType(final String name) {
+      super(name);
+    }
+    public String dump(final Object value) {
+      return "_";
+    }
+    public boolean isTrue(final Object value) {
+      return false;
+    }
+}
+
   public static class PairType extends Type<Pair> {
     public PairType(final String name) {
       super(name);
@@ -312,6 +324,7 @@ public class Core extends Library {
     bindType(integerType);
     bindType(iteratorType);
     bindType(Macro.type);
+    bindType(noneType);
     bindType(Type.meta);
     bindType(pairType);
     bindType(pathType);
@@ -319,6 +332,7 @@ public class Core extends Library {
     bindType(sequenceType);
     bindType(stringType);
 
+    bind("_", new Value<>(noneType, null));
     bind("T", new Value<>(bitType, true));
     bind("F", new Value<>(bitType, false));
 
@@ -513,11 +527,45 @@ public class Core extends Library {
           vm.poke(rResult, new Value<>(dequeType, result));
         });
 
+    bindFunction("digit",
+        new Parameter[]{new Parameter("value", characterType)}, integerType,
+        (function, vm, location, rParameters, rResult) -> {
+          final var c = vm.peek(rParameters[0]).as(characterType);
+          final var result = Character.isDigit(c) ? Character.digit(c, 10) : -1;
+          vm.poke(rResult, new Value<>(integerType, result));
+        });
+
     bindFunction("digit?",
         new Parameter[]{new Parameter("value", characterType)}, bitType,
         (function, vm, location, rParameters, rResult) -> {
           final var c = vm.peek(rParameters[0]).as(characterType);
           vm.poke(rResult, new Value<>(bitType, Character.isDigit(c)));
+        });
+
+    bindMacro("find-if", 2,
+        (vm, namespace, location, arguments, rResult) -> {
+          final var rPredicate = vm.allocateRegister();
+          final var predicateForm = arguments[0];
+          predicateForm.emit(vm, namespace, rPredicate);
+
+          final var rIterator = vm.allocateRegister();
+          final var inputForm = arguments[1];
+          inputForm.emit(vm, namespace, rIterator);
+          vm.emit(new GetIterator(rIterator, rIterator, inputForm.location()));
+
+          vm.emit(new Poke(new Value<>(noneType, null), rResult));
+
+          final var iteratePc = vm.emit(Nop.instance);
+          final var rValue = vm.allocateRegister();
+          final var rPredicateResult = vm.allocateRegister();
+          vm.emit(new CallRegister(rPredicate, new int[]{rValue}, rPredicateResult, location));
+          final var ifPc = vm.emit(Nop.instance);
+          vm.emit(new Peek(rValue, rResult));
+          final var exitPc = vm.emit(Nop.instance);
+          vm.emit(ifPc, new If(rPredicateResult, vm.emitPc()));
+          vm.emit(new Goto(iteratePc));
+          vm.emit(iteratePc, new Iterate(rIterator, rValue, vm.emitPc()));
+          vm.emit(exitPc, new Goto(vm.emitPc()));
         });
 
     bindMacro("function", 1,
@@ -853,6 +901,7 @@ public class Core extends Library {
   public final IndexedCollectionType indexedCollectionType = new IndexedCollectionType("IndexedCollection");
   public final IntegerType integerType = new IntegerType("Integer");
   public final IteratorType iteratorType = new IteratorType("Iterator");
+  public final NoneType noneType = new NoneType("None");
   public final PairType pairType = new PairType("Pair");
   public final Type<Path> pathType = new Type<>("Path");
   public final Type<Register> registerType = new Type<>("Register");

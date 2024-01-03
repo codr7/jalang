@@ -29,7 +29,10 @@
   (slice "foo" 1))
 
 (check 3
-  (index-if digit? "foo3bar"))
+  (digit (find-if digit? "a3b")))
+
+(check 1
+  (index-if digit? "a3b"))
   
 (check 42:3
   (parse-integer " 42foo"))

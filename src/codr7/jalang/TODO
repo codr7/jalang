@@ -2,15 +2,17 @@
 0.14301105
 
 * aoc
-** add digit function
-** add find-if
+** test find-if
 
 * add optional end arg to slice
 
+* convert reduce/map ops to macros like find/index-if
+
 * add ordered maps
-** {1 2 3:4}
 ** use TreeMap
 ** add lookup fib test/benchmark
+
+{1 2 3:4}
 
 * add let macro
 
@@ -26,11 +28,11 @@
 *** value: 15 (...)
 
 * add union types
-** Integer|Null
-** Add NullType
+** Integer|None
 ** relaxing requirements should not break callers
 ** strengthening promises should not break callers
-** add X? as alias for X|Null
+** add X? as alias for X|None
+** change find-if resultType Any?
 
 * enable using Collections as Sexpr targets
 ** add find method to CollectionTrait
@@ -41,3 +43,5 @@
 * check function argument types
 
 * turn pair into collection/sequence type
+
+* add character literals
