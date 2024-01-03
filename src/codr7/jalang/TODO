@@ -2,6 +2,10 @@
 0.14301105
 
 * aoc
+** add digit function
+** add find-if
+
+* add optional end arg to slice
 
 * add ordered maps
 ** {1 2 3:4}
@@ -9,9 +13,6 @@
 ** add lookup fib test/benchmark
 
 * add let macro
-** allocate registers
-*** bind in namespace
-** test increment/decrement
 
 (let [x 1]
   (+1 x))

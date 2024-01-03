@@ -158,6 +158,19 @@ public class Vm {
           pc++;
           break;
         }
+        case Iterate: {
+          final var o = (Iterate) op;
+          final var it = registers.get(o.rIterator).as(Core.instance.iteratorType);
+
+          if (it.hasNext()) {
+            registers.set(o.rResult, it.next());
+            pc++;
+          } else {
+            pc = o.endPc;
+          }
+
+          break;
+        }
         case MakePair: {
           final var o = (MakePair) op;
           registers.set(o.rResult,
@@ -262,7 +275,9 @@ public class Vm {
     evaluate(startPc);
   }
 
-  public final void load(final Path path, final Namespace namespace, final int register) throws IOException {
+  public final void load(final Path path,
+                         final Namespace namespace,
+                         final int register) throws IOException {
     final var p = loadPath.resolve(path);
     final var previousLoadPath = loadPath;
     loadPath = p.getParent();
@@ -273,10 +288,14 @@ public class Vm {
       final var location = new Location(p.toString());
       final var forms = new ArrayDeque<Form>();
       while (FormReader.instance.read(input, forms, location)) ;
+      final var startPc = emitPc();
 
       for (final var f : forms) {
         f.emit(this, namespace, register);
       }
+
+      emit(Stop.instance);
+      evaluate(startPc);
     } finally {
       loadPath = previousLoadPath;
     }

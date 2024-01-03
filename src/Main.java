@@ -14,14 +14,9 @@ public class Main {
     namespace.include(Core.instance);
 
     if (args.length > 0) {
-      final var pc = vm.emitPc();
-
       for (final var a : args) {
         vm.load(Paths.get(a), namespace, Vm.DEFAULT_REGISTER);
       }
-
-      vm.emit(Stop.instance);
-      vm.evaluate(pc);
     } else {
       System.out.printf("jalang v%d\n", Vm.VERSION);
       System.out.println("May the source be with you!\n");

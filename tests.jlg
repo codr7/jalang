@@ -25,6 +25,12 @@
 (check "oof"
   (reverse-string "foo"))
 
+(check "oo"
+  (slice "foo" 1))
+
+(check 3
+  (index-if digit? "foo3bar"))
+  
 (check 42:3
   (parse-integer " 42foo"))
 

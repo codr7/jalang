@@ -27,6 +27,10 @@ public class Core extends Library {
     Compare compare(final Object left, final Object right);
   }
 
+  public interface IndexedCollectionTrait {
+    Value<?> slice(final Object value, final int start);
+  }
+
   public interface SequenceTrait<T> {
     Iterator<T> iterator(final Object value);
   }
@@ -165,6 +169,12 @@ public class Core extends Library {
     }
   }
 
+  public static class IndexedCollectionType extends Type<Object> {
+    public IndexedCollectionType(final String name) {
+      super(name);
+    }
+  }
+
   public static class IntegerType
       extends Type<Integer>
       implements ComparableTrait, SequenceTrait<Value<Integer>> {
@@ -239,7 +249,7 @@ public class Core extends Library {
 
   public static class StringType
       extends Type<String>
-      implements CollectionTrait, ComparableTrait, SequenceTrait<Value<Character>> {
+      implements CollectionTrait, ComparableTrait, IndexedCollectionTrait, SequenceTrait<Value<Character>> {
     public StringType(final String name) {
       super(name);
     }
@@ -281,6 +291,10 @@ public class Core extends Library {
     public String say(final String value) {
       return value;
     }
+
+    public Value<?> slice(final Object value, final int start) {
+      return new Value<>(Core.instance.stringType, ((String)value).substring(start));
+    }
   }
 
   public static final Core instance = new Core();
@@ -289,10 +303,12 @@ public class Core extends Library {
     super("core", null);
     bindType(bitType);
     bindType(characterType);
+    bindType(collectionType);
     bindType(comparableType);
     bindType(dequeType);
     bindType(floatType);
     bindType(Function.type);
+    bindType(indexedCollectionType);
     bindType(integerType);
     bindType(iteratorType);
     bindType(Macro.type);
@@ -300,6 +316,7 @@ public class Core extends Library {
     bindType(pairType);
     bindType(pathType);
     bindType(registerType);
+    bindType(sequenceType);
     bindType(stringType);
 
     bind("T", new Value<>(bitType, true));
@@ -496,6 +513,13 @@ public class Core extends Library {
           vm.poke(rResult, new Value<>(dequeType, result));
         });
 
+    bindFunction("digit?",
+        new Parameter[]{new Parameter("value", characterType)}, bitType,
+        (function, vm, location, rParameters, rResult) -> {
+          final var c = vm.peek(rParameters[0]).as(characterType);
+          vm.poke(rResult, new Value<>(bitType, Character.isDigit(c)));
+        });
+
     bindMacro("function", 1,
         (vm, namespace, location, arguments, rResult) -> {
           final var as = new ArrayDeque<Form>();
@@ -611,6 +635,36 @@ public class Core extends Library {
           }
         });
 
+    bindMacro("index-if", 2,
+        (vm, namespace, location, arguments, rResult) -> {
+      final var rPredicate = vm.allocateRegister();
+      final var predicateForm = arguments[0];
+      predicateForm.emit(vm, namespace, rPredicate);
+
+      final var rIterator = vm.allocateRegister();
+      final var inputForm = arguments[1];
+      inputForm.emit(vm, namespace, rIterator);
+      vm.emit(new GetIterator(rIterator, rIterator, inputForm.location()));
+
+      vm.emit(new Poke(new Value<>(integerType, -1), rResult));
+
+      final var rIndex = vm.allocateRegister();
+      vm.emit(new Poke(new Value<>(integerType, 0), rIndex));
+
+      final var iteratePc = vm.emit(Nop.instance);
+      final var rValue = vm.allocateRegister();
+      final var rPredicateResult = vm.allocateRegister();
+      vm.emit(new CallRegister(rPredicate, new int[]{rValue}, rPredicateResult, location));
+      final var ifPc = vm.emit(Nop.instance);
+      vm.emit(new Peek(rIndex, rResult));
+      final var exitPc = vm.emit(Nop.instance);
+      vm.emit(ifPc, new If(rPredicateResult, vm.emitPc()));
+      vm.emit(new Increment(rIndex, rIndex));
+      vm.emit(new Goto(iteratePc));
+      vm.emit(iteratePc, new Iterate(rIterator, rValue, vm.emitPc()));
+      vm.emit(exitPc, new Goto(vm.emitPc()));
+        });
+
     bindFunction("iterator",
         new Parameter[]{new Parameter("sequence", sequenceType)}, iteratorType,
         (function, vm, location, rParameters, rResult) -> {
@@ -719,6 +773,17 @@ public class Core extends Library {
           System.out.flush();
         });
 
+    bindFunction("slice",
+        new Parameter[]{
+            new Parameter("input", indexedCollectionType),
+            new Parameter("start", integerType)
+        }, indexedCollectionType,
+        (function, vm, location, rParameters, rResult) -> {
+          final var i = vm.peek(rParameters[0]);
+          final var it = (IndexedCollectionTrait) i.type();
+          vm.poke(rResult, it.slice(i.data(), vm.peek(rParameters[1]).as(integerType)));
+        });
+
     bindFunction("string",
         null, stringType,
         (function, vm, location, rParameters, rResult) -> {
@@ -785,6 +850,7 @@ public class Core extends Library {
   public final ComparableType comparableType = new ComparableType("Comparable");
   public final DequeType dequeType = new DequeType("Deque");
   public final FloatType floatType = new FloatType("Float");
+  public final IndexedCollectionType indexedCollectionType = new IndexedCollectionType("IndexedCollection");
   public final IntegerType integerType = new IntegerType("Integer");
   public final IteratorType iteratorType = new IteratorType("Iterator");
   public final PairType pairType = new PairType("Pair");

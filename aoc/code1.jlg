@@ -1,0 +1,10 @@
+(function find-digit [line:String]:Integer
+  (digit (find-if digit? line)))
+
+(function decode-line [line:String]:Integer
+  (parse-integer (string (find-digit line) (find-digit (reverse-string line)))))
+
+(function calibrate [input:Path]
+  (reduce + (map decode-line (split (slurp input) "\n")) 0))
+
+(say (calibrate (path "input1")))
