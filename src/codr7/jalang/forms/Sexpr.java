@@ -2,7 +2,9 @@ package codr7.jalang.forms;
 
 import codr7.jalang.*;
 import codr7.jalang.errors.EmitError;
-import codr7.jalang.operations.Call;
+import codr7.jalang.operations.CallFunction;
+import codr7.jalang.operations.CallRegister;
+import codr7.jalang.operations.Poke;
 
 public class Sexpr extends Form {
   public Sexpr(final Location location, Form... body) {
@@ -41,7 +43,7 @@ public class Sexpr extends Form {
         body[i].emit(vm, namespace, rParameter);
       }
 
-      vm.emit(new Call(function, parameters, rResult, location()));
+      vm.emit(new CallFunction(function, parameters, rResult, location()));
     } else if (target.type() == Macro.type) {
       final var macro = (Macro) target.data();
 

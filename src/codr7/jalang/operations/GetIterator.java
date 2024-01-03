@@ -3,9 +3,9 @@ package codr7.jalang.operations;
 import codr7.jalang.Location;
 import codr7.jalang.Operation;
 
-public class Iterate extends Operation {
-  public Iterate(final int rValue, final int rResult, final Location location) {
-    super(Code.Iterate);
+public class GetIterator extends Operation {
+  public GetIterator(final int rValue, final int rResult, final Location location) {
+    super(Code.GetIterator);
     this.rValue = rValue;
     this.rResult = rResult;
     this.location = location;

@@ -3,13 +3,13 @@ package codr7.jalang.operations;
 import codr7.jalang.Location;
 import codr7.jalang.Operation;
 
-public class Reduce extends Operation {
-  public Reduce(final int rFunction,
-                final int rIterator,
-                final int rValue,
-                final int rResult,
-                final Location location) {
-    super(Code.Reduce);
+public class ReduceIterator extends Operation {
+  public ReduceIterator(final int rFunction,
+                        final int rIterator,
+                        final int rValue,
+                        final int rResult,
+                        final Location location) {
+    super(Code.ReduceIterator);
     this.rFunction = rFunction;
     this.rIterator = rIterator;
     this.rValue = rValue;

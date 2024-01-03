@@ -640,51 +640,32 @@ public class Core extends Library {
           }
         });
 
-    bindFunction("map",
-        new Parameter[]{new Parameter("function", Function.type),
-            new Parameter("input1", sequenceType)}, anyType,
-        (function, vm, location, rParameters, rResult) -> {
-          final var inputs = new ArrayList<Iterator<Value<?>>>();
-          final var rInput = new int[rParameters.length - 1];
 
-          for (var i = 1; i < rParameters.length; i++) {
-            final var v = vm.peek(rParameters[i]);
-            inputs.add(((SequenceTrait<Value<?>>) v.type()).iterator(v.data()));
-            rInput[i - 1] = rParameters[i];
+    bindMacro("map", 2,
+        (vm, namespace, location, arguments, rResult) -> {
+          final var rFunction = vm.allocateRegister();
+          arguments[0].emit(vm, namespace, rFunction);
+          final var rIterators = new int[arguments.length - 1];
+          final var rValues = new int[rIterators.length];
+
+          for (int i = 0; i < rIterators.length; i++) {
+            final var r = vm.allocateRegister();
+            final var f = arguments[i + 1];
+            f.emit(vm, namespace, r);
+            vm.emit(new GetIterator(r, r, f.location()));
+            rIterators[i] = r;
+            rValues[i] = vm.allocateRegister();
           }
 
-          final var f = vm.peek(rParameters[0]).as(Function.type);
-
-          final var result = new Iterator<Value<?>>() {
-            @Override
-            public boolean hasNext() {
-              for (var i = 0; i < inputs.size(); i++) {
-                final var in = inputs.get(i);
-
-                if (!in.hasNext()) {
-                  return false;
-                }
-
-                vm.poke(rInput[i], in.next());
-              }
-
-              return true;
-            }
-
-            @Override
-            public Value<?> next() {
-              f.call(vm, location, rInput, rResult);
-              return vm.peek(rResult);
-            }
-
-            @Override
-            public void remove() {
-              throw new UnsupportedOperationException();
-            }
-          };
-
-          vm.poke(rResult, new Value<>(iteratorType, result));
-        });
+          final var rCall = vm.allocateRegister();
+          vm.emit(new Poke(new Value<>(Core.instance.dequeType, new ArrayDeque<>()), rResult));
+          final var mapPc = vm.emit(Nop.instance);
+          vm.emit(new CallRegister(rFunction, rValues, rCall, location));
+          vm.emit(new AddLast(rCall, rResult));
+          vm.emit(new Goto(mapPc));
+          vm.emit(mapPc, new MapIterators(rFunction, rIterators, rValues, rResult, vm.emitPc(), location));
+          vm.emit(new GetIterator(rResult, rResult, location));
+    });
 
     bindFunction("parse-integer",
         new Parameter[]{new Parameter("input", stringType)}, pairType,
@@ -713,11 +694,12 @@ public class Core extends Library {
           final var rFunction = vm.allocateRegister();
           arguments[0].emit(vm, namespace, rFunction);
           final var rIterator = vm.allocateRegister();
-          arguments[1].emit(vm, namespace, rIterator);
-          vm.emit(new Iterate(rIterator, rIterator, location));
+          final var f = arguments[1];
+          f.emit(vm, namespace, rIterator);
+          vm.emit(new GetIterator(rIterator, rIterator, f.location()));
           final var rValue = vm.allocateRegister();
           arguments[2].emit(vm, namespace, rResult);
-          vm.emit(new Reduce(rFunction, rIterator, rValue, rResult, location));
+          vm.emit(new ReduceIterator(rFunction, rIterator, rValue, rResult, location));
         });
 
     bindFunction("say",

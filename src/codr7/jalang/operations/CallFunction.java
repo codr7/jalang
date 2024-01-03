@@ -4,12 +4,12 @@ import codr7.jalang.Function;
 import codr7.jalang.Location;
 import codr7.jalang.Operation;
 
-public class Call extends Operation {
-  public Call(final Function target,
-              final int[] rParameters,
-              final int rResult,
-              final Location location) {
-    super(Code.Call);
+public class CallFunction extends Operation {
+  public CallFunction(final Function target,
+                      final int[] rParameters,
+                      final int rResult,
+                      final Location location) {
+    super(Code.CallFunction);
     this.target = target;
     this.rParameters = rParameters;
     this.rResult = rResult;
@@ -22,7 +22,7 @@ public class Call extends Operation {
   }
 
   public final Location location;
+  public final Function target;
   public final int[] rParameters;
   public final int rResult;
-  public final Function target;
 }

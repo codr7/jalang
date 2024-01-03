@@ -11,10 +11,7 @@ import java.io.StringReader;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.ArrayDeque;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 
 public class Vm {
   public static final int DEFAULT_REGISTER = 0;
@@ -83,10 +80,16 @@ public class Vm {
               new Value<>(Core.instance.floatType, (float) ((System.nanoTime() - t) / 1000000000.0)));
           break;
         }
-        case Call: {
-          final var o = (Call) op;
+        case CallFunction: {
+          final var o = (CallFunction) op;
           pc++;
           o.target.call(this, o.location, o.rParameters, o.rResult);
+          break;
+        }
+        case CallRegister: {
+          final var o = (CallRegister) op;
+          pc++;
+          registers.get(o.rTarget).as(Function.type).call(this, o.location, o.rParameters, o.rResult);
           break;
         }
         case Check: {
@@ -118,6 +121,19 @@ public class Vm {
           pc++;
           break;
         }
+        case GetIterator: {
+          final var o = (GetIterator) op;
+          final var v = registers.get(o.rValue);
+
+          if (!(v.type() instanceof Core.SequenceTrait<?>)) {
+            throw new EvaluationError(o.location, "Expected sequence: %s.", v);
+          }
+
+          final var i = ((Core.SequenceTrait<Value<?>>)v.type()).iterator(v.data());
+          registers.set(o.rResult, new Value<>(Core.instance.iteratorType, i));
+          pc++;
+          break;
+        }
         case Goto: {
           pc = ((Goto) op).pc;
           break;
@@ -142,25 +158,42 @@ public class Vm {
           pc++;
           break;
         }
-        case Iterate: {
-          final var o = (Iterate) op;
-          final var v = registers.get(o.rValue);
-
-          if (!(v.type() instanceof Core.SequenceTrait<?>)) {
-            throw new EvaluationError(o.location, "Expected sequence: %s.", v);
-          }
-
-          final var i = ((Core.SequenceTrait<Value<?>>)v.type()).iterator(v.data());
-          registers.set(o.rResult, new Value<>(Core.instance.iteratorType, i));
-          pc++;
-          break;
-        }
         case MakePair: {
           final var o = (MakePair) op;
           registers.set(o.rResult,
               new Value<>(Core.instance.pairType,
                   new Pair(registers.get(o.rLeft), registers.get(o.rRight))));
           pc++;
+          break;
+        }
+        case MapIterators: {
+          final var o = (MapIterators) op;
+          final var function = registers.get(o.rFunction).as(Function.type);
+          final var iterators = new ArrayList<Iterator<Value<?>>>();
+
+          for (int i = 0; i < o.rIterators.length; i++) {
+            iterators.add(registers.get(o.rIterators[i]).as(Core.instance.iteratorType));
+          }
+
+          var done = false;
+
+          for (int i = 0; i < o.rIterators.length; i++) {
+            final var it = iterators.get(i);
+
+            if (!it.hasNext()) {
+              done = true;
+              break;
+            }
+
+            registers.set(o.rValues[i], it.next());
+          }
+
+          if (done) {
+            pc = o.endPc;
+          } else {
+            pc++;
+          }
+
           break;
         }
         case Nop: {
@@ -179,8 +212,8 @@ public class Vm {
           pc++;
           break;
         }
-        case Reduce: {
-          final var o = (Reduce) op;
+        case ReduceIterator: {
+          final var o = (ReduceIterator) op;
           final var f = registers.get(o.rFunction).as(Function.type);
           final var i = registers.get(o.rIterator).as(Core.instance.iteratorType);
           final var r = registers.get(o.rResult);
