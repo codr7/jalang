@@ -586,7 +586,7 @@ public class Core extends Library {
           vm.emit(skipPc, new Goto(vm.emitPc()));
 
           if (name.isEmpty()) {
-            vm.emit(new Poke(register, v));
+            vm.emit(new Poke(v, register));
           }
         });
 

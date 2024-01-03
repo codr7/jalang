@@ -29,7 +29,7 @@ public class Identifier extends Form {
         vm.emit(new Peek(source, register));
       }
     } else {
-      vm.emit(new Poke(register, value));
+      vm.emit(new Poke(value, register));
     }
   }
 

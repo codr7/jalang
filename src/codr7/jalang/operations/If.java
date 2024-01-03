@@ -3,16 +3,16 @@ package codr7.jalang.operations;
 import codr7.jalang.Operation;
 
 public class If extends Operation {
-  public If(final int conditionRegister, final int elsePc) {
+  public If(final int rCondition, final int elsePc) {
     super(Code.If);
-    this.conditionRegister = conditionRegister;
+    this.rCondition = rCondition;
     this.elsePc = elsePc;
   }
 
   public String toString() {
-    return String.format("%s condition: %d else: %d", super.toString(), conditionRegister, elsePc);
+    return String.format("%s condition: %d else: %d", super.toString(), rCondition, elsePc);
   }
 
-  public final int conditionRegister;
+  public final int rCondition;
   public final int elsePc;
 }

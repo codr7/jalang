@@ -3,16 +3,16 @@ package codr7.jalang.operations;
 import codr7.jalang.Operation;
 
 public class Benchmark extends Operation {
-  public Benchmark(final int repetitions, final int register) {
+  public Benchmark(final int rRepetitions, final int rResult) {
     super(Code.Benchmark);
-    this.repetitions = repetitions;
-    this.register = register;
+    this.rRepetitions = rRepetitions;
+    this.rRegister = rResult;
   }
 
   public String toString() {
-    return String.format("%s repetitions: %d register: %d", super.toString(), repetitions, register);
+    return String.format("%s repetitions: %d result: %d", super.toString(), rRepetitions, rRegister);
   }
 
-  public final int repetitions;
-  public final int register;
+  public final int rRepetitions;
+  public final int rRegister;
 }

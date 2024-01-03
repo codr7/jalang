@@ -3,15 +3,15 @@ package codr7.jalang.operations;
 import codr7.jalang.Operation;
 
 public class Return extends Operation {
-  public Return(final int resultRegister) {
+  public Return(final int rResult) {
     super(Code.Return);
-    this.resultRegister = resultRegister;
+    this.rResult = rResult;
 
   }
 
   public String toString() {
-    return String.format("%s result: %d", super.toString(), resultRegister);
+    return String.format("%s result: %d", super.toString(), rResult);
   }
 
-  public final int resultRegister;
+  public final int rResult;
 }

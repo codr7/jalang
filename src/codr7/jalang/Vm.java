@@ -63,8 +63,8 @@ public class Vm {
       switch (op.code) {
         case AddLast: {
           final var o = (AddLast) op;
-          final var result = registers.get(o.resultRegister).as(Core.instance.dequeType);
-          final var item = registers.get(o.itemRegister);
+          final var result = registers.get(o.rResult).as(Core.instance.dequeType);
+          final var item = registers.get(o.rItem);
           result.add(item);
           pc++;
           break;
@@ -73,27 +73,27 @@ public class Vm {
           final var o = (Benchmark) op;
           final var t = System.nanoTime();
           final var bodyPc = pc + 1;
-          final var repetitions = registers.get(o.repetitions).as(Core.instance.integerType);
+          final var repetitions = registers.get(o.rRepetitions).as(Core.instance.integerType);
 
           for (int i = 0; i < repetitions; i++) {
             evaluate(bodyPc);
           }
 
-          registers.set(o.register,
+          registers.set(o.rRegister,
               new Value<>(Core.instance.floatType, (float) ((System.nanoTime() - t) / 1000000000.0)));
           break;
         }
         case Call: {
           final var o = (Call) op;
           pc++;
-          o.target.call(this, o.location, o.parameters, o.register);
+          o.target.call(this, o.location, o.rParameters, o.rResult);
           break;
         }
         case Check: {
           final var o = (Check) op;
-          final var expected = registers.get(o.expectedRegister);
+          final var expected = registers.get(o.rExpected);
           evaluate(pc + 1);
-          final var actual = registers.get(o.actualRegister);
+          final var actual = registers.get(o.rActual);
 
           if (!actual.equals(expected)) {
             throw new EvaluationError(o.location,
@@ -104,17 +104,17 @@ public class Vm {
         }
         case Decrement: {
           final var o = (Decrement) op;
-          final var v = registers.get(o.valueRegister);
+          final var v = registers.get(o.rValue);
           final var dv = new Value<>(Core.instance.integerType, v.as(Core.instance.integerType) - 1);
-          registers.set(o.valueRegister, dv);
-          registers.set(o.resultRegister, dv);
+          registers.set(o.rValue, dv);
+          registers.set(o.rResult, dv);
           pc++;
           break;
         }
         case EqualsZero: {
           final var o = (EqualsZero) op;
-          final var value = registers.get(o.value).as(Core.instance.integerType);
-          registers.set(o.register, new Value<>(Core.instance.bitType, value == 0));
+          final var value = registers.get(o.rValue).as(Core.instance.integerType);
+          registers.set(o.rResult, new Value<>(Core.instance.bitType, value == 0));
           pc++;
           break;
         }
@@ -125,7 +125,7 @@ public class Vm {
         case If: {
           final var o = (If) op;
 
-          if (registers.get(o.conditionRegister).isTrue()) {
+          if (registers.get(o.rCondition).isTrue()) {
             pc++;
           } else {
             pc = o.elsePc;
@@ -135,18 +135,18 @@ public class Vm {
         }
         case Increment: {
           final var o = (Increment) op;
-          final var v = registers.get(o.valueRegister);
+          final var v = registers.get(o.rValue);
           final var iv = new Value<>(Core.instance.integerType, v.as(Core.instance.integerType) + 1);
-          registers.set(o.valueRegister, iv);
-          registers.set(o.resultRegister, iv);
+          registers.set(o.rValue, iv);
+          registers.set(o.rResult, iv);
           pc++;
           break;
         }
         case MakePair: {
           final var o = (MakePair) op;
-          registers.set(o.resultRegister,
+          registers.set(o.rResult,
               new Value<>(Core.instance.pairType,
-                  new Pair(registers.get(o.leftRegister), registers.get(o.rightRegister))));
+                  new Pair(registers.get(o.rLeft), registers.get(o.rRight))));
           pc++;
           break;
         }
@@ -156,19 +156,19 @@ public class Vm {
         }
         case Peek: {
           final var o = (Peek) op;
-          registers.set(o.resultRegister, registers.get(o.valueRegister));
+          registers.set(o.rResult, registers.get(o.rValue));
           pc++;
           break;
         }
         case Poke: {
           final var o = (Poke) op;
-          registers.set(o.register, o.value);
+          registers.set(o.rResult, o.value);
           pc++;
           break;
         }
         case Return: {
           final var o = (Return) op;
-          final var result = registers.get(o.resultRegister);
+          final var result = registers.get(o.rResult);
           registers.clear();
           Collections.addAll(registers, callFrame.registers());
           registers.set(callFrame.resultRegister(), result);

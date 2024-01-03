@@ -6,23 +6,23 @@ import codr7.jalang.Operation;
 
 public class Call extends Operation {
   public Call(final Function target,
-              final int[] parameters,
-              final int register,
+              final int[] rParameters,
+              final int rResult,
               final Location location) {
     super(Code.Call);
     this.target = target;
-    this.parameters = parameters;
-    this.register = register;
+    this.rParameters = rParameters;
+    this.rResult = rResult;
     this.location = location;
   }
 
   public String toString() {
     return String.format("%s target: %s parameters: %s result: %d location: %s",
-        super.toString(), target, parameters, register, location);
+        super.toString(), target, rParameters, rResult, location);
   }
 
   public final Location location;
-  public final int[] parameters;
-  public final int register;
+  public final int[] rParameters;
+  public final int rResult;
   public final Function target;
 }

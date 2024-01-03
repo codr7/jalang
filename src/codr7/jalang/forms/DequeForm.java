@@ -14,7 +14,8 @@ public class DequeForm extends Form {
   }
 
   public void emit(final Vm vm, final Namespace namespace, final int register) {
-    vm.emit(new Poke(register, new Value<>(Core.instance.dequeType, new ArrayDeque<>())));
+    final var value = new Value<>(Core.instance.dequeType, new ArrayDeque<>());
+    vm.emit(new Poke(value, register));
     final var itemRegister = vm.allocateRegister();
 
     for (final var f : body) {

@@ -4,19 +4,19 @@ import codr7.jalang.Location;
 import codr7.jalang.Operation;
 
 public class Check extends Operation {
-  public Check(final int expectedRegister, final int actualRegister, final Location location) {
+  public Check(final int rExpected, final int rActual, final Location location) {
     super(Code.Check);
-    this.expectedRegister = expectedRegister;
-    this.actualRegister = actualRegister;
+    this.rExpected = rExpected;
+    this.rActual = rActual;
     this.location = location;
   }
 
   public String toString() {
     return String.format("%s actual: %d expected: %d location: %s",
-        super.toString(), actualRegister, expectedRegister, location);
+        super.toString(), rActual, rExpected, location);
   }
 
-  public final int actualRegister;
-  public final int expectedRegister;
+  public final int rActual;
+  public final int rExpected;
   public final Location location;
 }

@@ -3,9 +3,11 @@
 
 * rename all registers to rFoo
 ** ops, core, forms
-** find register
+** find 'register' in src/
 
 * add tail call support
+** add startPc to CallFrame
+** add TailCall op
 ** add return macro
 
 * add symbol macro register-count
@@ -17,10 +19,7 @@
 *** value: 15 (...)
 
 * handle user defined functions in map/reduce
-** add Function.evaluate() with same args as call
-*** use in map/reduce
-
-* aoc/code1.jl
+** aoc/code1.jl
 
 * add union types
 ** Integer|Null
@@ -46,6 +45,7 @@
 * add ordered maps
 ** {1 2 3:4}
 ** use TreeMap
+** add lookup fib test/benchmark
 
 * check function argument types
 

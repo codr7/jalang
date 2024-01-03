@@ -3,16 +3,16 @@ package codr7.jalang.operations;
 import codr7.jalang.Operation;
 
 public class AddLast extends Operation {
-  public AddLast(final int itemRegister, final int resultRegister) {
+  public AddLast(final int rItem, final int rResult) {
     super(Code.AddLast);
-    this.itemRegister = itemRegister;
-    this.resultRegister = resultRegister;
+    this.rItem = rItem;
+    this.rResult = rResult;
   }
 
   public String toString() {
-    return String.format("%s item: %d result: %d", super.toString(), itemRegister, resultRegister);
+    return String.format("%s item: %d result: %d", super.toString(), rItem, rResult);
   }
 
-  public final int itemRegister;
-  public final int resultRegister;
+  public final int rItem;
+  public final int rResult;
 }

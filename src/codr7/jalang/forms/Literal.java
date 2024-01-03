@@ -10,7 +10,7 @@ public class Literal extends Form {
   }
 
   public void emit(final Vm vm, final Namespace namespace, final int register) {
-    vm.emit(new Poke(register, value));
+    vm.emit(new Poke(value, register));
   }
 
   public String toString() {

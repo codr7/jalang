@@ -3,16 +3,16 @@ package codr7.jalang.operations;
 import codr7.jalang.Operation;
 
 public class Increment extends Operation {
-  public Increment(final int valueRegister, final int resultRegister) {
+  public Increment(final int rValue, final int rResult) {
     super(Code.Increment);
-    this.valueRegister = valueRegister;
-    this.resultRegister = resultRegister;
+    this.rValue = rValue;
+    this.rResult = rResult;
   }
 
   public String toString() {
-    return String.format("%s value: %d result: %d", super.toString(), valueRegister, resultRegister);
+    return String.format("%s value: %d result: %d", super.toString(), rValue, rResult);
   }
 
-  public final int resultRegister;
-  public final int valueRegister;
+  public final int rResult;
+  public final int rValue;
 }
