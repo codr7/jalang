@@ -129,7 +129,7 @@ public class Vm {
             throw new EvaluationError(o.location, "Expected sequence: %s.", v);
           }
 
-          final var i = ((Core.SequenceTrait<Value<?>>)v.type()).iterator(v.data());
+          final var i = ((Core.SequenceTrait<Value<?>>) v.type()).iterator(v.data());
           registers.set(o.rResult, new Value<>(Core.instance.iteratorType, i));
           pc++;
           break;

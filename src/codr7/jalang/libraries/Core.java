@@ -231,13 +231,15 @@ public class Core extends Library {
     public NoneType(final String name) {
       super(name);
     }
+
     public String dump(final Object value) {
       return "_";
     }
+
     public boolean isTrue(final Object value) {
       return false;
     }
-}
+  }
 
   public static class PairType extends Type<Pair> {
     public PairType(final String name) {
@@ -305,7 +307,7 @@ public class Core extends Library {
     }
 
     public Value<?> slice(final Object value, final int start) {
-      return new Value<>(Core.instance.stringType, ((String)value).substring(start));
+      return new Value<>(Core.instance.stringType, ((String) value).substring(start));
     }
   }
 
@@ -685,32 +687,32 @@ public class Core extends Library {
 
     bindMacro("index-if", 2,
         (vm, namespace, location, arguments, rResult) -> {
-      final var rPredicate = vm.allocateRegister();
-      final var predicateForm = arguments[0];
-      predicateForm.emit(vm, namespace, rPredicate);
+          final var rPredicate = vm.allocateRegister();
+          final var predicateForm = arguments[0];
+          predicateForm.emit(vm, namespace, rPredicate);
 
-      final var rIterator = vm.allocateRegister();
-      final var inputForm = arguments[1];
-      inputForm.emit(vm, namespace, rIterator);
-      vm.emit(new GetIterator(rIterator, rIterator, inputForm.location()));
+          final var rIterator = vm.allocateRegister();
+          final var inputForm = arguments[1];
+          inputForm.emit(vm, namespace, rIterator);
+          vm.emit(new GetIterator(rIterator, rIterator, inputForm.location()));
 
-      vm.emit(new Poke(new Value<>(integerType, -1), rResult));
+          vm.emit(new Poke(new Value<>(integerType, -1), rResult));
 
-      final var rIndex = vm.allocateRegister();
-      vm.emit(new Poke(new Value<>(integerType, 0), rIndex));
+          final var rIndex = vm.allocateRegister();
+          vm.emit(new Poke(new Value<>(integerType, 0), rIndex));
 
-      final var iteratePc = vm.emit(Nop.instance);
-      final var rValue = vm.allocateRegister();
-      final var rPredicateResult = vm.allocateRegister();
-      vm.emit(new CallRegister(rPredicate, new int[]{rValue}, rPredicateResult, location));
-      final var ifPc = vm.emit(Nop.instance);
-      vm.emit(new Peek(rIndex, rResult));
-      final var exitPc = vm.emit(Nop.instance);
-      vm.emit(ifPc, new If(rPredicateResult, vm.emitPc()));
-      vm.emit(new Increment(rIndex, rIndex));
-      vm.emit(new Goto(iteratePc));
-      vm.emit(iteratePc, new Iterate(rIterator, rValue, vm.emitPc()));
-      vm.emit(exitPc, new Goto(vm.emitPc()));
+          final var iteratePc = vm.emit(Nop.instance);
+          final var rValue = vm.allocateRegister();
+          final var rPredicateResult = vm.allocateRegister();
+          vm.emit(new CallRegister(rPredicate, new int[]{rValue}, rPredicateResult, location));
+          final var ifPc = vm.emit(Nop.instance);
+          vm.emit(new Peek(rIndex, rResult));
+          final var exitPc = vm.emit(Nop.instance);
+          vm.emit(ifPc, new If(rPredicateResult, vm.emitPc()));
+          vm.emit(new Increment(rIndex, rIndex));
+          vm.emit(new Goto(iteratePc));
+          vm.emit(iteratePc, new Iterate(rIterator, rValue, vm.emitPc()));
+          vm.emit(exitPc, new Goto(vm.emitPc()));
         });
 
     bindFunction("iterator",
@@ -767,7 +769,7 @@ public class Core extends Library {
           vm.emit(new Goto(mapPc));
           vm.emit(mapPc, new MapIterators(rFunction, rIterators, rValues, rResult, vm.emitPc(), location));
           vm.emit(new GetIterator(rResult, rResult, location));
-    });
+        });
 
     bindFunction("parse-integer",
         new Parameter[]{new Parameter("input", stringType)}, pairType,

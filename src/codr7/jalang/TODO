@@ -1,9 +1,6 @@
 0.4520028
 0.14301105
 
-* aoc
-** test find-if
-
 * add optional end arg to slice
 
 * convert reduce/map ops to macros like find/index-if
