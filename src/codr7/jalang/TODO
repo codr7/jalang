@@ -1,6 +1,12 @@
 0.4520028
 0.14301105
 
+* rename index-if to find-if
+** return pair of value:index
+** remove find-if
+** update tests
+** update aoc
+
 * add optional end arg to slice
 
 * convert reduce/map ops to macros like find/index-if
