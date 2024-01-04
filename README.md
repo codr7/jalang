@@ -1,7 +1,9 @@
 ## Introduction
 This project aims to implement an embedded custom Lisp interpreter in Java.
 
-## Pairs
+## Aggregates
+
+### Pairs
 Pairs may be created using `:`.
 
 ```
@@ -18,7 +20,7 @@ Pairs may be created using `:`.
 2
 ```
 
-## Lists
+### Lists
 A list is a pair with another pair in tail position.
 
 ```
@@ -27,7 +29,7 @@ A list is a pair with another pair in tail position.
 2:3
 ```
 
-## Deques
+### Deques
 The main indexed collection is the double ended queue.<br/>
 Deques may be crated using `[...]`.
 
