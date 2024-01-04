@@ -9,6 +9,12 @@
 
 {1 2 3:4}
 
+* add symbols
+** add SymbolType
+** add SymbolReader
+
+'foo
+
 * convert reduce/map ops to macros like find/index-if
 
 * add let macro
