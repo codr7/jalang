@@ -47,7 +47,6 @@ A list is a pair with another pair in tail position.
 ```
 
 ### Deques
-The main indexed collection is the double ended queue.<br/>
 Deques may be crated using `[...]`.
 
 

@@ -3,6 +3,13 @@
 
 * add optional end arg to slice
 
+* add or types
+** Integer|None
+** relaxing requirements should not break callers
+** strengthening promises should not break callers
+** add X? as alias for X|None
+** change find-if resultType Any?
+
 * add ordered maps
 ** use TreeMap
 ** add lookup fib test/benchmark
@@ -21,13 +28,6 @@
 
 (let [x 1]
   (+1 x))
-
-* add union types
-** Integer|None
-** relaxing requirements should not break callers
-** strengthening promises should not break callers
-** add X? as alias for X|None
-** change find-if resultType Any?
 
 * enable using Collections as Sexpr targets
 ** add find method to CollectionTrait
