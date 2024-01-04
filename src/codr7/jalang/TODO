@@ -3,26 +3,18 @@
 
 * add optional end arg to slice
 
-* convert reduce/map ops to macros like find/index-if
-
 * add ordered maps
 ** use TreeMap
 ** add lookup fib test/benchmark
 
 {1 2 3:4}
 
+* convert reduce/map ops to macros like find/index-if
+
 * add let macro
 
 (let [x 1]
   (+1 x))
-
-* add symbol macro register-count
-** check benchmark
-
-* add vm arg to operation toString
-** add abstract method to operation
-** lookup values for registers
-*** value: 15 (...)
 
 * add union types
 ** Integer|None
@@ -42,3 +34,8 @@
 * turn pair into collection/sequence type
 
 * add character literals
+
+* add vm arg to operation toString
+** add abstract method to operation
+** lookup values for registers
+*** value: 15 (...)
