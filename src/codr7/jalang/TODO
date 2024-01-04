@@ -41,6 +41,8 @@
 
 * add character literals
 
+\a \b \\n
+
 * add vm arg to operation toString
 ** add abstract method to operation
 ** lookup values for registers
