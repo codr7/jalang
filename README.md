@@ -2,12 +2,12 @@
 This project aims to implement an embedded custom Lisp interpreter in Java.
 
 ## Setup
-The current binary may be found in the project root, launching it without arguments starts a REPL.
+The current binary may be found in the project root, launching it without arguments starts a REPL. `rlwrap` may be used to add support for line editing.
 
 ```
 $ git clone https://github.com/codr7/jalang.git
 $ cd jalang
-$ java -jar jalang.jar
+$ rlwrap java -jar jalang.jar
 
 jalang v1
 May the source be with you!
