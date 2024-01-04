@@ -318,6 +318,20 @@ public class Core extends Library {
     }
   }
 
+  public static class SymbolType extends StringType {
+    public SymbolType(final String name) {
+      super(name);
+    }
+
+    public String dump(final String value) {
+      return String.format("'%s", value);
+    }
+
+    public boolean isTrue(String value) {
+      return true;
+    }
+  }
+
   public static final Core instance = new Core();
 
   public Core() {
@@ -341,6 +355,7 @@ public class Core extends Library {
     bindType(registerType);
     bindType(sequenceType);
     bindType(stringType);
+    bindType(symbolType);
 
     bind("_", NONE);
     bind("T", T);
@@ -941,4 +956,5 @@ public class Core extends Library {
   public final Type<Register> registerType = new Type<>("Register");
   public final SequenceType sequenceType = new SequenceType("Sequence");
   public final StringType stringType = new StringType("String");
+  public final SymbolType symbolType = new SymbolType("Symbol");
 }

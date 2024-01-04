@@ -28,7 +28,7 @@ public record Function(String name, Parameter[] parameters, int arity, Type<?> r
         if (i > 0) {
           result.append(' ');
         }
-        
+
         result.append(parameters[i]);
       }
     }

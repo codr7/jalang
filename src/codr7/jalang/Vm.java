@@ -15,7 +15,7 @@ import java.util.*;
 public class Vm {
   public static final int DEFAULT_REGISTER = 0;
   public static final int REGISTER_COUNT = 10;
-  public static final int VERSION = 1;
+  public static final int VERSION = 2;
 
   public Vm() {
     for (var i = 0; i < REGISTER_COUNT; i++) {

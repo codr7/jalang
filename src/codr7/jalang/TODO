@@ -1,12 +1,6 @@
 0.4520028
 0.14301105
 
-* add symbols
-** add SymbolType
-** add SymbolReader
-
-'foo
-
 * add or types
 ** Integer|None
 ** relaxing requirements should not break callers

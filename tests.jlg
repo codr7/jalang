@@ -5,6 +5,12 @@
   (= 42 41))
 
 (check T
+  (= 'foo 'foo))
+
+(check F
+  (= 'foo 'bar))
+  
+(check T
   (< "abc" "def" "ghi"))
 
 (check F
