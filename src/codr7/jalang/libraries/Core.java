@@ -841,8 +841,10 @@ public class Core extends Library {
         });
 
     bindFunction("split",
-        new Parameter[]{new Parameter("whole", stringType),
-            new Parameter("separator", stringType)}, anyType,
+        new Parameter[]{
+            new Parameter("whole", stringType),
+            new Parameter("separator", stringType)},
+        iteratorType,
         (function, vm, location, rParameters, rResult) -> {
           final var w = vm.peek(rParameters[0]).as(stringType);
           final var s = vm.peek(rParameters[1]).as(stringType);
@@ -853,7 +855,7 @@ public class Core extends Library {
             result.add(new Value<>(stringType, p));
           }
 
-          vm.poke(rResult, new Value<>(dequeType, result));
+          vm.poke(rResult, new Value<>(iteratorType, result.iterator()));
         });
 
     bindMacro("tail", 1,
