@@ -27,5 +27,16 @@ A list is a pair with another pair in tail position.
 2:3
 ```
 
+## Deques
+The main indexed collection is the double ended queue.<br/>
+Deques may be crated using `[...]`.
+
+
+```
+  (length [1 2 3:4])
+
+3
+```
+
 ## Performance
 The core interpreter is currently roughly as fast as Python, but there is plenty of low hanging fruit left to pick.
