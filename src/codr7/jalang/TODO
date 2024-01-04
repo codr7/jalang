@@ -3,6 +3,9 @@
 
 * add optional end arg to slice
 
+* add do macro
+** emit body as is
+
 * add or types
 ** Integer|None
 ** relaxing requirements should not break callers

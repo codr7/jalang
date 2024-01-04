@@ -47,7 +47,7 @@ A list is a pair with another pair in tail position.
 ```
 
 ### Deques
-Deques may be crated using `[...]`.
+Deques may be created using `[...]`.
 
 
 ```
