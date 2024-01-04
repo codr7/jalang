@@ -1,5 +1,5 @@
 ## Introduction
-This project aims to implement a custom embedded Lisp scripting language in Java.
+This project aims to implement an embedded custom Lisp interpreter in Java.
 
 ## Pairs
 Pairs may be created using `:`.
