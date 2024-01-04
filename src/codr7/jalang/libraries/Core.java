@@ -544,7 +544,7 @@ public class Core extends Library {
           vm.poke(rResult, new Value<>(bitType, Character.isDigit(c)));
         });
 
-    bindMacro("find-if", 2,
+    bindMacro("find", 2,
         (vm, namespace, location, arguments, rResult) -> {
           final var rPredicate = vm.allocateRegister();
           final var predicateForm = arguments[0];
@@ -555,21 +555,25 @@ public class Core extends Library {
           inputForm.emit(vm, namespace, rIterator);
           vm.emit(new GetIterator(rIterator, rIterator, inputForm.location()));
 
-          vm.emit(new Poke(new Value<>(noneType, null), rResult));
+          vm.emit(new Poke(new Value<>(integerType, -1), rResult));
+
+          final var rIndex = vm.allocateRegister();
+          vm.emit(new Poke(new Value<>(integerType, 0), rIndex));
 
           final var iteratePc = vm.emit(Nop.instance);
           final var rValue = vm.allocateRegister();
           final var rPredicateResult = vm.allocateRegister();
           vm.emit(new CallRegister(rPredicate, new int[]{rValue}, rPredicateResult, location));
           final var ifPc = vm.emit(Nop.instance);
-          vm.emit(new Peek(rValue, rResult));
+          vm.emit(new MakePair(rValue, rIndex, rResult));
           final var exitPc = vm.emit(Nop.instance);
           vm.emit(ifPc, new If(rPredicateResult, vm.emitPc()));
+          vm.emit(new Increment(rIndex, rIndex));
           vm.emit(new Goto(iteratePc));
           vm.emit(iteratePc, new Iterate(rIterator, rValue, vm.emitPc()));
           vm.emit(exitPc, new Goto(vm.emitPc()));
         });
-
+    
     bindMacro("function", 1,
         (vm, namespace, location, arguments, rResult) -> {
           final var as = new ArrayDeque<Form>();
@@ -683,36 +687,6 @@ public class Core extends Library {
             arguments[2].emit(vm, namespace, rResult);
             vm.emit(skipPc, new Goto(vm.emitPc()));
           }
-        });
-
-    bindMacro("index-if", 2,
-        (vm, namespace, location, arguments, rResult) -> {
-          final var rPredicate = vm.allocateRegister();
-          final var predicateForm = arguments[0];
-          predicateForm.emit(vm, namespace, rPredicate);
-
-          final var rIterator = vm.allocateRegister();
-          final var inputForm = arguments[1];
-          inputForm.emit(vm, namespace, rIterator);
-          vm.emit(new GetIterator(rIterator, rIterator, inputForm.location()));
-
-          vm.emit(new Poke(new Value<>(integerType, -1), rResult));
-
-          final var rIndex = vm.allocateRegister();
-          vm.emit(new Poke(new Value<>(integerType, 0), rIndex));
-
-          final var iteratePc = vm.emit(Nop.instance);
-          final var rValue = vm.allocateRegister();
-          final var rPredicateResult = vm.allocateRegister();
-          vm.emit(new CallRegister(rPredicate, new int[]{rValue}, rPredicateResult, location));
-          final var ifPc = vm.emit(Nop.instance);
-          vm.emit(new Peek(rIndex, rResult));
-          final var exitPc = vm.emit(Nop.instance);
-          vm.emit(ifPc, new If(rPredicateResult, vm.emitPc()));
-          vm.emit(new Increment(rIndex, rIndex));
-          vm.emit(new Goto(iteratePc));
-          vm.emit(iteratePc, new Iterate(rIterator, rValue, vm.emitPc()));
-          vm.emit(exitPc, new Goto(vm.emitPc()));
         });
 
     bindFunction("iterator",

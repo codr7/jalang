@@ -1,5 +1,5 @@
 (function find-digit [line]
-  (digit (find-if digit? line)))
+  (digit (head (find digit? line))))
 
 (function decode-line [line]
   (head (parse-integer (string (find-digit line)

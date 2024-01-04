@@ -1,11 +1,15 @@
 0.4520028
 0.14301105
 
-* rename index-if to find-if
+* rename index-if to find
 ** return pair of value:index
 ** remove find-if
 ** update tests
 ** update aoc
+
+* add support for pair/list/targets (asas:_ ...)
+** add head/tail ops
+** change functions to macros
 
 * add optional end arg to slice
 
