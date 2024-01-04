@@ -103,6 +103,9 @@
 (check "bar"
   (if F "foo" "bar"))
 
+(check "bar"
+  (if T (do "foo" "bar")))
+  
 (check 42
   (function foo []:Integer 42)
   

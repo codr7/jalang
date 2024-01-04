@@ -24,9 +24,12 @@ public record Function(String name, Parameter[] parameters, int arity, Type<?> r
     result.append("(Function ").append(name).append('[');
 
     if (parameters != null) {
-      for (final var p : parameters) {
-        result.append(' ');
-        result.append(p);
+      for (var i = 0; i < parameters.length; i++) {
+        if (i > 0) {
+          result.append(' ');
+        }
+        
+        result.append(parameters[i]);
       }
     }
 

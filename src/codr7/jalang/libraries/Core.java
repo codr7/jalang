@@ -322,6 +322,7 @@ public class Core extends Library {
 
   public Core() {
     super("core", null);
+    bindType(anyType);
     bindType(bitType);
     bindType(characterType);
     bindType(collectionType);
@@ -577,6 +578,13 @@ public class Core extends Library {
           vm.poke(rResult, new Value<>(bitType, Character.isDigit(c)));
         });
 
+    bindMacro("do", 0,
+        (vm, namespace, location, arguments, rResult) -> {
+      for (final var a: arguments) {
+        a.emit(vm, namespace, rResult);
+      }
+    });
+
     bindMacro("find", 2,
         (vm, namespace, location, arguments, rResult) -> {
           final var rPredicate = vm.allocateRegister();
@@ -652,7 +660,7 @@ public class Core extends Library {
               final var tv = namespace.find(((IdForm) pf.right()).name());
 
               if (tv == null) {
-                throw new EmitError(tf.location(), "Type not found: %s.", tf);
+                throw new EmitError(tf.location(), "Type not found: %s.", pf.right());
               }
 
               pt = tv.as(Type.meta);

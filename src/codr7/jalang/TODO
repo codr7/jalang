@@ -1,8 +1,11 @@
 0.4520028
 0.14301105
 
-* add do macro
-** emit body as is
+* add symbols
+** add SymbolType
+** add SymbolReader
+
+'foo
 
 * add or types
 ** Integer|None
@@ -16,12 +19,6 @@
 ** add lookup fib test/benchmark
 
 {1 2 3:4}
-
-* add symbols
-** add SymbolType
-** add SymbolReader
-
-'foo
 
 * convert reduce/map ops to macros like find/index-if
 

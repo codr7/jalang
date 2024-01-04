@@ -18,6 +18,68 @@ hello world
 _
 ```
 
+## Control Flow
+
+### if
+`if` allows branching on a condition.<br/>
+The else expression is optional.
+
+```
+  (if T "true")
+
+"true"
+```
+```
+  (if F "true" "false")
+
+"false"
+```
+
+### do
+`do` may be used to pass multiple expressions where one is expected.
+
+```
+  (if T (do
+    (say "first")
+    (say "second")))
+
+first
+second
+T
+```
+
+### functions
+`function` may be used to create new functions.
+
+```
+  (function add-42 [x:Integer]:Integer
+    (+ x 42))
+
+  (add-42 1)
+
+43
+```
+
+Types are optional.
+
+```
+  (function add-42 [x]
+    (+ x 42))
+
+  (add-42 1)
+
+43
+```
+
+Omitting the name creates an anonymous function.
+
+```
+  (function [x]
+    (+ x 42))
+
+  (Function [x:Any])
+```
+
 ## Aggregates
 
 ### Pairs
