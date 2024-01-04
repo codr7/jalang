@@ -18,9 +18,10 @@ public class Namespace {
 
   public final void bindFunction(final String name,
                                  final Parameter[] parameters,
+                                 final int arity,
                                  final Type<?> resultType,
                                  final Function.Body body) {
-    bind(name, new Value<>(Function.type, new Function(name, parameters, resultType, body)));
+    bind(name, new Value<>(Function.type, new Function(name, parameters, arity, resultType, body)));
   }
 
   public final void bindMacro(final String name, final int arity, final Macro.Body body) {

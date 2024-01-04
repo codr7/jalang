@@ -29,7 +29,7 @@ public class Core extends Library {
   }
 
   public interface IndexedCollectionTrait {
-    Value<?> slice(final Object value, final int start);
+    Value<?> slice(final Object value, final Value<?> start, final Value<?> end);
   }
 
   public interface SequenceTrait<T> {
@@ -307,8 +307,14 @@ public class Core extends Library {
       return value;
     }
 
-    public Value<?> slice(final Object value, final int start) {
-      return new Value<>(Core.instance.stringType, ((String) value).substring(start));
+    public Value<?> slice(final Object value, final Value<?> start, final Value<?> end) {
+      final var si = start.as(Core.instance.integerType);
+
+      final var result = (end == null)
+          ? ((String) value).substring(si)
+          : ((String) value).substring(si, end.as(Core.instance.integerType));
+
+      return new Value<>(Core.instance.stringType, result);
     }
   }
 
@@ -340,64 +346,84 @@ public class Core extends Library {
     bind("F", F);
 
     bindFunction("=",
-        new Parameter[]{new Parameter("left", anyType),
-            new Parameter("right", anyType)}, bitType,
+        new Parameter[]{
+            new Parameter("value1", anyType),
+            new Parameter("value2", anyType)}, 2,
+        bitType,
         (function, vm, location, rParameters, rResult) -> {
-          final var result = vm.peek(rParameters[0]).equals(vm.peek(rParameters[1]));
+          final var value1 = vm.peek(rParameters[0]);
+          var result = true;
+
+          for (int i = 1; i < rParameters.length; i++) {
+            if (!vm.peek(rParameters[i]).equals(value1)) {
+              result = false;
+              break;
+            }
+          }
+
           vm.poke(rResult, new Value<>(bitType, result));
         });
 
     bindFunction("<",
-        new Parameter[]{new Parameter("value1", comparableType)}, bitType,
+        new Parameter[]{
+            new Parameter("value1", comparableType),
+            new Parameter("value2", comparableType)}, 2,
+        bitType,
         (function, vm, location, rParameters, rResult) -> {
-          var left = vm.peek(rParameters[0]);
-          var type = (ComparableTrait) left.type();
+          var value1 = vm.peek(rParameters[0]);
+          var type = (ComparableTrait) value1.type();
           var result = true;
 
           for (var i = 1; i < rParameters.length; i++) {
-            final var right = vm.peek(rParameters[i]);
+            final var v = vm.peek(rParameters[i]);
 
-            if (right.type() != left.type()) {
-              throw new EvaluationError(location, "Type mismatch: %s/%s.", left.type(), right.type());
+            if (v.type() != value1.type()) {
+              throw new EvaluationError(location, "Type mismatch: %s/%s.", value1.type(), v.type());
             }
 
-            if (type.compare(left.data(), right.data()) != Compare.LessThan) {
+            if (type.compare(value1.data(), v.data()) != Compare.LessThan) {
               result = false;
               break;
             }
 
-            left = right;
+            value1 = v;
           }
 
           vm.poke(rResult, new Value<>(bitType, result));
         });
 
     bindFunction(">",
-        new Parameter[]{new Parameter("value1", comparableType)}, bitType,
+        new Parameter[]{
+            new Parameter("value1", comparableType),
+            new Parameter("value2", comparableType)}, 2,
+        bitType,
         (function, vm, location, rParameters, rResult) -> {
-          var left = vm.peek(rParameters[0]);
-          var type = (ComparableTrait) left.type();
+          var value1 = vm.peek(rParameters[0]);
+          var type = (ComparableTrait) value1.type();
           var result = true;
 
           for (var i = 1; i < rParameters.length; i++) {
-            final var right = vm.peek(rParameters[i]);
+            final var v = vm.peek(rParameters[i]);
 
-            if (right.type() != left.type()) {
-              throw new EvaluationError(location, "Type mismatch: %s/%s.", left.type(), right.type());
+            if (v.type() != value1.type()) {
+              throw new EvaluationError(location, "Type mismatch: %s/%s.", value1.type(), v.type());
             }
 
-            if (type.compare(left.data(), right.data()) != Compare.GreaterThan) {
+            if (type.compare(value1.data(), v.data()) != Compare.GreaterThan) {
               result = false;
               break;
             }
 
-            left = right;
+            value1 = v;
           }
 
           vm.poke(rResult, new Value<>(bitType, result));
         });
 
-    bindFunction("+", null, integerType,
+    bindFunction("+", new Parameter[]{
+            new Parameter("value1", integerType),
+            new Parameter("value2", integerType)}, 2,
+        integerType,
         (function, vm, location, rParameters, rResult) -> {
           int result = 0;
 
@@ -408,7 +434,10 @@ public class Core extends Library {
           vm.poke(rResult, new Value<>(integerType, result));
         });
 
-    bindFunction("-", null, integerType,
+    bindFunction("-", new Parameter[]{
+            new Parameter("value1", integerType),
+            new Parameter("value2", integerType)}, 2,
+        integerType,
         (function, vm, location, rParameters, rResult) -> {
           int result = vm.peek(rParameters[0]).as(integerType);
 
@@ -516,7 +545,8 @@ public class Core extends Library {
         });
 
     bindFunction("deque",
-        new Parameter[]{new Parameter("input", sequenceType)}, dequeType,
+        new Parameter[]{new Parameter("input", sequenceType)}, 1,
+        dequeType,
         (function, vm, location, rParameters, rResult) -> {
           final var input = vm.peek(rParameters[0]);
 
@@ -531,7 +561,8 @@ public class Core extends Library {
         });
 
     bindFunction("digit",
-        new Parameter[]{new Parameter("value", characterType)}, integerType,
+        new Parameter[]{new Parameter("value", characterType)}, 1,
+        integerType,
         (function, vm, location, rParameters, rResult) -> {
           final var c = vm.peek(rParameters[0]).as(characterType);
           final var result = Character.isDigit(c) ? Character.digit(c, 10) : -1;
@@ -539,7 +570,8 @@ public class Core extends Library {
         });
 
     bindFunction("digit?",
-        new Parameter[]{new Parameter("value", characterType)}, bitType,
+        new Parameter[]{new Parameter("value", characterType)}, 1,
+        bitType,
         (function, vm, location, rParameters, rResult) -> {
           final var c = vm.peek(rParameters[0]).as(characterType);
           vm.poke(rResult, new Value<>(bitType, Character.isDigit(c)));
@@ -636,7 +668,7 @@ public class Core extends Library {
           final var skipPc = vm.emit(Nop.instance);
           final var startPc = vm.emitPc();
 
-          final var function = new Function(name, ps, resultType,
+          final var function = new Function(name, ps, ps.length, resultType,
               (_function, _vm, _location, _parameters, _result) -> {
                 _vm.pushCall(_function, _location, startPc, _result);
 
@@ -691,7 +723,8 @@ public class Core extends Library {
         });
 
     bindFunction("iterator",
-        new Parameter[]{new Parameter("sequence", sequenceType)}, iteratorType,
+        new Parameter[]{new Parameter("sequence", sequenceType)}, 1,
+        iteratorType,
         (function, vm, location, rParameters, rResult) -> {
           final var s = vm.peek(rParameters[0]);
           @SuppressWarnings("unchecked") final var st = (SequenceTrait<Value<?>>) s.type();
@@ -699,7 +732,8 @@ public class Core extends Library {
         });
 
     bindFunction("length",
-        new Parameter[]{new Parameter("collection", collectionType)}, integerType,
+        new Parameter[]{new Parameter("collection", collectionType)}, 1,
+        integerType,
         (function, vm, location, rParameters, rResult) -> {
           final var c = vm.peek(rParameters[0]);
           final var ct = (CollectionTrait) c.type();
@@ -747,7 +781,8 @@ public class Core extends Library {
         });
 
     bindFunction("parse-integer",
-        new Parameter[]{new Parameter("input", stringType)}, pairType,
+        new Parameter[]{new Parameter("input", stringType)}, 1,
+        pairType,
         (function, vm, location, rParameters, rResult) -> {
           final var input = vm.peek(rParameters[0]).as(stringType);
           final var match = Pattern.compile("^\\s*(\\d+).*").matcher(input);
@@ -762,7 +797,8 @@ public class Core extends Library {
         });
 
     bindFunction("path",
-        new Parameter[]{new Parameter("path", stringType)}, pathType,
+        new Parameter[]{new Parameter("value", stringType)}, 1,
+        pathType,
         (function, vm, location, rParameters, rResult) -> {
           vm.poke(rResult, new Value<>(pathType, Paths.get(vm.peek(rParameters[0]).as(stringType))));
         });
@@ -782,7 +818,8 @@ public class Core extends Library {
         });
 
     bindFunction("say",
-        null, null,
+        new Parameter[]{new Parameter("value1", anyType)}, 1,
+        noneType,
         (function, vm, location, rParameters, rResult) -> {
           final var what = new StringBuilder();
 
@@ -801,16 +838,21 @@ public class Core extends Library {
     bindFunction("slice",
         new Parameter[]{
             new Parameter("input", indexedCollectionType),
-            new Parameter("start", integerType)
-        }, indexedCollectionType,
+            new Parameter("start", anyType),
+            new Parameter("end", anyType)
+        }, 2,
+        indexedCollectionType,
         (function, vm, location, rParameters, rResult) -> {
           final var i = vm.peek(rParameters[0]);
           final var it = (IndexedCollectionTrait) i.type();
-          vm.poke(rResult, it.slice(i.data(), vm.peek(rParameters[1]).as(integerType)));
+          final var start = vm.peek(rParameters[1]);
+          final var end = (rParameters.length == 2) ? null : vm.peek(rParameters[2]);
+          vm.poke(rResult, it.slice(i.data(), start, end));
         });
 
     bindFunction("string",
-        null, stringType,
+        new Parameter[]{new Parameter("value1", anyType)}, 1,
+        stringType,
         (function, vm, location, rParameters, rResult) -> {
           final var result = new StringBuilder();
 
@@ -822,14 +864,16 @@ public class Core extends Library {
         });
 
     bindFunction("reverse-string",
-        new Parameter[]{new Parameter("input", stringType)}, stringType,
+        new Parameter[]{new Parameter("input", stringType)}, 1,
+        stringType,
         (function, vm, location, rParameters, rResult) -> {
           final var result = new StringBuilder(vm.peek(rParameters[0]).as(stringType)).reverse().toString();
           vm.poke(rResult, new Value<>(stringType, result));
         });
 
     bindFunction("slurp",
-        new Parameter[]{new Parameter("path", pathType)}, stringType,
+        new Parameter[]{new Parameter("path", pathType)}, 1,
+        stringType,
         (function, vm, location, rParameters, rResult) -> {
           try {
             final var p = vm.loadPath().resolve(vm.peek(rParameters[0]).as(pathType));
@@ -843,7 +887,7 @@ public class Core extends Library {
     bindFunction("split",
         new Parameter[]{
             new Parameter("whole", stringType),
-            new Parameter("separator", stringType)},
+            new Parameter("separator", stringType)}, 2,
         iteratorType,
         (function, vm, location, rParameters, rResult) -> {
           final var w = vm.peek(rParameters[0]).as(stringType);

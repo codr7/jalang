@@ -58,6 +58,9 @@
 (check "oo"
   (slice "foo" 1))
 
+(check "bar"
+  (slice "foobarbaz" 3 6))
+
 (check 3
   (digit (find:_ digit? "a3b")))
 

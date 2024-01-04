@@ -1,6 +1,6 @@
 package codr7.jalang;
 
-public record Function(String name, Parameter[] parameters, Type<?> resultType, Body body) {
+public record Function(String name, Parameter[] parameters, int arity, Type<?> resultType, Body body) {
   public static final Type<Function> type = new Type<>("Function");
 
   public interface Body {
@@ -12,7 +12,7 @@ public record Function(String name, Parameter[] parameters, Type<?> resultType, 
   }
 
   public int arity() {
-    return (parameters == null) ? -1 : parameters.length;
+    return arity;
   }
 
   public void call(final Vm vm, final Location location, final int[] rParameters, final int rResult) {
