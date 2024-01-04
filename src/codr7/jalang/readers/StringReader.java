@@ -2,7 +2,7 @@ package codr7.jalang.readers;
 
 import codr7.jalang.*;
 import codr7.jalang.errors.ReadError;
-import codr7.jalang.forms.Literal;
+import codr7.jalang.forms.LiteralForm;
 import codr7.jalang.libraries.Core;
 
 import java.io.IOException;
@@ -43,7 +43,7 @@ public class StringReader implements Reader {
       data.append(c);
     }
 
-    out.addLast(new Literal(formLocation, new Value<>(Core.instance.stringType, data.toString())));
+    out.addLast(new LiteralForm(formLocation, new Value<>(Core.instance.stringType, data.toString())));
     return true;
   }
 }

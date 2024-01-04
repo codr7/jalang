@@ -4,7 +4,6 @@ import codr7.jalang.libraries.Core;
 import codr7.jalang.operations.MakePair;
 import codr7.jalang.operations.Poke;
 import codr7.jalang.operations.Stop;
-import codr7.jalang.types.Pair;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;

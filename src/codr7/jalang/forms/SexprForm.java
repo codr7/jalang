@@ -3,21 +3,44 @@ package codr7.jalang.forms;
 import codr7.jalang.*;
 import codr7.jalang.errors.EmitError;
 import codr7.jalang.operations.CallFunction;
+import codr7.jalang.operations.Head;
+import codr7.jalang.operations.Tail;
 
-public class Sexpr extends Form {
-  public Sexpr(final Location location, Form... body) {
+public class SexprForm extends Form {
+  public SexprForm(final Location location, Form... body) {
     super(location);
     this.body = body;
   }
 
   public void emit(final Vm vm, final Namespace namespace, final int rResult) {
-    final var targetForm = body[0];
+    var targetForm = body[0];
+    var head = false;
+    var tailCount = 0;
 
-    if (!(targetForm instanceof Identifier)) {
-      throw new EmitError(location(), "Invalid target: %s", targetForm);
+    while (targetForm instanceof PairForm) {
+      var pf = (PairForm)targetForm;
+
+      if (pf.left() instanceof NoneForm) {
+        targetForm = pf.right();
+        tailCount++;
+        continue;
+      }
+
+      if (pf.right() instanceof NoneForm) {
+        head = true;
+        targetForm = pf.left();
+        break;
+      }
+
+      throw new EmitError(location(), "Invalid target: %s.", targetForm);
     }
 
-    final var targetName = ((Identifier) targetForm).name();
+    if (!(targetForm instanceof IdForm)) {
+      throw new EmitError(location(), "Invalid target: %s.", targetForm);
+    }
+
+    final var targetName = ((IdForm) targetForm).name();
+
     final var target = namespace.find(targetName);
 
     if (target == null) {
@@ -50,12 +73,16 @@ public class Sexpr extends Form {
       }
 
       final Form[] arguments = new Form[arity];
-
       System.arraycopy(body, 1, arguments, 0, arity);
-
       macro.call(vm, namespace, location(), arguments, rResult);
     } else {
       throw new EmitError(location(), "Invalid target: %s", target);
+    }
+
+    if (head) {
+      vm.emit(new Head(rResult, rResult));
+    } else for (; tailCount > 0; tailCount--) {
+      vm.emit(new Tail(rResult, rResult));
     }
   }
 

@@ -8,6 +8,7 @@ public abstract class Operation {
     Decrement,
     EqualsZero,
     GetIterator, Goto,
+    Head,
     If, Increment, Iterate,
     MakePair, MapIterators,
     Nop,
@@ -15,7 +16,7 @@ public abstract class Operation {
     ReduceIterator,
     Return,
     Stop,
-    Trace
+    Tail, Trace
   }
 
   public Operation(final Code code) {

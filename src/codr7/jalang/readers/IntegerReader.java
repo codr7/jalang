@@ -1,7 +1,7 @@
 package codr7.jalang.readers;
 
 import codr7.jalang.*;
-import codr7.jalang.forms.Literal;
+import codr7.jalang.forms.LiteralForm;
 import codr7.jalang.libraries.Core;
 
 import java.io.IOException;
@@ -27,7 +27,7 @@ public class IntegerReader implements Reader {
       location.update(c);
     }
 
-    out.addLast(new Literal(formLocation, new Value<>(Core.instance.integerType, v)));
+    out.addLast(new LiteralForm(formLocation, new Value<>(Core.instance.integerType, v)));
     return true;
   }
 }

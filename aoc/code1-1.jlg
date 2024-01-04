@@ -1,9 +1,9 @@
 (function find-digit [line]
-  (digit (head (find digit? line))))
+  (digit (find:_ digit? line)))
 
 (function decode-line [line]
-  (head (parse-integer (string (find-digit line)
-                               (find-digit (reverse-string line))))))
+  (parse-integer:_ (string (find-digit line)
+  		           (find-digit (reverse-string line)))))
 
 (function calibrate [input]
   (reduce + (map decode-line (split (slurp input) "\n")) 0))

@@ -29,10 +29,10 @@
   (slice "foo" 1))
 
 (check 3
-  (digit (head (find digit? "a3b"))))
+  (digit (find:_ digit? "a3b")))
 
 (check 1
-  (tail (find digit? "a3b")))
+  (_:find digit? "a3b"))
   
 (check 42:3
   (parse-integer " 42foo"))

@@ -36,7 +36,7 @@ public class FormReader implements Reader {
           return read(in, out, location);
         }
 
-        return IdentifierReader.instance.read(in, out, location);
+        return IdReader.instance.read(in, out, location);
     }
 
     return false;

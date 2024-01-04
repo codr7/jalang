@@ -4,13 +4,14 @@ import codr7.jalang.Form;
 import codr7.jalang.Input;
 import codr7.jalang.Location;
 import codr7.jalang.Reader;
-import codr7.jalang.forms.Identifier;
+import codr7.jalang.forms.IdForm;
+import codr7.jalang.forms.NoneForm;
 
 import java.io.IOException;
 import java.util.Deque;
 
-public class IdentifierReader implements Reader {
-  public static final IdentifierReader instance = new IdentifierReader();
+public class IdReader implements Reader {
+  public static final IdReader instance = new IdReader();
 
   public boolean read(final Input in, final Deque<Form> out, final Location location)
       throws IOException {
@@ -31,7 +32,8 @@ public class IdentifierReader implements Reader {
       location.update(c);
     }
 
-    out.addLast(new Identifier(formLocation, buffer.toString()));
+    final var name = buffer.toString();
+    out.addLast(name.equals("_") ? new NoneForm(formLocation) : new IdForm(formLocation, name));
     return true;
   }
 }

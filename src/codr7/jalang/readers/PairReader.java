@@ -5,7 +5,7 @@ import codr7.jalang.Input;
 import codr7.jalang.Location;
 import codr7.jalang.Reader;
 import codr7.jalang.errors.ReadError;
-import codr7.jalang.types.Pair;
+import codr7.jalang.forms.PairForm;
 
 import java.io.IOException;
 import java.util.Deque;
@@ -39,7 +39,7 @@ public class PairReader implements Reader {
       read(in, out, location);
     }
 
-    out.addLast(new Pair.Form(formLocation, left, out.removeLast()));
+    out.addLast(new PairForm(formLocation, left, out.removeLast()));
     return true;
   }
 }

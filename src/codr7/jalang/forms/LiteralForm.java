@@ -3,8 +3,8 @@ package codr7.jalang.forms;
 import codr7.jalang.*;
 import codr7.jalang.operations.Poke;
 
-public class Literal extends Form {
-  public Literal(final Location location, final Value<?> value) {
+public class LiteralForm extends Form {
+  public LiteralForm(final Location location, final Value<?> value) {
     super(location);
     this.value = value;
   }

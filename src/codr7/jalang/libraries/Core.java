@@ -4,11 +4,12 @@ import codr7.jalang.*;
 import codr7.jalang.errors.EmitError;
 import codr7.jalang.errors.EvaluationError;
 import codr7.jalang.forms.DequeForm;
-import codr7.jalang.forms.Identifier;
-import codr7.jalang.forms.Literal;
+import codr7.jalang.forms.IdForm;
+import codr7.jalang.forms.LiteralForm;
+import codr7.jalang.forms.PairForm;
 import codr7.jalang.operations.*;
-import codr7.jalang.types.Compare;
-import codr7.jalang.types.Pair;
+import codr7.jalang.Compare;
+import codr7.jalang.Pair;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -334,9 +335,9 @@ public class Core extends Library {
     bindType(sequenceType);
     bindType(stringType);
 
-    bind("_", new Value<>(noneType, null));
-    bind("T", new Value<>(bitType, true));
-    bind("F", new Value<>(bitType, false));
+    bind("_", NONE);
+    bind("T", T);
+    bind("F", F);
 
     bindFunction("=",
         new Parameter[]{new Parameter("left", anyType),
@@ -433,8 +434,8 @@ public class Core extends Library {
           final var a = arguments[0];
           int rValue;
 
-          if (a instanceof Identifier) {
-            final var v = namespace.find(((Identifier) a).name());
+          if (a instanceof IdForm) {
+            final var v = namespace.find(((IdForm) a).name());
 
             if (v.type() != registerType) {
               throw new EmitError(location, "Invalid target: %s", v.toString());
@@ -447,9 +448,9 @@ public class Core extends Library {
             }
 
             rValue = r.index();
-          } else if (a instanceof Literal) {
+          } else if (a instanceof LiteralForm) {
             rValue = vm.allocateRegister();
-            vm.poke(rValue, ((Literal) a).value());
+            vm.poke(rValue, ((LiteralForm) a).value());
           } else {
             throw new EmitError(location, "Invalid target: %s", a.toString());
           }
@@ -462,8 +463,8 @@ public class Core extends Library {
           final var a = arguments[0];
           int rValue;
 
-          if (a instanceof Identifier) {
-            final var v = namespace.find(((Identifier) a).name());
+          if (a instanceof IdForm) {
+            final var v = namespace.find(((IdForm) a).name());
 
             if (v.type() != registerType) {
               throw new EmitError(location, "Invalid target: %s", v.toString());
@@ -476,9 +477,9 @@ public class Core extends Library {
             }
 
             rValue = r.index();
-          } else if (a instanceof Literal) {
+          } else if (a instanceof LiteralForm) {
             rValue = vm.allocateRegister();
-            vm.poke(rValue, ((Literal) a).value());
+            vm.poke(rValue, ((LiteralForm) a).value());
           } else {
             throw new EmitError(location, "Invalid target: %s", a.toString());
           }
@@ -573,24 +574,24 @@ public class Core extends Library {
           vm.emit(iteratePc, new Iterate(rIterator, rValue, vm.emitPc()));
           vm.emit(exitPc, new Goto(vm.emitPc()));
         });
-    
+
     bindMacro("function", 1,
         (vm, namespace, location, arguments, rResult) -> {
           final var as = new ArrayDeque<Form>();
           Collections.addAll(as, arguments);
           var name = "";
 
-          if (arguments[0] instanceof Identifier) {
-            name = ((Identifier) as.removeFirst()).name();
+          if (arguments[0] instanceof IdForm) {
+            name = ((IdForm) as.removeFirst()).name();
           }
 
           var psForm = as.removeFirst();
           Type<?> resultType = null;
 
-          if (psForm instanceof Pair.Form) {
-            var p = (Pair.Form) psForm;
+          if (psForm instanceof PairForm) {
+            var p = (PairForm) psForm;
             var tnf = p.right();
-            var tv = namespace.find(((Identifier) tnf).name());
+            var tv = namespace.find(((IdForm) tnf).name());
 
             if (tv == null) {
               throw new EmitError(tnf.location(), "Type not found: %s.", tnf);
@@ -608,23 +609,23 @@ public class Core extends Library {
             var pn = "";
             Type<?> pt = anyType;
 
-            if (f instanceof Pair.Form) {
-              final var pf = (Pair.Form) f;
-              if (!((pf.left() instanceof Identifier) && (pf.right() instanceof Identifier))) {
+            if (f instanceof PairForm) {
+              final var pf = (PairForm) f;
+              if (!((pf.left() instanceof IdForm) && (pf.right() instanceof IdForm))) {
                 throw new EmitError(f.location(), "Invalid parameter: %s.", pf);
               }
 
-              final var tf = ((Identifier) pf.left());
+              final var tf = ((IdForm) pf.left());
               pn = tf.name();
-              final var tv = namespace.find(((Identifier) pf.right()).name());
+              final var tv = namespace.find(((IdForm) pf.right()).name());
 
               if (tv == null) {
                 throw new EmitError(tf.location(), "Type not found: %s.", tf);
               }
 
               pt = tv.as(Type.meta);
-            } else if (f instanceof Identifier) {
-              pn = ((Identifier) f).name();
+            } else if (f instanceof IdForm) {
+              pn = ((IdForm) f).name();
             } else {
               throw new EmitError(f.location(), "Invalid parameter: %s.", f);
             }
@@ -669,10 +670,10 @@ public class Core extends Library {
           }
         });
 
-    bindFunction("head",
-        new Parameter[]{new Parameter("pair", pairType)}, anyType,
-        (function, vm, location, rParameters, rResult) -> {
-          vm.poke(rResult, vm.peek(rParameters[0]).as(pairType).left());
+    bindMacro("head", 1,
+        (vm, namespace, location, arguments, rResult) -> {
+          arguments[0].emit(vm, namespace, rResult);
+          vm.emit(new Head(rResult, rResult));
         });
 
     bindMacro("if", 2,
@@ -855,10 +856,10 @@ public class Core extends Library {
           vm.poke(rResult, new Value<>(dequeType, result));
         });
 
-    bindFunction("tail",
-        new Parameter[]{new Parameter("pair", pairType)}, anyType,
-        (function, vm, location, rParameters, rResult) -> {
-          vm.poke(rResult, vm.peek(rParameters[0]).as(pairType).right());
+    bindMacro("tail", 1,
+        (vm, namespace, location, arguments, rResult) -> {
+          arguments[0].emit(vm, namespace, rResult);
+          vm.emit(new Tail(rResult, rResult));
         });
 
     bindMacro("trace", 0,
@@ -869,6 +870,8 @@ public class Core extends Library {
 
   public final Type<Object> anyType = new Type<>("Any");
   public final BitType bitType = new BitType("Bit");
+  public final Value<Boolean> T = new Value<>(bitType, true);
+  public final Value<Boolean> F = new Value<>(bitType, false);
   public final CharacterType characterType = new CharacterType("Character");
   public final CollectionType collectionType = new CollectionType("Collection");
   public final ComparableType comparableType = new ComparableType("Comparable");
@@ -878,6 +881,7 @@ public class Core extends Library {
   public final IntegerType integerType = new IntegerType("Integer");
   public final IteratorType iteratorType = new IteratorType("Iterator");
   public final NoneType noneType = new NoneType("None");
+  public final Value<Object> NONE = new Value<>(noneType, null);
   public final PairType pairType = new PairType("Pair");
   public final Type<Path> pathType = new Type<>("Path");
   public final Type<Register> registerType = new Type<>("Register");

@@ -9,8 +9,8 @@ import codr7.jalang.libraries.Core;
 import codr7.jalang.operations.Peek;
 import codr7.jalang.operations.Poke;
 
-public class Identifier extends Form {
-  public Identifier(final Location location, final String name) {
+public class IdForm extends Form {
+  public IdForm(final Location location, final String name) {
     super(location);
     this.name = name;
   }

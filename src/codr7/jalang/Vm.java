@@ -4,7 +4,6 @@ import codr7.jalang.errors.EvaluationError;
 import codr7.jalang.libraries.Core;
 import codr7.jalang.operations.*;
 import codr7.jalang.readers.FormReader;
-import codr7.jalang.types.Pair;
 
 import java.io.IOException;
 import java.io.StringReader;
@@ -138,6 +137,12 @@ public class Vm {
           pc = ((Goto) op).pc;
           break;
         }
+        case Head: {
+          final var o = (Head) op;
+          registers.set(o.rResult, registers.get(o.rValue).as(Core.instance.pairType).left());
+          pc++;
+          break;
+        }
         case If: {
           final var o = (If) op;
 
@@ -253,6 +258,12 @@ public class Vm {
         case Stop: {
           pc++;
           return;
+        }
+        case Tail: {
+          final var o = (Tail) op;
+          registers.set(o.rResult, registers.get(o.rValue).as(Core.instance.pairType).right());
+          pc++;
+          break;
         }
         case Trace: {
           pc++;

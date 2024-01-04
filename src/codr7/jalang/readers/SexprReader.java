@@ -5,7 +5,7 @@ import codr7.jalang.Input;
 import codr7.jalang.Location;
 import codr7.jalang.Reader;
 import codr7.jalang.errors.ReadError;
-import codr7.jalang.forms.Sexpr;
+import codr7.jalang.forms.SexprForm;
 
 import java.io.IOException;
 import java.util.ArrayDeque;
@@ -40,7 +40,7 @@ public class SexprReader implements Reader {
       }
     }
 
-    out.addLast(new Sexpr(formLocation, body.toArray(new Form[0])));
+    out.addLast(new SexprForm(formLocation, body.toArray(new Form[0])));
     return true;
   }
 }
