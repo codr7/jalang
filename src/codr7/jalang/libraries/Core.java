@@ -201,12 +201,22 @@ public class Core extends Library {
     public void call(Object target, Vm vm, Location location, int[] rParameters, int rResult) {
       final var map = ((Map<Value<?>, Value<?>>) target);
 
-      if (rParameters.length != 1) {
-        throw new EvaluationError(location, "Invalid map call.");
+      switch (rParameters.length) {
+        case 1: {
+          final var key = vm.get(rParameters[0]);
+          final var value = map.get(key);
+          vm.set(rResult, (value == null) ? new Value<>(Core.instance.noneType, null) : value);
+          break;
+        }
+        case 2: {
+          final var key = vm.get(rParameters[0]);
+          final var value = vm.get(rParameters[1]);
+          map.put(key, value);
+          break;
+        }
+        default:
+          throw new EvaluationError(location, "Invalid map call.");
       }
-      final var rKey = rParameters[0];
-      final var value = map.get(vm.get(rKey));
-      vm.set(rResult, (value == null) ? new Value<>(Core.instance.noneType, null) : value);
     }
 
     public String dump(final Map<Value<?>, Value<?>> value) {
@@ -408,12 +418,22 @@ public class Core extends Library {
     public void call(Object target, Vm vm, Location location, int[] rParameters, int rResult) {
       final var vector = (ArrayList<Value<?>>) target;
 
-      if (rParameters.length != 1) {
-        throw new EvaluationError(location, "Invalid vector call.");
+      switch (rParameters.length) {
+        case 1: {
+          final var key = vm.get(rParameters[0]);
+          final var value = vector.get(key.as(Core.instance.integerType));
+          vm.set(rResult, value);
+          break;
+        }
+        case 2: {
+          final var key = vm.get(rParameters[0]).as(Core.instance.integerType);
+          final var value = vm.get(rParameters[1]);
+          vector.set(key, value);
+          break;
+        }
+        default:
+          throw new EvaluationError(location, "Invalid vector call.");
       }
-      final var rKey = rParameters[0];
-      final var value = vector.get(vm.get(rKey).as(Core.instance.integerType));
-      vm.set(rResult, value);
     }
 
     public String dump(final ArrayList<Value<?>> value) {

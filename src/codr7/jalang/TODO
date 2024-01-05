@@ -3,7 +3,7 @@
 
 * add lookup fib test/benchmark
 ** add support for setting value to Map/VectorType.call
-*** check number of arguments
+*** tests + readme + commit
 
 (function fib(n:Integer lookup:Map):Integer
   (or (lookup n)
@@ -12,7 +12,14 @@
 
 (say (benchmark 10000 (fib 70 {})))
 
+* add and macro
+* add not function
+
 * change trait argument types to Value<?>
+
+* hook up type hierarchy
+** add type function
+** add is function
 
 * add or types
 ** Integer|None
@@ -25,8 +32,10 @@
 
 * add let macro
 
-(let [x 1]
-  (+1 x))
+(let [x 1 y 2]
+  (+ x y))
+
+* add dynamic scope support for defines in let
 
 * check function argument types at compile time
 
