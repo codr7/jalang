@@ -108,8 +108,8 @@ A list is a pair with another pair in tail position.
 2:3
 ```
 
-### Deques
-Deques may be created using `[...]`.
+### Vectors
+Vectors may be created using `[...]`.
 
 
 ```

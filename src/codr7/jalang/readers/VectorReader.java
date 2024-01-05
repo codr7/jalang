@@ -5,14 +5,14 @@ import codr7.jalang.Input;
 import codr7.jalang.Location;
 import codr7.jalang.Reader;
 import codr7.jalang.errors.ReadError;
-import codr7.jalang.forms.DequeForm;
+import codr7.jalang.forms.VectorForm;
 
 import java.io.IOException;
 import java.util.ArrayDeque;
 import java.util.Deque;
 
-public class DequeReader implements Reader {
-  public static final DequeReader instance = new DequeReader();
+public class VectorReader implements Reader {
+  public static final VectorReader instance = new VectorReader();
 
   public boolean read(final Input in, final Deque<Form> out, final Location location)
       throws IOException {
@@ -40,7 +40,7 @@ public class DequeReader implements Reader {
       }
     }
 
-    out.addLast(new DequeForm(formLocation, body.toArray(new Form[0])));
+    out.addLast(new VectorForm(formLocation, body.toArray(new Form[0])));
     return true;
   }
 }

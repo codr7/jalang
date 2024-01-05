@@ -2,7 +2,7 @@ package codr7.jalang;
 
 public abstract class Operation {
   public enum Code {
-    AddLast,
+    Push,
     Benchmark,
     CallFunction, CallRegister, Check,
     Decrement,

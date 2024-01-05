@@ -2,25 +2,26 @@ package codr7.jalang.forms;
 
 import codr7.jalang.*;
 import codr7.jalang.libraries.Core;
-import codr7.jalang.operations.AddLast;
+import codr7.jalang.operations.Push;
 import codr7.jalang.operations.Poke;
 
 import java.util.ArrayDeque;
+import java.util.ArrayList;
 
-public class DequeForm extends Form {
-  public DequeForm(final Location location, Form... body) {
+public class VectorForm extends Form {
+  public VectorForm(final Location location, Form... body) {
     super(location);
     this.body = body;
   }
 
   public void emit(final Vm vm, final Namespace namespace, final int rResult) {
-    final var value = new Value<>(Core.instance.dequeType, new ArrayDeque<>());
+    final var value = new Value<>(Core.instance.vectorType, new ArrayList<>());
     vm.emit(new Poke(value, rResult));
     final var rItem = vm.allocateRegister();
 
     for (final var f : body) {
       f.emit(vm, namespace, rItem);
-      vm.emit(new AddLast(rItem, rResult));
+      vm.emit(new Push(rResult, rItem));
     }
   }
 

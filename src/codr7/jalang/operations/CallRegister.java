@@ -4,10 +4,9 @@ import codr7.jalang.Location;
 import codr7.jalang.Operation;
 
 public class CallRegister extends Operation {
-  public CallRegister(final int rTarget,
+  public CallRegister(final Location location, final int rTarget,
                       final int[] rParameters,
-                      final int rResult,
-                      final Location location) {
+                      final int rResult) {
     super(Code.CallRegister);
     this.rTarget = rTarget;
     this.rParameters = rParameters;

@@ -3,7 +3,7 @@ package codr7.jalang.libraries;
 import codr7.jalang.*;
 import codr7.jalang.errors.EmitError;
 import codr7.jalang.errors.EvaluationError;
-import codr7.jalang.forms.DequeForm;
+import codr7.jalang.forms.VectorForm;
 import codr7.jalang.forms.IdForm;
 import codr7.jalang.forms.LiteralForm;
 import codr7.jalang.forms.PairForm;
@@ -20,6 +20,10 @@ import java.util.regex.Pattern;
 import java.util.stream.Stream;
 
 public class Core extends Library {
+  public interface CallableTrait {
+    void call(Object target, Vm vm, Location location, int[] rParameters, int rResult);
+  }
+
   public interface CollectionTrait {
     int length(final Object value);
   }
@@ -84,62 +88,6 @@ public class Core extends Library {
   public static class ComparableType extends Type<Object> {
     public ComparableType(final String name) {
       super(name);
-    }
-  }
-
-  public static class DequeType
-      extends Type<Deque<Value<?>>>
-      implements CollectionTrait, SequenceTrait<Value<?>> {
-    public DequeType(final String name) {
-      super(name);
-    }
-
-    public String dump(final Deque<Value<?>> value) {
-      final var result = new StringBuilder();
-      result.append('[');
-      var first = true;
-
-      for (final var v : value) {
-        if (!first) {
-          result.append(' ');
-        }
-
-        result.append(v.toString());
-        first = false;
-      }
-
-      result.append(']');
-      return result.toString();
-    }
-
-    public boolean equalValues(final Deque<Value<?>> left, final Deque<Value<?>> right) {
-      if (left.size() != right.size()) {
-        return false;
-      }
-
-      final var li = left.iterator();
-      final var ri = right.iterator();
-
-      while (li.hasNext()) {
-        if (!li.next().equals(ri.next())) {
-          return false;
-        }
-      }
-      return true;
-    }
-
-    public boolean isTrue(final Deque<Value<?>> value) {
-      return !value.isEmpty();
-    }
-
-    @SuppressWarnings("unchecked")
-    public Iterator<Value<?>> iterator(final Object value) {
-      return ((Deque<Value<?>>) value).iterator();
-    }
-
-    @SuppressWarnings("unchecked")
-    public int length(final Object value) {
-      return ((Deque<Value<?>>) value).size();
     }
   }
 
@@ -230,9 +178,20 @@ public class Core extends Library {
 
   public static class MapType
       extends Type<Map<Value<?>, Value<?>>>
-      implements CollectionTrait, SequenceTrait<Value<?>> {
+      implements CallableTrait, CollectionTrait, SequenceTrait<Value<?>> {
     public MapType(final String name) {
       super(name);
+    }
+
+    public void call(Object target, Vm vm, Location location, int[] rParameters, int rResult) {
+      final var map = ((Map<Value<?>, Value<?>>)target);
+
+      if (rParameters.length != 1) {
+        throw new EvaluationError(location, "Invalid map call.");
+      }
+      final var rKey = rParameters[0];
+      final var value = map.get(vm.peek(rKey));
+      vm.poke(rResult, (value == null) ? new Value<>(Core.instance.noneType, null) : value);
     }
 
     public String dump(final Map<Value<?>, Value<?>> value) {
@@ -409,6 +368,73 @@ public class Core extends Library {
     }
   }
 
+  public static class VectorType
+      extends Type<ArrayList<Value<?>>>
+      implements CallableTrait, CollectionTrait, SequenceTrait<Value<?>> {
+    public VectorType(final String name) {
+      super(name);
+    }
+
+    public void call(Object target, Vm vm, Location location, int[] rParameters, int rResult) {
+      final var vector = (ArrayList<Value<?>>)target;
+
+      if (rParameters.length != 1) {
+        throw new EvaluationError(location, "Invalid vector call.");
+      }
+      final var rKey = rParameters[0];
+      final var value = vector.get(vm.peek(rKey).as(Core.instance.integerType));
+      vm.poke(rResult, value);
+    }
+
+    public String dump(final ArrayList<Value<?>> value) {
+      final var result = new StringBuilder();
+      result.append('[');
+      var first = true;
+
+      for (final var v : value) {
+        if (!first) {
+          result.append(' ');
+        }
+
+        result.append(v.toString());
+        first = false;
+      }
+
+      result.append(']');
+      return result.toString();
+    }
+
+    public boolean equalValues(final ArrayList<Value<?>> left, final ArrayList<Value<?>> right) {
+      if (left.size() != right.size()) {
+        return false;
+      }
+
+      final var li = left.iterator();
+      final var ri = right.iterator();
+
+      while (li.hasNext()) {
+        if (!li.next().equals(ri.next())) {
+          return false;
+        }
+      }
+      return true;
+    }
+
+    public boolean isTrue(final ArrayList<Value<?>> value) {
+      return !value.isEmpty();
+    }
+
+    @SuppressWarnings("unchecked")
+    public Iterator<Value<?>> iterator(final Object value) {
+      return ((ArrayList<Value<?>>) value).iterator();
+    }
+
+    @SuppressWarnings("unchecked")
+    public int length(final Object value) {
+      return ((ArrayList<Value<?>>) value).size();
+    }
+  }
+
   public static final Core instance = new Core();
 
   public Core() {
@@ -418,7 +444,6 @@ public class Core extends Library {
     bindType(characterType);
     bindType(collectionType);
     bindType(comparableType);
-    bindType(dequeType);
     bindType(floatType);
     bindType(Function.type);
     bindType(indexedCollectionType);
@@ -434,6 +459,7 @@ public class Core extends Library {
     bindType(sequenceType);
     bindType(stringType);
     bindType(symbolType);
+    bindType(vectorType);
 
     bind("_", NONE);
     bind("T", T);
@@ -650,20 +676,20 @@ public class Core extends Library {
       namespace.bind(name, vm.peek(rResult));
         });
 
-    bindFunction("deque",
+    bindFunction("vector",
         new Parameter[]{new Parameter("input", sequenceType)}, 1,
-        dequeType,
+        vectorType,
         (function, vm, location, rParameters, rResult) -> {
           final var input = vm.peek(rParameters[0]);
 
           @SuppressWarnings("unchecked") final var iterator = ((SequenceTrait<Value<?>>) input.type()).iterator(input.data());
-          final var result = new ArrayDeque<Value<?>>();
+          final var result = new ArrayList<Value<?>>();
 
           while (iterator.hasNext()) {
             result.add(iterator.next());
           }
 
-          vm.poke(rResult, new Value<>(dequeType, result));
+          vm.poke(rResult, new Value<>(vectorType, result));
         });
 
     bindFunction("digit",
@@ -709,7 +735,7 @@ public class Core extends Library {
           final var iteratePc = vm.emit(Nop.instance);
           final var rValue = vm.allocateRegister();
           final var rPredicateResult = vm.allocateRegister();
-          vm.emit(new CallRegister(rPredicate, new int[]{rValue}, rPredicateResult, location));
+          vm.emit(new CallRegister(location, rPredicate, new int[]{rValue}, rPredicateResult));
           final var ifPc = vm.emit(Nop.instance);
           vm.emit(new MakePair(rValue, rIndex, rResult));
           final var exitPc = vm.emit(Nop.instance);
@@ -746,11 +772,11 @@ public class Core extends Library {
             psForm = p.left();
           }
 
-          if (!(psForm instanceof DequeForm)) {
+          if (!(psForm instanceof VectorForm)) {
             throw new EmitError(psForm.location(), "Invalid parameter specification: %s.", psForm);
           }
 
-          final var ps = Arrays.stream(((DequeForm) psForm).body()).map((f) -> {
+          final var ps = Arrays.stream(((VectorForm) psForm).body()).map((f) -> {
             var pn = "";
             Type<?> pt = anyType;
 
@@ -884,10 +910,10 @@ public class Core extends Library {
           }
 
           final var rCall = vm.allocateRegister();
-          vm.emit(new Poke(new Value<>(Core.instance.dequeType, new ArrayDeque<>()), rResult));
+          vm.emit(new Poke(new Value<>(Core.instance.vectorType, new ArrayList<>()), rResult));
           final var mapPc = vm.emit(Nop.instance);
-          vm.emit(new CallRegister(rFunction, rValues, rCall, location));
-          vm.emit(new AddLast(rCall, rResult));
+          vm.emit(new CallRegister(location, rFunction, rValues, rCall));
+          vm.emit(new Push(rResult, rCall));
           vm.emit(new Goto(mapPc));
           vm.emit(mapPc, new MapIterators(rFunction, rIterators, rValues, rResult, vm.emitPc(), location));
           vm.emit(new GetIterator(rResult, rResult, location));
@@ -1006,7 +1032,7 @@ public class Core extends Library {
           final var w = vm.peek(rParameters[0]).as(stringType);
           final var s = vm.peek(rParameters[1]).as(stringType);
           final String[] parts = w.split(Pattern.quote(s));
-          final var result = new ArrayDeque<Value<?>>();
+          final var result = new ArrayList<Value<?>>();
 
           for (final var p : parts) {
             result.add(new Value<>(stringType, p));
@@ -1034,7 +1060,6 @@ public class Core extends Library {
   public final CharacterType characterType = new CharacterType("Character");
   public final CollectionType collectionType = new CollectionType("Collection");
   public final ComparableType comparableType = new ComparableType("Comparable");
-  public final DequeType dequeType = new DequeType("Deque");
   public final FloatType floatType = new FloatType("Float");
   public final IndexedCollectionType indexedCollectionType = new IndexedCollectionType("IndexedCollection");
   public final IntegerType integerType = new IntegerType("Integer");
@@ -1048,4 +1073,5 @@ public class Core extends Library {
   public final SequenceType sequenceType = new SequenceType("Sequence");
   public final StringType stringType = new StringType("String");
   public final SymbolType symbolType = new SymbolType("Symbol");
+  public final VectorType vectorType = new VectorType("Vector");
 }

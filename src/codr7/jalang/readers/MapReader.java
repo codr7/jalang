@@ -5,7 +5,6 @@ import codr7.jalang.Input;
 import codr7.jalang.Location;
 import codr7.jalang.Reader;
 import codr7.jalang.errors.ReadError;
-import codr7.jalang.forms.DequeForm;
 import codr7.jalang.forms.MapForm;
 
 import java.io.IOException;

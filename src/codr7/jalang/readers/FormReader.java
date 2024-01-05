@@ -23,7 +23,7 @@ public class FormReader implements Reader {
       case '(':
         return SexprReader.instance.read(in, out, location);
       case '[':
-        return DequeReader.instance.read(in, out, location);
+        return VectorReader.instance.read(in, out, location);
       case '{':
         return MapReader.instance.read(in, out, location);
       case '\'':

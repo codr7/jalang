@@ -53,7 +53,7 @@
   (tail:_ 1:2:3))
 
 (check ["foo" "bar" "baz"]
-  (deque (split "foo bar baz" " ")))
+  (vector (split "foo bar baz" " ")))
 
 (check "1 2 3"
   (string 1 " " 2 " " 3))
@@ -83,16 +83,22 @@
   (length [1 2 3]))
 
 (check [0 1 2]
-  (deque 3))
+  (vector 3))
+
+(check 'bar
+  (['foo 'bar 'baz] 1))
   
 (check [5 7 9]
-  (deque (map + [1 2 3] [4 5 6 7])))
+  (vector (map + [1 2 3] [4 5 6 7])))
 
 (check 3
   (length {1 2 3:4}))
 
 (check T
   (= {1 2 3:4} {1 2 3:4}))
+
+(check 2
+  ({'foo:1 'bar:2 'baz:3} 'bar))
 
 (check 2
   (define m {'foo:1 'bar:2 'baz:3})
@@ -102,7 +108,7 @@
   (function foo [l:Integer r:Integer]:Integer
     (+ l r))
   
-  (deque (map foo [1 2 3] [4 5 6 7])))
+  (vector (map foo [1 2 3] [4 5 6 7])))
 
 (check 7
   (reduce + [1 2 3] 1))

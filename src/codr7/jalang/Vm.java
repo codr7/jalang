@@ -57,11 +57,10 @@ public class Vm {
       final var op = code.get(pc);
 
       switch (op.code) {
-        case AddLast: {
-          final var o = (AddLast) op;
-          final var result = registers.get(o.rResult).as(Core.instance.dequeType);
-          final var item = registers.get(o.rItem);
-          result.add(item);
+        case Push: {
+          final var o = (Push) op;
+          final var vector = registers.get(o.rVector).as(Core.instance.vectorType);
+          vector.add(registers.get(o.rValue));
           pc++;
           break;
         }
@@ -87,8 +86,13 @@ public class Vm {
         }
         case CallRegister: {
           final var o = (CallRegister) op;
+          final var target = registers.get(o.rTarget);
+          if (!(target.type() instanceof Core.CallableTrait)) {
+            throw new EvaluationError(o.location, "Invalid target: %s.", target);
+          }
+
           pc++;
-          registers.get(o.rTarget).as(Function.type).call(this, o.location, o.rParameters, o.rResult);
+          ((Core.CallableTrait)target.type()).call(target.data(), this, o.location, o.rParameters, o.rResult);
           break;
         }
         case Check: {
