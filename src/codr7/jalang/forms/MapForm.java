@@ -20,7 +20,7 @@ public class MapForm extends Form {
 
     for (final var f : body) {
       if (f instanceof PairForm) {
-        final var pf = (PairForm)f;
+        final var pf = (PairForm) f;
         final var rKey = vm.allocateRegister();
         pf.left().emit(vm, namespace, rKey);
         pf.right().emit(vm, namespace, rValue);

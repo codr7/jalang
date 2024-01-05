@@ -4,7 +4,6 @@ import codr7.jalang.*;
 import codr7.jalang.errors.ReadError;
 import codr7.jalang.forms.IdForm;
 import codr7.jalang.forms.LiteralForm;
-import codr7.jalang.forms.PairForm;
 import codr7.jalang.libraries.Core;
 
 import java.io.IOException;
@@ -27,7 +26,7 @@ public class SymbolReader implements Reader {
       throw new ReadError(location, "Invalid symbol.");
     }
 
-    final var name = ((IdForm)out.removeLast()).name();
+    final var name = ((IdForm) out.removeLast()).name();
     out.addLast(new LiteralForm(formLocation, new Value<>(Core.instance.symbolType, name)));
     return true;
   }

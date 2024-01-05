@@ -3,13 +3,11 @@ package codr7.jalang.libraries;
 import codr7.jalang.*;
 import codr7.jalang.errors.EmitError;
 import codr7.jalang.errors.EvaluationError;
-import codr7.jalang.forms.VectorForm;
 import codr7.jalang.forms.IdForm;
 import codr7.jalang.forms.LiteralForm;
 import codr7.jalang.forms.PairForm;
+import codr7.jalang.forms.VectorForm;
 import codr7.jalang.operations.*;
-import codr7.jalang.Compare;
-import codr7.jalang.Pair;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -130,7 +128,7 @@ public class Core extends Library {
     }
 
     public void call(Object target, Vm vm, Location location, int[] rParameters, int rResult) {
-      ((Function)target).call(vm, location, rParameters, rResult);
+      ((Function) target).call(vm, location, rParameters, rResult);
     }
   }
 
@@ -194,7 +192,7 @@ public class Core extends Library {
     }
 
     public void call(Object target, Vm vm, Location location, int[] rParameters, int rResult) {
-      final var map = ((Map<Value<?>, Value<?>>)target);
+      final var map = ((Map<Value<?>, Value<?>>) target);
 
       if (rParameters.length != 1) {
         throw new EvaluationError(location, "Invalid map call.");
@@ -257,7 +255,7 @@ public class Core extends Library {
     public Iterator<Value<?>> iterator(final Object value) {
       final var items = new ArrayList<Value<?>>();
 
-      for (final var e: ((Map<Value<?>, Value<?>>) value).entrySet()) {
+      for (final var e : ((Map<Value<?>, Value<?>>) value).entrySet()) {
         if (e.getKey().equals(e.getValue())) {
           items.add(e.getKey());
         } else {
@@ -386,7 +384,7 @@ public class Core extends Library {
     }
 
     public void call(Object target, Vm vm, Location location, int[] rParameters, int rResult) {
-      final var vector = (ArrayList<Value<?>>)target;
+      final var vector = (ArrayList<Value<?>>) target;
 
       if (rParameters.length != 1) {
         throw new EvaluationError(location, "Invalid vector call.");
@@ -680,14 +678,14 @@ public class Core extends Library {
 
     bindMacro("define", 2,
         (vm, namespace, location, arguments, rResult) -> {
-      final var nameForm = arguments[0];
+          final var nameForm = arguments[0];
 
-      if (!(nameForm instanceof IdForm)) {
-        throw new EmitError(nameForm.location(), "Expected identifier: %s.", nameForm);
-      }
-      final var name = ((IdForm)nameForm).name();
-      vm.evaluate(arguments[1], namespace, rResult);
-      namespace.bind(name, vm.peek(rResult));
+          if (!(nameForm instanceof IdForm)) {
+            throw new EmitError(nameForm.location(), "Expected identifier: %s.", nameForm);
+          }
+          final var name = ((IdForm) nameForm).name();
+          vm.evaluate(arguments[1], namespace, rResult);
+          namespace.bind(name, vm.peek(rResult));
         });
 
     bindFunction("vector",
@@ -725,10 +723,10 @@ public class Core extends Library {
 
     bindMacro("do", 0,
         (vm, namespace, location, arguments, rResult) -> {
-      for (final var a: arguments) {
-        a.emit(vm, namespace, rResult);
-      }
-    });
+          for (final var a : arguments) {
+            a.emit(vm, namespace, rResult);
+          }
+        });
 
     bindMacro("find", 2,
         (vm, namespace, location, arguments, rResult) -> {

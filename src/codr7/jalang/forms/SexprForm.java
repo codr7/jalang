@@ -3,7 +3,10 @@ package codr7.jalang.forms;
 import codr7.jalang.*;
 import codr7.jalang.errors.EmitError;
 import codr7.jalang.libraries.Core;
-import codr7.jalang.operations.*;
+import codr7.jalang.operations.CallDirect;
+import codr7.jalang.operations.CallIndirect;
+import codr7.jalang.operations.Head;
+import codr7.jalang.operations.Tail;
 
 public class SexprForm extends Form {
   public SexprForm(final Location location, Form... body) {
@@ -17,7 +20,7 @@ public class SexprForm extends Form {
     var tailCount = 0;
 
     while (targetForm instanceof PairForm) {
-      var pf = (PairForm)targetForm;
+      var pf = (PairForm) targetForm;
 
       if (pf.left() instanceof NoneForm) {
         targetForm = pf.right();
@@ -44,7 +47,7 @@ public class SexprForm extends Form {
         throw new EmitError(location(), "Unknown identifer: %s", targetName);
       }
     } else if (targetForm instanceof LiteralForm) {
-      target = ((LiteralForm)targetForm).value();
+      target = ((LiteralForm) targetForm).value();
     } else {
       final var rTarget = vm.allocateRegister();
       targetForm.emit(vm, namespace, rTarget);
