@@ -40,6 +40,7 @@ public class Core extends Library {
   }
 
   public interface StackTrait {
+    Value<?> peek(final Vm vm, final Value<?> target);
     Value<?> pop(final Vm vm, final Value<?> target, final int rTarget);
     Value<?> push(final Value<?> target, final Value<?> value);
   }
@@ -305,8 +306,12 @@ public class Core extends Library {
       return value.left().isTrue();
     }
 
+    public Value<?> peek(final Vm vm, final Value<?> target) {
+      return target.as(this).left();
+    }
+
     public Value<?> pop(final Vm vm, final Value<?> target, final int rTarget) {
-      final var p = vm.get(rTarget).as(this);
+      final var p = target.as(this);
       final var result = p.left();
       vm.set(rTarget, p.right());
       return result;
@@ -459,8 +464,14 @@ public class Core extends Library {
       return ((ArrayList<Value<?>>) value).size();
     }
 
+    public Value<?> peek(final Vm vm, final Value<?> target) {
+      final var t = target.as(this);
+      return t.isEmpty() ? new Value<>(Core.instance.noneType, null) : t.getLast();
+    }
+
     public Value<?> pop(final Vm vm, final Value<?> target, final int rTarget) {
-      return target.as(this).removeLast();
+      final var t = target.as(this);
+      return t.isEmpty() ? new Value<>(Core.instance.noneType, null) : t.removeLast();
     }
 
     public Value<?> push(final Value<?> target, final Value<?> value) {
@@ -978,6 +989,13 @@ public class Core extends Library {
         pathType,
         (function, vm, location, rParameters, rResult) -> {
           vm.set(rResult, new Value<>(pathType, Paths.get(vm.get(rParameters[0]).as(stringType))));
+        });
+
+    bindMacro("peek", 1,
+        (vm, namespace, location, arguments, rResult) -> {
+          final var rTarget = vm.allocateRegister();
+          arguments[0].emit(vm, namespace, rTarget);
+          vm.emit(new Peek(rTarget, rResult));
         });
 
     bindMacro("pop", 1,

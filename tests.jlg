@@ -53,6 +53,9 @@
   (push 2:3 1))
 
 (check 1
+  (peek 1:2:3))
+  
+(check 1
   (pop 1:2:3))
 
 (check 2
@@ -94,6 +97,9 @@
 (check [1 2 3]
   (push [1 2] 3))
 
+(check 3
+  (peek [1 2 3]))
+  
 (check 3
   (pop [1 2 3]))
 

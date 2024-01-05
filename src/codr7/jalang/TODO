@@ -1,8 +1,6 @@
 0.4520028
 0.14301105
 
-* add peek macro/op
-
 * add lookup fib test/benchmark
 ** add or macro
 ** add support for setting value to Map/VectorType.call

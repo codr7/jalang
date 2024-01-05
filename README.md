@@ -18,7 +18,7 @@ hello world
 _
 ```
 
-## Control Flow
+## Flow Control
 
 ### if
 `if` allows branching on a condition.<br/>
@@ -115,7 +115,11 @@ Lists support stack semantics.
 
 1:2:3
 ```
+```
+  (peek 1:2:3)
 
+1
+```
 ```
   (pop 1:2:3)
 
@@ -139,7 +143,11 @@ Vectors support stack semantics.
 
 [1 2 3]
 ```
+```
+  (peek [1 2 3])
 
+3
+```
 ```
   (pop [1 2 3])
 

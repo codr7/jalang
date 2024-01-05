@@ -2,7 +2,6 @@ package codr7.jalang;
 
 public abstract class Operation {
   public enum Code {
-    Push,
     Benchmark,
     CallDirect, CallIndirect, Check,
     Decrement,
@@ -12,7 +11,7 @@ public abstract class Operation {
     If, Increment, Iterate,
     MakePair, MapIterators,
     Nop,
-    Pop,
+    Peek, Pop, Push,
     ReduceIterator, Return,
     Set, SetKey, Stop,
     Tail, Trace

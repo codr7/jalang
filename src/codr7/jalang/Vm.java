@@ -231,6 +231,13 @@ public class Vm {
           pc++;
           break;
         }
+        case Peek: {
+          final var o = (Peek) op;
+          final var target = registers.get(o.rTarget);
+          registers.set(o.rResult, ((Core.StackTrait)target.type()).peek(this, target));
+          pc++;
+          break;
+        }
         case Pop: {
           final var o = (Pop) op;
           final var target = registers.get(o.rTarget);
