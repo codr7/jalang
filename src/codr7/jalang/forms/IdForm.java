@@ -6,8 +6,8 @@ import codr7.jalang.Namespace;
 import codr7.jalang.Vm;
 import codr7.jalang.errors.EmitError;
 import codr7.jalang.libraries.Core;
-import codr7.jalang.operations.Peek;
-import codr7.jalang.operations.Poke;
+import codr7.jalang.operations.Get;
+import codr7.jalang.operations.Set;
 
 public class IdForm extends Form {
   public IdForm(final Location location, final String name) {
@@ -26,10 +26,10 @@ public class IdForm extends Form {
       final var source = value.as(Core.instance.registerType).index();
 
       if (source != rResult) {
-        vm.emit(new Peek(source, rResult));
+        vm.emit(new Get(source, rResult));
       }
     } else {
-      vm.emit(new Poke(value, rResult));
+      vm.emit(new Set(value, rResult));
     }
   }
 

@@ -40,7 +40,7 @@ public class Repl {
 
         vm.emit(Stop.instance);
         vm.evaluate(pc);
-        var result = vm.peek(Vm.DEFAULT_REGISTER);
+        var result = vm.get(Vm.DEFAULT_REGISTER);
         out.println((result == null) ? "_" : result.dump());
       } else {
         inputBuffer.append(line);

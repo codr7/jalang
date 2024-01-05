@@ -1,7 +1,7 @@
 package codr7.jalang.forms;
 
 import codr7.jalang.*;
-import codr7.jalang.operations.Poke;
+import codr7.jalang.operations.Set;
 
 public class LiteralForm extends Form {
   public LiteralForm(final Location location, final Value<?> value) {
@@ -10,7 +10,7 @@ public class LiteralForm extends Form {
   }
 
   public void emit(final Vm vm, final Namespace namespace, final int rResult) {
-    vm.emit(new Poke(value, rResult));
+    vm.emit(new Set(value, rResult));
   }
 
   public String toString() {

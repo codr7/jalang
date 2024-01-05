@@ -3,6 +3,7 @@ package codr7.jalang;
 import codr7.jalang.errors.EvaluationError;
 import codr7.jalang.libraries.Core;
 import codr7.jalang.operations.*;
+import codr7.jalang.operations.Set;
 import codr7.jalang.readers.FormReader;
 
 import java.io.IOException;
@@ -118,6 +119,12 @@ public class Vm {
           pc++;
           break;
         }
+        case Get: {
+          final var o = (Get) op;
+          registers.set(o.rResult, registers.get(o.rValue));
+          pc++;
+          break;
+        }
         case GetIterator: {
           final var o = (GetIterator) op;
           final var v = registers.get(o.rValue);
@@ -224,18 +231,6 @@ public class Vm {
           pc++;
           break;
         }
-        case Peek: {
-          final var o = (Peek) op;
-          registers.set(o.rResult, registers.get(o.rValue));
-          pc++;
-          break;
-        }
-        case Poke: {
-          final var o = (Poke) op;
-          registers.set(o.rResult, o.value);
-          pc++;
-          break;
-        }
         case Pop: {
           final var o = (Pop) op;
           final var vector = registers.get(o.rVector).as(Core.instance.vectorType);
@@ -273,6 +268,12 @@ public class Vm {
           registers.set(callFrame.rResult(), result);
           pc = callFrame.returnPc();
           callFrame = callFrame.parentFrame();
+          break;
+        }
+        case Set: {
+          final var o = (Set) op;
+          registers.set(o.rResult, o.value);
+          pc++;
           break;
         }
         case SetKey: {
@@ -313,6 +314,10 @@ public class Vm {
     evaluate(startPc);
   }
 
+  public final Value<?> get(final int index) {
+    return registers.get(index);
+  }
+
   public final void load(final Path path,
                          final Namespace namespace,
                          final int register) throws IOException {
@@ -343,14 +348,6 @@ public class Vm {
     return loadPath;
   }
 
-  public final Value<?> peek(final int index) {
-    return registers.get(index);
-  }
-
-  public final void poke(final int index, Value<?> value) {
-    registers.set(index, value);
-  }
-
   public final void pushCall(final Function target,
                              final Location location,
                              final int pc,
@@ -364,6 +361,10 @@ public class Vm {
         resultRegister);
 
     this.pc = pc;
+  }
+
+  public final void set(final int index, Value<?> value) {
+    registers.set(index, value);
   }
 
   private CallFrame callFrame;

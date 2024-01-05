@@ -7,14 +7,14 @@ public abstract class Operation {
     CallDirect, CallIndirect, Check,
     Decrement,
     EqualsZero,
-    GetIterator, GetKey, Goto,
+    Get, GetIterator, GetKey, Goto,
     Head,
     If, Increment, Iterate,
     MakePair, MapIterators,
     Nop,
-    Peek, Poke, Pop,
+    Pop,
     ReduceIterator, Return,
-    SetKey, Stop,
+    Set, SetKey, Stop,
     Tail, Trace
   }
 

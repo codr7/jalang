@@ -8,6 +8,7 @@ import codr7.jalang.forms.LiteralForm;
 import codr7.jalang.forms.PairForm;
 import codr7.jalang.forms.VectorForm;
 import codr7.jalang.operations.*;
+import codr7.jalang.operations.Set;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -198,8 +199,8 @@ public class Core extends Library {
         throw new EvaluationError(location, "Invalid map call.");
       }
       final var rKey = rParameters[0];
-      final var value = map.get(vm.peek(rKey));
-      vm.poke(rResult, (value == null) ? new Value<>(Core.instance.noneType, null) : value);
+      final var value = map.get(vm.get(rKey));
+      vm.set(rResult, (value == null) ? new Value<>(Core.instance.noneType, null) : value);
     }
 
     public String dump(final Map<Value<?>, Value<?>> value) {
@@ -390,8 +391,8 @@ public class Core extends Library {
         throw new EvaluationError(location, "Invalid vector call.");
       }
       final var rKey = rParameters[0];
-      final var value = vector.get(vm.peek(rKey).as(Core.instance.integerType));
-      vm.poke(rResult, value);
+      final var value = vector.get(vm.get(rKey).as(Core.instance.integerType));
+      vm.set(rResult, value);
     }
 
     public String dump(final ArrayList<Value<?>> value) {
@@ -483,17 +484,17 @@ public class Core extends Library {
             new Parameter("value2", anyType)}, 2,
         bitType,
         (function, vm, location, rParameters, rResult) -> {
-          final var value1 = vm.peek(rParameters[0]);
+          final var value1 = vm.get(rParameters[0]);
           var result = true;
 
           for (int i = 1; i < rParameters.length; i++) {
-            if (!vm.peek(rParameters[i]).equals(value1)) {
+            if (!vm.get(rParameters[i]).equals(value1)) {
               result = false;
               break;
             }
           }
 
-          vm.poke(rResult, new Value<>(bitType, result));
+          vm.set(rResult, new Value<>(bitType, result));
         });
 
     bindFunction("<",
@@ -502,12 +503,12 @@ public class Core extends Library {
             new Parameter("value2", comparableType)}, 2,
         bitType,
         (function, vm, location, rParameters, rResult) -> {
-          var value1 = vm.peek(rParameters[0]);
+          var value1 = vm.get(rParameters[0]);
           var type = (ComparableTrait) value1.type();
           var result = true;
 
           for (var i = 1; i < rParameters.length; i++) {
-            final var v = vm.peek(rParameters[i]);
+            final var v = vm.get(rParameters[i]);
 
             if (v.type() != value1.type()) {
               throw new EvaluationError(location, "Type mismatch: %s/%s.", value1.type(), v.type());
@@ -521,7 +522,7 @@ public class Core extends Library {
             value1 = v;
           }
 
-          vm.poke(rResult, new Value<>(bitType, result));
+          vm.set(rResult, new Value<>(bitType, result));
         });
 
     bindFunction(">",
@@ -530,12 +531,12 @@ public class Core extends Library {
             new Parameter("value2", comparableType)}, 2,
         bitType,
         (function, vm, location, rParameters, rResult) -> {
-          var value1 = vm.peek(rParameters[0]);
+          var value1 = vm.get(rParameters[0]);
           var type = (ComparableTrait) value1.type();
           var result = true;
 
           for (var i = 1; i < rParameters.length; i++) {
-            final var v = vm.peek(rParameters[i]);
+            final var v = vm.get(rParameters[i]);
 
             if (v.type() != value1.type()) {
               throw new EvaluationError(location, "Type mismatch: %s/%s.", value1.type(), v.type());
@@ -549,7 +550,7 @@ public class Core extends Library {
             value1 = v;
           }
 
-          vm.poke(rResult, new Value<>(bitType, result));
+          vm.set(rResult, new Value<>(bitType, result));
         });
 
     bindFunction("+", new Parameter[]{
@@ -560,10 +561,10 @@ public class Core extends Library {
           int result = 0;
 
           for (var i = 0; i < rParameters.length; i++) {
-            result += vm.peek(rParameters[i]).as(integerType);
+            result += vm.get(rParameters[i]).as(integerType);
           }
 
-          vm.poke(rResult, new Value<>(integerType, result));
+          vm.set(rResult, new Value<>(integerType, result));
         });
 
     bindFunction("-", new Parameter[]{
@@ -571,17 +572,17 @@ public class Core extends Library {
             new Parameter("value2", integerType)}, 2,
         integerType,
         (function, vm, location, rParameters, rResult) -> {
-          int result = vm.peek(rParameters[0]).as(integerType);
+          int result = vm.get(rParameters[0]).as(integerType);
 
           if (rParameters.length == 1) {
             result = -result;
           } else {
             for (var i = 1; i < rParameters.length; i++) {
-              result -= vm.peek(rParameters[i]).as(integerType);
+              result -= vm.get(rParameters[i]).as(integerType);
             }
           }
 
-          vm.poke(rResult, new Value<>(integerType, result));
+          vm.set(rResult, new Value<>(integerType, result));
         });
 
     bindMacro("=0", 1,
@@ -611,7 +612,7 @@ public class Core extends Library {
             rValue = r.index();
           } else if (a instanceof LiteralForm) {
             rValue = vm.allocateRegister();
-            vm.poke(rValue, ((LiteralForm) a).value());
+            vm.set(rValue, ((LiteralForm) a).value());
           } else {
             throw new EmitError(location, "Invalid target: %s", a.toString());
           }
@@ -640,7 +641,7 @@ public class Core extends Library {
             rValue = r.index();
           } else if (a instanceof LiteralForm) {
             rValue = vm.allocateRegister();
-            vm.poke(rValue, ((LiteralForm) a).value());
+            vm.set(rValue, ((LiteralForm) a).value());
           } else {
             throw new EmitError(location, "Invalid target: %s", a.toString());
           }
@@ -685,14 +686,14 @@ public class Core extends Library {
           }
           final var name = ((IdForm) nameForm).name();
           vm.evaluate(arguments[1], namespace, rResult);
-          namespace.bind(name, vm.peek(rResult));
+          namespace.bind(name, vm.get(rResult));
         });
 
     bindFunction("vector",
         new Parameter[]{new Parameter("input", sequenceType)}, 1,
         vectorType,
         (function, vm, location, rParameters, rResult) -> {
-          final var input = vm.peek(rParameters[0]);
+          final var input = vm.get(rParameters[0]);
 
           @SuppressWarnings("unchecked") final var iterator = ((SequenceTrait<Value<?>>) input.type()).iterator(input.data());
           final var result = new ArrayList<Value<?>>();
@@ -701,24 +702,24 @@ public class Core extends Library {
             result.add(iterator.next());
           }
 
-          vm.poke(rResult, new Value<>(vectorType, result));
+          vm.set(rResult, new Value<>(vectorType, result));
         });
 
     bindFunction("digit",
         new Parameter[]{new Parameter("value", characterType)}, 1,
         integerType,
         (function, vm, location, rParameters, rResult) -> {
-          final var c = vm.peek(rParameters[0]).as(characterType);
+          final var c = vm.get(rParameters[0]).as(characterType);
           final var result = Character.isDigit(c) ? Character.digit(c, 10) : -1;
-          vm.poke(rResult, new Value<>(integerType, result));
+          vm.set(rResult, new Value<>(integerType, result));
         });
 
     bindFunction("digit?",
         new Parameter[]{new Parameter("value", characterType)}, 1,
         bitType,
         (function, vm, location, rParameters, rResult) -> {
-          final var c = vm.peek(rParameters[0]).as(characterType);
-          vm.poke(rResult, new Value<>(bitType, Character.isDigit(c)));
+          final var c = vm.get(rParameters[0]).as(characterType);
+          vm.set(rResult, new Value<>(bitType, Character.isDigit(c)));
         });
 
     bindMacro("do", 0,
@@ -739,10 +740,10 @@ public class Core extends Library {
           inputForm.emit(vm, namespace, rIterator);
           vm.emit(new GetIterator(rIterator, rIterator, inputForm.location()));
 
-          vm.emit(new Poke(new Value<>(integerType, -1), rResult));
+          vm.emit(new Set(new Value<>(integerType, -1), rResult));
 
           final var rIndex = vm.allocateRegister();
-          vm.emit(new Poke(new Value<>(integerType, 0), rIndex));
+          vm.emit(new Set(new Value<>(integerType, 0), rIndex));
 
           final var iteratePc = vm.emit(Nop.instance);
           final var rValue = vm.allocateRegister();
@@ -824,7 +825,7 @@ public class Core extends Library {
                 _vm.pushCall(_function, _location, startPc, _result);
 
                 for (var i = 0; i < _parameters.length; i++) {
-                  vm.poke(i + 1, vm.peek(_parameters[i]));
+                  vm.set(i + 1, vm.get(_parameters[i]));
                 }
               });
 
@@ -849,7 +850,7 @@ public class Core extends Library {
           vm.emit(skipPc, new Goto(vm.emitPc()));
 
           if (name.isEmpty()) {
-            vm.emit(new Poke(v, rResult));
+            vm.emit(new Set(v, rResult));
           }
         });
 
@@ -877,25 +878,25 @@ public class Core extends Library {
         new Parameter[]{new Parameter("sequence", sequenceType)}, 1,
         iteratorType,
         (function, vm, location, rParameters, rResult) -> {
-          final var s = vm.peek(rParameters[0]);
+          final var s = vm.get(rParameters[0]);
           @SuppressWarnings("unchecked") final var st = (SequenceTrait<Value<?>>) s.type();
-          vm.poke(rResult, new Value<>(iteratorType, st.iterator(s.data())));
+          vm.set(rResult, new Value<>(iteratorType, st.iterator(s.data())));
         });
 
     bindFunction("length",
         new Parameter[]{new Parameter("collection", collectionType)}, 1,
         integerType,
         (function, vm, location, rParameters, rResult) -> {
-          final var c = vm.peek(rParameters[0]);
+          final var c = vm.get(rParameters[0]);
           final var ct = (CollectionTrait) c.type();
-          vm.poke(rResult, new Value<>(integerType, ct.length(c.data())));
+          vm.set(rResult, new Value<>(integerType, ct.length(c.data())));
         });
 
     bindMacro("load", 1,
         (vm, namespace, location, arguments, rResult) -> {
           vm.evaluate(arguments[0], namespace, rResult);
-          final var path = vm.peek(rResult).as(pathType);
-          vm.poke(rResult, null);
+          final var path = vm.get(rResult).as(pathType);
+          vm.set(rResult, null);
 
           try {
             vm.load(path, namespace, rResult);
@@ -922,7 +923,7 @@ public class Core extends Library {
           }
 
           final var rCall = vm.allocateRegister();
-          vm.emit(new Poke(new Value<>(Core.instance.vectorType, new ArrayList<>()), rResult));
+          vm.emit(new Set(new Value<>(Core.instance.vectorType, new ArrayList<>()), rResult));
           final var mapPc = vm.emit(Nop.instance);
           vm.emit(new CallIndirect(location, rFunction, rValues, rCall));
           vm.emit(new Push(rResult, rCall));
@@ -935,14 +936,14 @@ public class Core extends Library {
         new Parameter[]{new Parameter("input", stringType)}, 1,
         pairType,
         (function, vm, location, rParameters, rResult) -> {
-          final var input = vm.peek(rParameters[0]).as(stringType);
+          final var input = vm.get(rParameters[0]).as(stringType);
           final var match = Pattern.compile("^\\s*(\\d+).*").matcher(input);
 
           if (!match.find()) {
             throw new EvaluationError(location, "Invalid integer: %s", input);
           }
 
-          vm.poke(rResult, new Value<>(pairType, new Pair(
+          vm.set(rResult, new Value<>(pairType, new Pair(
               new Value<>(integerType, Integer.valueOf(match.group(1))),
               new Value<>(integerType, match.end(1)))));
         });
@@ -951,7 +952,7 @@ public class Core extends Library {
         new Parameter[]{new Parameter("value", stringType)}, 1,
         pathType,
         (function, vm, location, rParameters, rResult) -> {
-          vm.poke(rResult, new Value<>(pathType, Paths.get(vm.peek(rParameters[0]).as(stringType))));
+          vm.set(rResult, new Value<>(pathType, Paths.get(vm.get(rParameters[0]).as(stringType))));
         });
 
     bindMacro("pop", 1,
@@ -993,7 +994,7 @@ public class Core extends Library {
               what.append(' ');
             }
 
-            what.append(vm.peek(rParameters[i]).say());
+            what.append(vm.get(rParameters[i]).say());
           }
 
           System.out.println(what);
@@ -1008,11 +1009,11 @@ public class Core extends Library {
         }, 2,
         indexedCollectionType,
         (function, vm, location, rParameters, rResult) -> {
-          final var i = vm.peek(rParameters[0]);
+          final var i = vm.get(rParameters[0]);
           final var it = (IndexedCollectionTrait) i.type();
-          final var start = vm.peek(rParameters[1]);
-          final var end = (rParameters.length == 2) ? null : vm.peek(rParameters[2]);
-          vm.poke(rResult, it.slice(i.data(), start, end));
+          final var start = vm.get(rParameters[1]);
+          final var end = (rParameters.length == 2) ? null : vm.get(rParameters[2]);
+          vm.set(rResult, it.slice(i.data(), start, end));
         });
 
     bindFunction("string",
@@ -1022,18 +1023,18 @@ public class Core extends Library {
           final var result = new StringBuilder();
 
           for (var i = 0; i < rParameters.length; i++) {
-            result.append(vm.peek(rParameters[i]).say());
+            result.append(vm.get(rParameters[i]).say());
           }
 
-          vm.poke(rResult, new Value<>(stringType, result.toString()));
+          vm.set(rResult, new Value<>(stringType, result.toString()));
         });
 
     bindFunction("reverse-string",
         new Parameter[]{new Parameter("input", stringType)}, 1,
         stringType,
         (function, vm, location, rParameters, rResult) -> {
-          final var result = new StringBuilder(vm.peek(rParameters[0]).as(stringType)).reverse().toString();
-          vm.poke(rResult, new Value<>(stringType, result));
+          final var result = new StringBuilder(vm.get(rParameters[0]).as(stringType)).reverse().toString();
+          vm.set(rResult, new Value<>(stringType, result));
         });
 
     bindFunction("slurp",
@@ -1041,9 +1042,9 @@ public class Core extends Library {
         stringType,
         (function, vm, location, rParameters, rResult) -> {
           try {
-            final var p = vm.loadPath().resolve(vm.peek(rParameters[0]).as(pathType));
+            final var p = vm.loadPath().resolve(vm.get(rParameters[0]).as(pathType));
             final String data = Files.readString(p);
-            vm.poke(rResult, new Value<>(stringType, data));
+            vm.set(rResult, new Value<>(stringType, data));
           } catch (final IOException e) {
             throw new EvaluationError(location, "Failed reading file: %s", e);
           }
@@ -1055,8 +1056,8 @@ public class Core extends Library {
             new Parameter("separator", stringType)}, 2,
         iteratorType,
         (function, vm, location, rParameters, rResult) -> {
-          final var w = vm.peek(rParameters[0]).as(stringType);
-          final var s = vm.peek(rParameters[1]).as(stringType);
+          final var w = vm.get(rParameters[0]).as(stringType);
+          final var s = vm.get(rParameters[1]).as(stringType);
           final String[] parts = w.split(Pattern.quote(s));
           final var result = new ArrayList<Value<?>>();
 
@@ -1064,7 +1065,7 @@ public class Core extends Library {
             result.add(new Value<>(stringType, p));
           }
 
-          vm.poke(rResult, new Value<>(iteratorType, result.iterator()));
+          vm.set(rResult, new Value<>(iteratorType, result.iterator()));
         });
 
     bindMacro("tail", 1,

@@ -3,9 +3,9 @@ package codr7.jalang.operations;
 import codr7.jalang.Operation;
 import codr7.jalang.Value;
 
-public class Poke extends Operation {
-  public Poke(final Value<?> value, final int rResult) {
-    super(Code.Poke);
+public class Set extends Operation {
+  public Set(final Value<?> value, final int rResult) {
+    super(Code.Set);
     this.value = value;
     this.rResult = rResult;
   }

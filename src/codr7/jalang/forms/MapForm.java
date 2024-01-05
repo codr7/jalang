@@ -2,7 +2,7 @@ package codr7.jalang.forms;
 
 import codr7.jalang.*;
 import codr7.jalang.libraries.Core;
-import codr7.jalang.operations.Poke;
+import codr7.jalang.operations.Set;
 import codr7.jalang.operations.SetKey;
 
 import java.util.TreeMap;
@@ -15,7 +15,7 @@ public class MapForm extends Form {
 
   public void emit(final Vm vm, final Namespace namespace, final int rResult) {
     final var value = new Value<>(Core.instance.mapType, new TreeMap<>());
-    vm.emit(new Poke(value, rResult));
+    vm.emit(new Set(value, rResult));
     final var rValue = vm.allocateRegister();
 
     for (final var f : body) {
