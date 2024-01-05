@@ -137,14 +137,17 @@
 
   (reduce foo [1 2 3] 1))
 
-(check "foo"
-  (if T "foo" "bar"))
+(check 'foo
+  (or F 0 "" [] {} 'foo 'bar))
+  
+(check 'foo
+  (if T 'foo 'bar))
 
-(check "bar"
-  (if F "foo" "bar"))
+(check 'bar
+  (if F 'foo 'bar))
 
-(check "bar"
-  (if T (do "foo" "bar")))
+(check 'bar
+  (if T (do 'foo 'bar)))
   
 (check 42
   (function foo []:Integer 42)

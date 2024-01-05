@@ -20,6 +20,15 @@ _
 
 ## Flow Control
 
+### or
+`or` evaluates its arguments in specified order until the result is true.
+
+```
+  (or F 0 "" [] {} 'foo 'bar)
+
+'foo
+```
+
 ### if
 `if` allows branching on a condition.<br/>
 The else expression is optional.

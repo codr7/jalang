@@ -2,7 +2,6 @@
 0.14301105
 
 * add lookup fib test/benchmark
-** add or macro
 ** add support for setting value to Map/VectorType.call
 *** check number of arguments
 

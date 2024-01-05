@@ -968,6 +968,23 @@ public class Core extends Library {
           vm.emit(new GetIterator(rResult, rResult, location));
         });
 
+    bindMacro("or", 2,
+        (vm, namespace, location, arguments, rResult) -> {
+        arguments[0].emit(vm, namespace, rResult);
+        final var skipPcs = new ArrayList<Integer>();
+
+        for (int i = 1; i < arguments.length; i++) {
+          final var orPc = vm.emit(Nop.instance);
+          skipPcs.add(vm.emit(Nop.instance));
+          vm.emit(orPc, new If(rResult, vm.emitPc()));
+          arguments[i].emit(vm, namespace, rResult);
+        }
+
+        for (final var pc: skipPcs) {
+          vm.emit(pc, new Goto(vm.emitPc()));
+        }
+    });
+
     bindFunction("parse-integer",
         new Parameter[]{new Parameter("input", stringType)}, 1,
         pairType,
