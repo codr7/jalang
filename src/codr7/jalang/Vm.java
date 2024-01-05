@@ -233,15 +233,16 @@ public class Vm {
         }
         case Pop: {
           final var o = (Pop) op;
-          final var vector = registers.get(o.rVector).as(Core.instance.vectorType);
-          registers.set(o.rResult, vector.removeLast());
+          final var target = registers.get(o.rTarget);
+          registers.set(o.rResult, ((Core.StackTrait)target.type()).pop(this, target, o.rTarget));
           pc++;
           break;
         }
         case Push: {
           final var o = (Push) op;
-          final var vector = registers.get(o.rVector).as(Core.instance.vectorType);
-          vector.add(registers.get(o.rValue));
+          final var target = registers.get(o.rTarget);
+          final var result = ((Core.StackTrait)target.type()).push(target, registers.get(o.rValue));
+          registers.set(o.rResult, result);
           pc++;
           break;
         }

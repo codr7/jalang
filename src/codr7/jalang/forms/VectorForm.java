@@ -20,7 +20,7 @@ public class VectorForm extends Form {
 
     for (final var f : body) {
       f.emit(vm, namespace, rItem);
-      vm.emit(new Push(rResult, rItem));
+      vm.emit(new Push(rResult, rItem, rResult));
     }
   }
 

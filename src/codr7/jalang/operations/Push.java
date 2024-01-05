@@ -3,15 +3,17 @@ package codr7.jalang.operations;
 import codr7.jalang.Operation;
 
 public class Push extends Operation {
-  public Push(final int rVector, final int rValue) {
+  public Push(final int rTarget, final int rValue, final int rResult) {
     super(Code.Push);
-    this.rVector = rVector;
+    this.rTarget = rTarget;
     this.rValue = rValue;
+    this.rResult = rResult;
   }
 
   public String toString() {
-    return String.format("%s vector: %d value: %d", super.toString(), rVector, rValue);
+    return String.format("%s vector: %d value: %d result: %d",
+        super.toString(), rTarget, rValue, rResult);
   }
 
-  public final int rValue, rVector;
+  public final int rResult, rTarget, rValue;
 }

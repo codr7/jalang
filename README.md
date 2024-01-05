@@ -100,12 +100,26 @@ Pairs may be created using `:`.
 ```
 
 ### Lists
-A list is a pair with another pair in tail position.
+A list is simply a pair with another pair in tail position.
 
 ```
   (tail 1:2:3)
 
 2:3
+```
+
+Lists support stack semantics.
+
+```
+  (push 2:3 1)
+
+1:2:3
+```
+
+```
+  (pop 1:2:3)
+
+1
 ```
 
 ### Vectors
@@ -121,15 +135,15 @@ New vectors may be created using `[...]`.
 Vectors support stack semantics.
 
 ```
-  (push ['foo] 'bar)
+  (push [1 2] 3)
 
-['foo 'bar]
+[1 2 3]
 ```
 
 ```
-  (pop ['foo 'bar])
+  (pop [1 2 3])
 
-'bar
+3
 ```
 
 ### Maps

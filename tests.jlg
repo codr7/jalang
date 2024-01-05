@@ -49,6 +49,12 @@
 (check 4:5
   (_:_:tail 1:2:3:4:5))
 
+(check 1:2:3
+  (push 2:3 1))
+
+(check 1
+  (pop 1:2:3))
+
 (check 2
   (tail:_ 1:2:3))
 
@@ -85,11 +91,11 @@
 (check [0 1 2]
   (vector 3))
 
-(check ['foo 'bar]
-  (push ['foo] 'bar))
+(check [1 2 3]
+  (push [1 2] 3))
 
-(check 'bar
-  (pop ['foo 'bar]))
+(check 3
+  (pop [1 2 3]))
 
 (check 'bar
   (['foo 'bar 'baz] 1))

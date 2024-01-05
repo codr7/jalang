@@ -39,6 +39,11 @@ public class Core extends Library {
     Iterator<T> iterator(final Object value);
   }
 
+  public interface StackTrait {
+    Value<?> pop(final Vm vm, final Value<?> target, final int rTarget);
+    Value<?> push(final Value<?> target, final Value<?> value);
+  }
+
   public static class BitType extends Type<Boolean> {
     public BitType(final String name) {
       super(name);
@@ -287,7 +292,7 @@ public class Core extends Library {
     }
   }
 
-  public static class PairType extends Type<Pair> {
+  public static class PairType extends Type<Pair> implements StackTrait {
     public PairType(final String name) {
       super(name);
     }
@@ -298,6 +303,17 @@ public class Core extends Library {
 
     public boolean isTrue(final Pair value) {
       return value.left().isTrue();
+    }
+
+    public Value<?> pop(final Vm vm, final Value<?> target, final int rTarget) {
+      final var p = vm.get(rTarget).as(this);
+      final var result = p.left();
+      vm.set(rTarget, p.right());
+      return result;
+    }
+
+    public Value<?> push(final Value<?> target, final Value<?> value) {
+      return new Value<>(this, new Pair(value, target));
     }
   }
 
@@ -379,7 +395,7 @@ public class Core extends Library {
 
   public static class VectorType
       extends Type<ArrayList<Value<?>>>
-      implements CallableTrait, CollectionTrait, SequenceTrait<Value<?>> {
+      implements CallableTrait, CollectionTrait, SequenceTrait<Value<?>>, StackTrait {
     public VectorType(final String name) {
       super(name);
     }
@@ -441,6 +457,15 @@ public class Core extends Library {
     @SuppressWarnings("unchecked")
     public int length(final Object value) {
       return ((ArrayList<Value<?>>) value).size();
+    }
+
+    public Value<?> pop(final Vm vm, final Value<?> target, final int rTarget) {
+      return target.as(this).removeLast();
+    }
+
+    public Value<?> push(final Value<?> target, final Value<?> value) {
+      target.as(this).add(value);
+      return target;
     }
   }
 
@@ -926,7 +951,7 @@ public class Core extends Library {
           vm.emit(new Set(new Value<>(Core.instance.vectorType, new ArrayList<>()), rResult));
           final var mapPc = vm.emit(Nop.instance);
           vm.emit(new CallIndirect(location, rFunction, rValues, rCall));
-          vm.emit(new Push(rResult, rCall));
+          vm.emit(new Push(rResult, rCall, rResult));
           vm.emit(new Goto(mapPc));
           vm.emit(mapPc, new MapIterators(rFunction, rIterators, rValues, rResult, vm.emitPc(), location));
           vm.emit(new GetIterator(rResult, rResult, location));
@@ -957,9 +982,9 @@ public class Core extends Library {
 
     bindMacro("pop", 1,
         (vm, namespace, location, arguments, rResult) -> {
-          final var rVector = vm.allocateRegister();
-          arguments[0].emit(vm, namespace, rVector);
-          vm.emit(new Pop(rVector, rResult));
+          final var rTarget = vm.allocateRegister();
+          arguments[0].emit(vm, namespace, rTarget);
+          vm.emit(new Pop(rTarget, rResult));
         });
 
     bindMacro("push", 2,
@@ -967,7 +992,7 @@ public class Core extends Library {
       arguments[0].emit(vm, namespace, rResult);
       final var rValue = vm.allocateRegister();
       arguments[1].emit(vm, namespace, rValue);
-      vm.emit(new Push(rResult, rValue));
+      vm.emit(new Push(rResult, rValue, rResult));
     });
 
     bindMacro("reduce", 3,

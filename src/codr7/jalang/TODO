@@ -1,10 +1,7 @@
 0.4520028
 0.14301105
 
-* add StackTrait
-** push/pop/peek
-** add peek macro
-** Vector/List
+* add peek macro/op
 
 * add lookup fib test/benchmark
 ** add or macro
@@ -17,6 +14,8 @@
                                  (fib (-1 n) lookup))))))
 
 (say (benchmark 10000 (fib 70 {})))
+
+* change trait argument types to Value<?>
 
 * add or types
 ** Integer|None
