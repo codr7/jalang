@@ -1,5 +1,7 @@
 package codr7.jalang;
 
+import codr7.jalang.libraries.Core;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -21,11 +23,11 @@ public class Namespace {
                                  final int arity,
                                  final Type<?> resultType,
                                  final Function.Body body) {
-    bind(name, new Value<>(Function.type, new Function(name, parameters, arity, resultType, body)));
+    bind(name, new Value<>(Core.functionType, new Function(name, parameters, arity, resultType, body)));
   }
 
   public final void bindMacro(final String name, final int arity, final Macro.Body body) {
-    bind(name, new Value<>(Macro.type, new Macro(name, arity, body)));
+    bind(name, new Value<>(Core.instance.macroType, new Macro(name, arity, body)));
   }
 
   public final void bindType(final Type<?> type) {

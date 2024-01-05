@@ -62,7 +62,7 @@ public class SexprForm extends Form {
 
     final var arity = body.length - 1;
 
-    if (target.type() == Macro.type) {
+    if (target.type() == Core.instance.macroType) {
       final var macro = (Macro) target.data();
 
       if (macro.arity() != -1 && arity < macro.arity()) {
@@ -73,8 +73,8 @@ public class SexprForm extends Form {
       System.arraycopy(body, 1, arguments, 0, arity);
       macro.call(vm, namespace, location(), arguments, rResult);
     } else {
-      if (target.type() == Function.type) {
-        final var function = target.as(Function.type);
+      if (target.type() == Core.functionType) {
+        final var function = target.as(Core.functionType);
 
         if (function.arity() != -1 && arity < function.arity()) {
           throw new EmitError(location(), "Not enough arguments.");

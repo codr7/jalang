@@ -192,7 +192,7 @@ public class Vm {
         }
         case MapIterators: {
           final var o = (MapIterators) op;
-          final var function = registers.get(o.rFunction).as(Function.type);
+          final var function = registers.get(o.rFunction).as(Core.functionType);
           final var iterators = new ArrayList<Iterator<Value<?>>>();
 
           for (int i = 0; i < o.rIterators.length; i++) {
@@ -245,7 +245,7 @@ public class Vm {
         }
         case ReduceIterator: {
           final var o = (ReduceIterator) op;
-          final var f = registers.get(o.rFunction).as(Function.type);
+          final var f = registers.get(o.rFunction).as(Core.functionType);
           final var i = registers.get(o.rIterator).as(Core.instance.iteratorType);
           final var r = registers.get(o.rResult);
 

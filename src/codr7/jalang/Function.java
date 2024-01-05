@@ -1,20 +1,6 @@
 package codr7.jalang;
 
-import codr7.jalang.libraries.Core;
-
 public record Function(String name, Parameter[] parameters, int arity, Type<?> resultType, Body body) {
-  public static class FunctionType extends Type<Function> implements Core.CallableTrait {
-    public FunctionType(final String name) {
-      super(name);
-    }
-
-    public void call(Object target, Vm vm, Location location, int[] rParameters, int rResult) {
-      ((Function)target).call(vm, location, rParameters, rResult);
-    }
-  }
-
-  public static final Type<Function> type = new FunctionType("Function");
-
   public interface Body {
     void call(final Function function,
               final Vm vm,

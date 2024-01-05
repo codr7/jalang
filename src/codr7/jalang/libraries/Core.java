@@ -124,6 +124,16 @@ public class Core extends Library {
     }
   }
 
+  public static class FunctionType extends Type<Function> implements CallableTrait {
+    public FunctionType(final String name) {
+      super(name);
+    }
+
+    public void call(Object target, Vm vm, Location location, int[] rParameters, int rResult) {
+      ((Function)target).call(vm, location, rParameters, rResult);
+    }
+  }
+
   public static class IntegerType
       extends Type<Integer>
       implements ComparableTrait, SequenceTrait<Value<Integer>> {
@@ -435,6 +445,9 @@ public class Core extends Library {
     }
   }
 
+  public static final Type<Function> functionType = new FunctionType("Function");
+  public static final Type<Macro> macroType = new Type<>("Macro");
+
   public static final Core instance = new Core();
 
   public Core() {
@@ -445,11 +458,11 @@ public class Core extends Library {
     bindType(collectionType);
     bindType(comparableType);
     bindType(floatType);
-    bindType(Function.type);
+    bindType(functionType);
     bindType(indexedCollectionType);
     bindType(integerType);
     bindType(iteratorType);
-    bindType(Macro.type);
+    bindType(macroType);
     bindType(mapType);
     bindType(Type.meta);
     bindType(noneType);
@@ -816,7 +829,7 @@ public class Core extends Library {
                 }
               });
 
-          final var v = new Value<>(Function.type, function);
+          final var v = new Value<>(functionType, function);
 
           if (!name.isEmpty()) {
             namespace.bind(name, v);
