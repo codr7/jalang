@@ -1,18 +1,16 @@
 0.4520028
 0.14301105
 
+* add lookup fib test/benchmark
+** add support for map targets in sexpr
+*** lookup argument
+
 * add or types
 ** Integer|None
 ** relaxing requirements should not break callers
 ** strengthening promises should not break callers
 ** add X? as alias for X|None
 ** change find-if resultType Any?
-
-* add ordered maps
-** use TreeMap
-** add lookup fib test/benchmark
-
-{1 2 3:4}
 
 * convert reduce/map ops to macros like find/index-if
 

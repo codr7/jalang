@@ -118,5 +118,14 @@ Deques may be created using `[...]`.
 3
 ```
 
+### Maps
+Maps may be created using `{...}`.
+
+```
+  (length {1 2 3:4})
+
+3
+```
+
 ## Performance
 The core interpreter is currently roughly as fast as Python, but there is plenty of low hanging fruit left to pick.

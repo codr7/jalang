@@ -255,6 +255,13 @@ public class Vm {
           callFrame = callFrame.parentFrame();
           break;
         }
+        case SetKey: {
+          final var o = (SetKey) op;
+          final var result = registers.get(o.rResult).as(Core.instance.mapType);
+          result.put(registers.get(o.rKey), registers.get(o.rValue));
+          pc++;
+          break;
+        }
         case Stop: {
           pc++;
           return;

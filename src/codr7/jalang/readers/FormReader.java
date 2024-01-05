@@ -24,6 +24,8 @@ public class FormReader implements Reader {
         return SexprReader.instance.read(in, out, location);
       case '[':
         return DequeReader.instance.read(in, out, location);
+      case '{':
+        return MapReader.instance.read(in, out, location);
       case '\'':
         return SymbolReader.instance.read(in, out, location);
       case '"':

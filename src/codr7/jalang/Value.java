@@ -1,12 +1,30 @@
 package codr7.jalang;
 
-public record Value<D>(Type<D> type, D data) {
+import codr7.jalang.libraries.Core;
+
+public record Value<D>(Type<D> type, D data) implements Comparable<Value<?>> {
   public <D> D as(Type<D> type) {
     if (this.type != type) {
       throw new RuntimeException(String.format("Type mismatch: %s/%s", this.type, type));
     }
 
     return (D) data;
+  }
+
+  public int compareTo(final Value<?> other) {
+    if (other.type != type) {
+      throw new RuntimeException(String.format("Type mismatch: %s/%s.", type, other.type));
+    }
+
+    if (!(type instanceof Core.ComparableTrait)) {
+      throw new RuntimeException(String.format("Type is not comparable: %s.", type));
+    }
+
+    return switch (((Core.ComparableTrait) type).compare(data, other.data)) {
+      case Compare.LessThan -> -1;
+      case Compare.GreaterThan -> 1;
+      default -> 0;
+    };
   }
 
   public String dump() {

@@ -88,6 +88,12 @@
 (check [5 7 9]
   (deque (map + [1 2 3] [4 5 6 7])))
 
+(check 3
+  (length {1 2 3:4}))
+
+(check T
+  (= {1 2 3:4} {1 2 3:4}))
+
 (check [5 7 9]
   (function foo [l:Integer r:Integer]:Integer
     (+ l r))

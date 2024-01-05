@@ -13,9 +13,8 @@ public abstract class Operation {
     MakePair, MapIterators,
     Nop,
     Peek, Poke,
-    ReduceIterator,
-    Return,
-    Stop,
+    ReduceIterator, Return,
+    SetKey, Stop,
     Tail, Trace
   }
 

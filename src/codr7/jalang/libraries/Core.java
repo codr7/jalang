@@ -228,6 +228,83 @@ public class Core extends Library {
     }
   }
 
+  public static class MapType
+      extends Type<Map<Value<?>, Value<?>>>
+      implements CollectionTrait, SequenceTrait<Value<?>> {
+    public MapType(final String name) {
+      super(name);
+    }
+
+    public String dump(final Map<Value<?>, Value<?>> value) {
+      final var result = new StringBuilder();
+      result.append('{');
+      var first = true;
+
+      for (final var e : value.entrySet()) {
+        if (!first) {
+          result.append(' ');
+        }
+
+        if (e.getKey().equals(e.getValue())) {
+          result.append(e.getValue().toString());
+        } else {
+          result.append(e.getKey().toString());
+          result.append(':');
+          result.append(e.getValue().toString());
+        }
+
+        first = false;
+      }
+
+      result.append('}');
+      return result.toString();
+    }
+
+    public boolean equalValues(final Map<Value<?>, Value<?>> left, final Map<Value<?>, Value<?>> right) {
+      if (left.size() != right.size()) {
+        return false;
+      }
+
+      final var li = left.entrySet().iterator();
+      final var ri = right.entrySet().iterator();
+
+      while (li.hasNext()) {
+        final var le = li.next();
+        final var re = ri.next();
+
+        if (!(le.getKey().equals(re.getKey()) && le.getValue().equals(re.getValue()))) {
+          return false;
+        }
+      }
+
+      return true;
+    }
+
+    public boolean isTrue(final Map<Value<?>, Value<?>> value) {
+      return !value.isEmpty();
+    }
+
+    @SuppressWarnings("unchecked")
+    public Iterator<Value<?>> iterator(final Object value) {
+      final var items = new ArrayList<Value<?>>();
+
+      for (final var e: ((Map<Value<?>, Value<?>>) value).entrySet()) {
+        if (e.getKey().equals(e.getValue())) {
+          items.add(e.getKey());
+        } else {
+          items.add(new Value<>(Core.instance.pairType, new Pair(e.getKey(), e.getValue())));
+        }
+      }
+
+      return items.iterator();
+    }
+
+    @SuppressWarnings("unchecked")
+    public int length(final Object value) {
+      return ((Map<Value<?>, Value<?>>) value).size();
+    }
+  }
+
   public static class NoneType extends Type<Object> {
     public NoneType(final String name) {
       super(name);
@@ -348,8 +425,9 @@ public class Core extends Library {
     bindType(integerType);
     bindType(iteratorType);
     bindType(Macro.type);
-    bindType(noneType);
+    bindType(mapType);
     bindType(Type.meta);
+    bindType(noneType);
     bindType(pairType);
     bindType(pathType);
     bindType(registerType);
@@ -949,6 +1027,7 @@ public class Core extends Library {
   public final IndexedCollectionType indexedCollectionType = new IndexedCollectionType("IndexedCollection");
   public final IntegerType integerType = new IntegerType("Integer");
   public final IteratorType iteratorType = new IteratorType("Iterator");
+  public final MapType mapType = new MapType("Map");
   public final NoneType noneType = new NoneType("None");
   public final Value<Object> NONE = new Value<>(noneType, null);
   public final PairType pairType = new PairType("Pair");
