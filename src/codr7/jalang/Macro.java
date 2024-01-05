@@ -1,7 +1,6 @@
 package codr7.jalang;
 
 public record Macro(String name, int arity, Body body) {
-
   public interface Body {
     void call(final Vm vm,
               final Namespace namespace,

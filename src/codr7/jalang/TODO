@@ -1,6 +1,9 @@
 0.4520028
 0.14301105
 
+* add push/pop macros
+** add Pop operation
+
 * add lookup fib test/benchmark
 
 * add or types
@@ -17,13 +20,7 @@
 (let [x 1]
   (+1 x))
 
-* enable using Collections as Sexpr targets
-** add find method to CollectionTrait
-** lookup argument using find
-** add get method
-*** throw exception if not found
-
-* check function argument types
+* check function argument types at compile time
 
 * turn pair into collection/sequence type
 

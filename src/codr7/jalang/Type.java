@@ -1,8 +1,6 @@
 package codr7.jalang;
 
 public class Type<D> {
-  public static final Type<Type<?>> meta = new Type<>("Meta");
-
   public Type(final String name) {
     this.name = name;
   }

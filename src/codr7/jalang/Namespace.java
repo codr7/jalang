@@ -31,7 +31,7 @@ public class Namespace {
   }
 
   public final void bindType(final Type<?> type) {
-    bind(type.name(), new Value<>(Type.meta, type));
+    bind(type.name(), new Value<>(Core.metaType, type));
   }
 
   public final Value<?> find(final String key) {

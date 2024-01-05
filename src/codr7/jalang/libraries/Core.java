@@ -447,6 +447,7 @@ public class Core extends Library {
 
   public static final Type<Function> functionType = new FunctionType("Function");
   public static final Type<Macro> macroType = new Type<>("Macro");
+  public static final Type<Type<?>> metaType = new Type<>("Meta");
 
   public static final Core instance = new Core();
 
@@ -464,7 +465,7 @@ public class Core extends Library {
     bindType(iteratorType);
     bindType(macroType);
     bindType(mapType);
-    bindType(Type.meta);
+    bindType(metaType);
     bindType(noneType);
     bindType(pairType);
     bindType(pathType);
@@ -781,7 +782,7 @@ public class Core extends Library {
               throw new EmitError(tnf.location(), "Type not found: %s.", tnf);
             }
 
-            resultType = tv.as(Type.meta);
+            resultType = tv.as(metaType);
             psForm = p.left();
           }
 
@@ -807,7 +808,7 @@ public class Core extends Library {
                 throw new EmitError(tf.location(), "Type not found: %s.", pf.right());
               }
 
-              pt = tv.as(Type.meta);
+              pt = tv.as(metaType);
             } else if (f instanceof IdForm) {
               pn = ((IdForm) f).name();
             } else {
