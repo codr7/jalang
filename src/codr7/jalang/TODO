@@ -2,8 +2,9 @@
 0.14301105
 
 * add lookup fib test/benchmark
-** add support for map targets in sexpr
-*** lookup argument
+** change SetKey args
+** add support for registerType as sexpr target
+*** test with function
 
 * add or types
 ** Integer|None

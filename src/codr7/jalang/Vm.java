@@ -133,6 +133,14 @@ public class Vm {
           pc++;
           break;
         }
+        case GetKey: {
+          final var o = (GetKey) op;
+          final var map = registers.get(o.rMap).as(Core.instance.mapType);
+          final var key = registers.get(o.rKey);
+          registers.set(o.rResult, map.get(key));
+          pc++;
+          break;
+        }
         case Goto: {
           pc = ((Goto) op).pc;
           break;

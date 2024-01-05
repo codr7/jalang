@@ -638,6 +638,18 @@ public class Core extends Library {
           vm.emit(Stop.instance);
         });
 
+    bindMacro("define", 2,
+        (vm, namespace, location, arguments, rResult) -> {
+      final var nameForm = arguments[0];
+
+      if (!(nameForm instanceof IdForm)) {
+        throw new EmitError(nameForm.location(), "Expected identifier: %s.", nameForm);
+      }
+      final var name = ((IdForm)nameForm).name();
+      vm.evaluate(arguments[1], namespace, rResult);
+      namespace.bind(name, vm.peek(rResult));
+        });
+
     bindFunction("deque",
         new Parameter[]{new Parameter("input", sequenceType)}, 1,
         dequeType,

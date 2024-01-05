@@ -2,9 +2,8 @@ package codr7.jalang.forms;
 
 import codr7.jalang.*;
 import codr7.jalang.errors.EmitError;
-import codr7.jalang.operations.CallFunction;
-import codr7.jalang.operations.Head;
-import codr7.jalang.operations.Tail;
+import codr7.jalang.libraries.Core;
+import codr7.jalang.operations.*;
 
 public class SexprForm extends Form {
   public SexprForm(final Location location, Form... body) {
@@ -35,16 +34,19 @@ public class SexprForm extends Form {
       throw new EmitError(location(), "Invalid target: %s.", targetForm);
     }
 
-    if (!(targetForm instanceof IdForm)) {
+    Value<?> target = null;
+
+    if (targetForm instanceof IdForm) {
+      final var targetName = ((IdForm) targetForm).name();
+      target = namespace.find(targetName);
+
+      if (target == null) {
+        throw new EmitError(location(), "Unknown identifer: %s", targetName);
+      }
+    } else if (targetForm instanceof LiteralForm) {
+      target = ((LiteralForm)targetForm).value();
+    } else {
       throw new EmitError(location(), "Invalid target: %s.", targetForm);
-    }
-
-    final var targetName = ((IdForm) targetForm).name();
-
-    final var target = namespace.find(targetName);
-
-    if (target == null) {
-      throw new EmitError(location(), "Unknown identifer: %s", targetName);
     }
 
     final var arity = body.length - 1;
@@ -75,6 +77,17 @@ public class SexprForm extends Form {
       final Form[] arguments = new Form[arity];
       System.arraycopy(body, 1, arguments, 0, arity);
       macro.call(vm, namespace, location(), arguments, rResult);
+    } else if (target.type() == Core.instance.mapType) {
+      final var rMap = vm.allocateRegister();
+      vm.emit(new Poke(target, rMap));
+      final var rKey = vm.allocateRegister();
+
+      if (body.length != 2) {
+        throw new EmitError(location(), "Invalid map call.");
+      }
+
+      body[1].emit(vm, namespace, rKey);
+      vm.emit(new GetKey(rMap, rKey, rResult));
     } else {
       throw new EmitError(location(), "Invalid target: %s", target);
     }

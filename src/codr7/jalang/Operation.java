@@ -7,7 +7,7 @@ public abstract class Operation {
     CallFunction, CallRegister, Check,
     Decrement,
     EqualsZero,
-    GetIterator, Goto,
+    GetIterator, GetKey, Goto,
     Head,
     If, Increment, Iterate,
     MakePair, MapIterators,
