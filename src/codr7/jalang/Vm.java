@@ -75,7 +75,7 @@ public class Vm {
         case CallDirect: {
           final var o = (CallDirect) op;
           pc++;
-          ((Core.CallableTrait) o.target.type()).call(o.target.data(), this, o.location, o.rParameters, o.rResult);
+          ((Core.CallableTrait) o.target.type()).call(o.target, this, o.location, o.rParameters, o.rResult);
           break;
         }
         case CallIndirect: {
@@ -87,7 +87,7 @@ public class Vm {
           }
 
           pc++;
-          ((Core.CallableTrait) target.type()).call(target.data(), this, o.location, o.rParameters, o.rResult);
+          ((Core.CallableTrait) target.type()).call(target, this, o.location, o.rParameters, o.rResult);
           break;
         }
         case Check: {

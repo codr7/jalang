@@ -20,7 +20,7 @@ import java.util.stream.Stream;
 
 public class Core extends Library {
   public interface CallableTrait {
-    void call(Object target, Vm vm, Location location, int[] rParameters, int rResult);
+    void call(Value<?> target, Vm vm, Location location, int[] rParameters, int rResult);
   }
 
   public interface CollectionTrait {
@@ -134,8 +134,8 @@ public class Core extends Library {
       super(name);
     }
 
-    public void call(Object target, Vm vm, Location location, int[] rParameters, int rResult) {
-      ((Function) target).call(vm, location, rParameters, rResult);
+    public void call(final Value<?> target, Vm vm, Location location, int[] rParameters, int rResult) {
+      target.as(this).call(vm, location, rParameters, rResult);
     }
   }
 
@@ -198,8 +198,8 @@ public class Core extends Library {
       super(name);
     }
 
-    public void call(Object target, Vm vm, Location location, int[] rParameters, int rResult) {
-      final var map = ((Map<Value<?>, Value<?>>) target);
+    public void call(Value<?> target, Vm vm, Location location, int[] rParameters, int rResult) {
+      final var map = target.as(this);
 
       switch (rParameters.length) {
         case 1: {
@@ -212,6 +212,7 @@ public class Core extends Library {
           final var key = vm.get(rParameters[0]);
           final var value = vm.get(rParameters[1]);
           map.put(key, value);
+          vm.set(rResult, target);
           break;
         }
         default:
@@ -415,8 +416,8 @@ public class Core extends Library {
       super(name);
     }
 
-    public void call(Object target, Vm vm, Location location, int[] rParameters, int rResult) {
-      final var vector = (ArrayList<Value<?>>) target;
+    public void call(final Value<?> target, Vm vm, Location location, int[] rParameters, int rResult) {
+      final var vector = target.as(this);
 
       switch (rParameters.length) {
         case 1: {
@@ -429,6 +430,7 @@ public class Core extends Library {
           final var key = vm.get(rParameters[0]).as(Core.instance.integerType);
           final var value = vm.get(rParameters[1]);
           vector.set(key, value);
+          vm.set(rResult, target);
           break;
         }
         default:

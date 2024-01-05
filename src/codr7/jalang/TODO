@@ -2,8 +2,6 @@
 0.14301105
 
 * add lookup fib test/benchmark
-** add support for setting value to Map/VectorType.call
-*** tests + readme + commit
 
 (function fib(n:Integer lookup:Map):Integer
   (or (lookup n)

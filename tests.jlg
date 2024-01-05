@@ -34,6 +34,10 @@
 (check 4
   (-1 5))
 
+(check 42
+  (define foo (+ 35 7))
+  foo)
+  
 (check 1
   (head 1:2))
   
@@ -105,7 +109,10 @@
 
 (check 'bar
   (['foo 'bar 'baz] 1))
-  
+
+(check ['foo 'qux 'baz]
+  (['foo 'bar 'baz] 1 'qux))
+
 (check [5 7 9]
   (vector (map + [1 2 3] [4 5 6 7])))
 
@@ -118,9 +125,8 @@
 (check 2
   ({'foo:1 'bar:2 'baz:3} 'bar))
 
-(check 2
-  (define m {'foo:1 'bar:2 'baz:3})
-  (m 'bar))
+(check {'foo:1 'bar:4 'baz:3}
+  ({'foo:1 'bar:2 'baz:3} 'bar 4))
 
 (check [5 7 9]
   (function foo [l:Integer r:Integer]:Integer

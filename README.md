@@ -163,6 +163,19 @@ Vectors support stack semantics.
 3
 ```
 
+Calling a vector returns the value at the specified index (`_` if the index is out of bounds), or updates it depending on the number of arguments.
+
+```
+  (['foo 'bar 'baz] 1)
+
+'bar
+```
+```
+  (['foo 'bar 'baz] 1 'qux)
+
+['foo 'qux 'baz]
+```
+
 ### Maps
 Maps may be created using `{...}`.
 
@@ -170,6 +183,19 @@ Maps may be created using `{...}`.
   (length {1 2 3:4})
 
 3
+```
+
+Calling a map performs a lookup or update depending on the number of arguments.
+
+```
+  ({'foo:1 'bar:2 'baz:3} 'bar)
+
+2
+```
+```
+  ({'foo:1 'bar:2 'baz:3} 'bar 4)
+
+{'foo:1 'bar:4 'baz:3}
 ```
 
 ## Performance
