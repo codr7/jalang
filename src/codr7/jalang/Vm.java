@@ -236,6 +236,13 @@ public class Vm {
           pc++;
           break;
         }
+        case Pop: {
+          final var o = (Pop) op;
+          final var vector = registers.get(o.rVector).as(Core.instance.vectorType);
+          registers.set(o.rResult, vector.removeLast());
+          pc++;
+          break;
+        }
         case Push: {
           final var o = (Push) op;
           final var vector = registers.get(o.rVector).as(Core.instance.vectorType);

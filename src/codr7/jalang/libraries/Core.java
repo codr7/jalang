@@ -954,6 +954,20 @@ public class Core extends Library {
           vm.poke(rResult, new Value<>(pathType, Paths.get(vm.peek(rParameters[0]).as(stringType))));
         });
 
+    bindMacro("pop", 1,
+        (vm, namespace, location, arguments, rResult) -> {
+          final var rVector = vm.allocateRegister();
+          arguments[0].emit(vm, namespace, rVector);
+          vm.emit(new Pop(rVector, rResult));
+        });
+
+    bindMacro("push", 2,
+        (vm, namespace, location, arguments, rResult) -> {
+      arguments[0].emit(vm, namespace, rResult);
+      final var rValue = vm.allocateRegister();
+      arguments[1].emit(vm, namespace, rValue);
+      vm.emit(new Push(rResult, rValue));
+    });
 
     bindMacro("reduce", 3,
         (vm, namespace, location, arguments, rResult) -> {

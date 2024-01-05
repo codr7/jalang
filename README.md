@@ -109,13 +109,27 @@ A list is a pair with another pair in tail position.
 ```
 
 ### Vectors
-Vectors may be created using `[...]`.
+New vectors may be created using `[...]`.
 
 
 ```
   (length [1 2 3:4])
 
 3
+```
+
+Vectors support stack semantics.
+
+```
+  (push ['foo] 'bar)
+
+['foo 'bar]
+```
+
+```
+  (pop ['foo 'bar])
+
+'bar
 ```
 
 ### Maps

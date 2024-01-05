@@ -1,10 +1,22 @@
 0.4520028
 0.14301105
 
-* add push/pop macros
-** add Pop operation
+* add StackTrait
+** push/pop/peek
+** add peek macro
+** Vector/List
 
 * add lookup fib test/benchmark
+** add or macro
+** add support for setting value to Map/VectorType.call
+*** check number of arguments
+
+(function fib(n:Integer lookup:Map):Integer
+  (or (lookup n)
+      (lookup n (if (< n 2) n (+ (fib (-1 n) lookup)
+                                 (fib (-1 n) lookup))))))
+
+(say (benchmark 10000 (fib 70 {})))
 
 * add or types
 ** Integer|None

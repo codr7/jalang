@@ -85,6 +85,12 @@
 (check [0 1 2]
   (vector 3))
 
+(check ['foo 'bar]
+  (push ['foo] 'bar))
+
+(check 'bar
+  (pop ['foo 'bar]))
+
 (check 'bar
   (['foo 'bar 'baz] 1))
   

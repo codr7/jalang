@@ -12,7 +12,7 @@ public abstract class Operation {
     If, Increment, Iterate,
     MakePair, MapIterators,
     Nop,
-    Peek, Poke,
+    Peek, Poke, Pop,
     ReduceIterator, Return,
     SetKey, Stop,
     Tail, Trace
