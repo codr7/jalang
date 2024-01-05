@@ -24,10 +24,10 @@ public class MapForm extends Form {
         final var rKey = vm.allocateRegister();
         pf.left().emit(vm, namespace, rKey);
         pf.right().emit(vm, namespace, rValue);
-        vm.emit(new SetKey(rKey, rValue, rResult));
+        vm.emit(new SetKey(rResult, rKey, rValue));
       } else {
         f.emit(vm, namespace, rValue);
-        vm.emit(new SetKey(rValue, rValue, rResult));
+        vm.emit(new SetKey(rResult, rValue, rValue));
       }
     }
   }

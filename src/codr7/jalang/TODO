@@ -2,8 +2,9 @@
 0.14301105
 
 * add lookup fib test/benchmark
-** change SetKey args
 ** add support for registerType as sexpr target
+*** emit and use registerCall
+**** add Callable interface
 *** test with function
 
 * add or types

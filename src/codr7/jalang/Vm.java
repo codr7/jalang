@@ -265,8 +265,8 @@ public class Vm {
         }
         case SetKey: {
           final var o = (SetKey) op;
-          final var result = registers.get(o.rResult).as(Core.instance.mapType);
-          result.put(registers.get(o.rKey), registers.get(o.rValue));
+          final var map = registers.get(o.rMap).as(Core.instance.mapType);
+          map.put(registers.get(o.rKey), registers.get(o.rValue));
           pc++;
           break;
         }
