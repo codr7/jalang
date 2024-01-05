@@ -4,7 +4,7 @@ public abstract class Operation {
   public enum Code {
     Push,
     Benchmark,
-    CallFunction, CallRegister, Check,
+    CallDirect, CallIndirect, Check,
     Decrement,
     EqualsZero,
     GetIterator, GetKey, Goto,

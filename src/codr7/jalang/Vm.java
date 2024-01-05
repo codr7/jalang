@@ -57,13 +57,6 @@ public class Vm {
       final var op = code.get(pc);
 
       switch (op.code) {
-        case Push: {
-          final var o = (Push) op;
-          final var vector = registers.get(o.rVector).as(Core.instance.vectorType);
-          vector.add(registers.get(o.rValue));
-          pc++;
-          break;
-        }
         case Benchmark: {
           final var o = (Benchmark) op;
           final var t = System.nanoTime();
@@ -78,17 +71,18 @@ public class Vm {
               new Value<>(Core.instance.floatType, (float) ((System.nanoTime() - t) / 1000000000.0)));
           break;
         }
-        case CallFunction: {
-          final var o = (CallFunction) op;
+        case CallDirect: {
+          final var o = (CallDirect) op;
           pc++;
-          o.target.call(this, o.location, o.rParameters, o.rResult);
+          ((Core.CallableTrait)o.target.type()).call(o.target.data(), this, o.location, o.rParameters, o.rResult);
           break;
         }
-        case CallRegister: {
-          final var o = (CallRegister) op;
+        case CallIndirect: {
+          final var o = (CallIndirect) op;
           final var target = registers.get(o.rTarget);
+
           if (!(target.type() instanceof Core.CallableTrait)) {
-            throw new EvaluationError(o.location, "Invalid target: %s.", target);
+            throw new EvaluationError(o.location, "Invalid call target: %s.", target);
           }
 
           pc++;
@@ -239,6 +233,13 @@ public class Vm {
         case Poke: {
           final var o = (Poke) op;
           registers.set(o.rResult, o.value);
+          pc++;
+          break;
+        }
+        case Push: {
+          final var o = (Push) op;
+          final var vector = registers.get(o.rVector).as(Core.instance.vectorType);
+          vector.add(registers.get(o.rValue));
           pc++;
           break;
         }

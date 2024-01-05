@@ -735,7 +735,7 @@ public class Core extends Library {
           final var iteratePc = vm.emit(Nop.instance);
           final var rValue = vm.allocateRegister();
           final var rPredicateResult = vm.allocateRegister();
-          vm.emit(new CallRegister(location, rPredicate, new int[]{rValue}, rPredicateResult));
+          vm.emit(new CallIndirect(location, rPredicate, new int[]{rValue}, rPredicateResult));
           final var ifPc = vm.emit(Nop.instance);
           vm.emit(new MakePair(rValue, rIndex, rResult));
           final var exitPc = vm.emit(Nop.instance);
@@ -912,7 +912,7 @@ public class Core extends Library {
           final var rCall = vm.allocateRegister();
           vm.emit(new Poke(new Value<>(Core.instance.vectorType, new ArrayList<>()), rResult));
           final var mapPc = vm.emit(Nop.instance);
-          vm.emit(new CallRegister(location, rFunction, rValues, rCall));
+          vm.emit(new CallIndirect(location, rFunction, rValues, rCall));
           vm.emit(new Push(rResult, rCall));
           vm.emit(new Goto(mapPc));
           vm.emit(mapPc, new MapIterators(rFunction, rIterators, rValues, rResult, vm.emitPc(), location));

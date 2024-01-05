@@ -3,15 +3,16 @@ package codr7.jalang.operations;
 import codr7.jalang.Location;
 import codr7.jalang.Operation;
 
-public class CallRegister extends Operation {
-  public CallRegister(final Location location, final int rTarget,
+public class CallIndirect extends Operation {
+  public CallIndirect(final Location location,
+                      final int rTarget,
                       final int[] rParameters,
                       final int rResult) {
-    super(Code.CallRegister);
+    super(Code.CallIndirect);
+    this.location = location;
     this.rTarget = rTarget;
     this.rParameters = rParameters;
     this.rResult = rResult;
-    this.location = location;
   }
 
   public String toString() {

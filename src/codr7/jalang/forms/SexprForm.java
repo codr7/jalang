@@ -56,17 +56,29 @@ public class SexprForm extends Form {
         body[i].emit(vm, namespace, rParameter);
       }
 
-      vm.emit(new CallRegister(location(), rTarget, parameters, rResult));
+      vm.emit(new CallIndirect(location(), rTarget, parameters, rResult));
       return;
     }
 
     final var arity = body.length - 1;
 
-    if (target.type() == Function.type) {
-      final var function = (Function) target.data();
+    if (target.type() == Macro.type) {
+      final var macro = (Macro) target.data();
 
-      if (function.arity() != -1 && arity < function.arity()) {
+      if (macro.arity() != -1 && arity < macro.arity()) {
         throw new EmitError(location(), "Not enough arguments.");
+      }
+
+      final Form[] arguments = new Form[arity];
+      System.arraycopy(body, 1, arguments, 0, arity);
+      macro.call(vm, namespace, location(), arguments, rResult);
+    } else {
+      if (target.type() == Function.type) {
+        final var function = target.as(Function.type);
+
+        if (function.arity() != -1 && arity < function.arity()) {
+          throw new EmitError(location(), "Not enough arguments.");
+        }
       }
 
       final var parameters = new int[body.length - 1];
@@ -77,30 +89,7 @@ public class SexprForm extends Form {
         body[i].emit(vm, namespace, rParameter);
       }
 
-      vm.emit(new CallFunction(function, parameters, rResult, location()));
-    } else if (target.type() == Macro.type) {
-      final var macro = (Macro) target.data();
-
-      if (macro.arity() != -1 && arity < macro.arity()) {
-        throw new EmitError(location(), "Not enough arguments.");
-      }
-
-      final Form[] arguments = new Form[arity];
-      System.arraycopy(body, 1, arguments, 0, arity);
-      macro.call(vm, namespace, location(), arguments, rResult);
-    } else if (target.type() == Core.instance.mapType) {
-      final var rMap = vm.allocateRegister();
-      vm.emit(new Poke(target, rMap));
-      final var rKey = vm.allocateRegister();
-
-      if (body.length != 2) {
-        throw new EmitError(location(), "Invalid map call.");
-      }
-
-      body[1].emit(vm, namespace, rKey);
-      vm.emit(new GetKey(rMap, rKey, rResult));
-    } else {
-      throw new EmitError(location(), "Invalid target: %s", target);
+      vm.emit(new CallDirect(location(), target, parameters, rResult));
     }
 
     if (head) {
