@@ -1,5 +1,5 @@
 package codr7.jalang;
 
-public enum Compare {
+public enum Order {
   LessThan, Equal, GreaterThan
 }

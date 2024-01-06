@@ -149,6 +149,12 @@
 (check 'bar
   (and T 42 "foo" [1] {1:2} 'foo 'bar))
 
+(check F
+  (not 42))
+
+(check T
+  (not 0))
+  
 (check 'foo
   (if T 'foo 'bar))
 

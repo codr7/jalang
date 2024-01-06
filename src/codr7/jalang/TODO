@@ -2,8 +2,6 @@
 0.010435875
 0.1980878
 
-* add not function
-
 * add TimeType
 ** Duration
 ** use in benchmark macro
@@ -22,7 +20,9 @@
 ** add type function
 ** add is function
 
-* add or types
+* turn pair into collection/sequence type
+
+* add or-types
 ** Integer|None
 ** relaxing requirements should not break callers
 ** strengthening promises should not break callers
@@ -31,11 +31,14 @@
 
 * convert reduce/map ops to macros like find/index-if
 
+* add user macros
+** add Form.quote/unquote
+** change SymbolReader to QupteReader
+*** add QuoteForm
+
 * add dynamic scope support for defines in let
 
 * check function argument types at compile time
-
-* turn pair into collection/sequence type
 
 * add character literals
 

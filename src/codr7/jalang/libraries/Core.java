@@ -32,7 +32,7 @@ public class Core extends Library {
   }
 
   public interface ComparableTrait {
-    Compare compare(final Value<?> left, final Value<?> right);
+    Order compare(final Value<?> left, final Value<?> right);
   }
 
   public interface IndexedCollectionTrait {
@@ -68,19 +68,19 @@ public class Core extends Library {
       super(name);
     }
 
-    public Compare compare(final Value<?> left, final Value<?> right) {
+    public Order compare(final Value<?> left, final Value<?> right) {
       final char l = left.as(this);
       final char r = right.as(this);
 
       if (l < r) {
-        return Compare.LessThan;
+        return Order.LessThan;
       }
 
       if (l > r) {
-        return Compare.GreaterThan;
+        return Order.GreaterThan;
       }
 
-      return Compare.Equal;
+      return Order.Equal;
     }
 
     public boolean isTrue(final Character value) {
@@ -107,19 +107,19 @@ public class Core extends Library {
       super(name);
     }
 
-    public Compare compare(final Value<?> left, final Value<?> right) {
+    public Order compare(final Value<?> left, final Value<?> right) {
       final float l = left.as(this);
       final float r = right.as(this);
 
       if (l < r) {
-        return Compare.LessThan;
+        return Order.LessThan;
       }
 
       if (l > r) {
-        return Compare.GreaterThan;
+        return Order.GreaterThan;
       }
 
-      return Compare.Equal;
+      return Order.Equal;
     }
 
     public boolean isTrue(final Float value) {
@@ -165,19 +165,19 @@ public class Core extends Library {
       super(name);
     }
 
-    public Compare compare(final Value<?> left, final Value<?> right) {
+    public Order compare(final Value<?> left, final Value<?> right) {
       final int l = left.as(this);
       final int r = right.as(this);
 
       if (l < r) {
-        return Compare.LessThan;
+        return Order.LessThan;
       }
 
       if (l > r) {
-        return Compare.GreaterThan;
+        return Order.GreaterThan;
       }
 
-      return Compare.Equal;
+      return Order.Equal;
     }
 
     public boolean isTrue(final Integer value) {
@@ -389,20 +389,20 @@ public class Core extends Library {
       super(name);
     }
 
-    public Compare compare(final Value<?> left, final Value<?> right) {
+    public Order compare(final Value<?> left, final Value<?> right) {
       final var l = left.as(this);
       final var r = right.as(this);
       final var result = l.compareTo(r);
 
       if (result < 0) {
-        return Compare.LessThan;
+        return Order.LessThan;
       }
 
       if (result > 0) {
-        return Compare.GreaterThan;
+        return Order.GreaterThan;
       }
 
-      return Compare.Equal;
+      return Order.Equal;
     }
 
     public String dump(final String value) {
@@ -620,7 +620,7 @@ public class Core extends Library {
               throw new EvaluationError(location, "Type mismatch: %s/%s.", value1.type(), v.type());
             }
 
-            if (type.compare(value1, v) != Compare.LessThan) {
+            if (type.compare(value1, v) != Order.LessThan) {
               result = false;
               break;
             }
@@ -648,7 +648,7 @@ public class Core extends Library {
               throw new EvaluationError(location, "Type mismatch: %s/%s.", value1.type(), v.type());
             }
 
-            if (type.compare(value1, v) != Compare.GreaterThan) {
+            if (type.compare(value1, v) != Order.GreaterThan) {
               result = false;
               break;
             }
@@ -808,23 +808,6 @@ public class Core extends Library {
           final var name = ((IdForm) nameForm).name();
           vm.evaluate(arguments[1], namespace, rResult);
           namespace.bind(name, vm.get(rResult));
-        });
-
-    bindFunction("vector",
-        new Parameter[]{new Parameter("input", sequenceType)}, 1,
-        vectorType,
-        (function, vm, location, rParameters, rResult) -> {
-          final var input = vm.get(rParameters[0]);
-
-          @SuppressWarnings("unchecked")
-          final var iterator = ((SequenceTrait<Value<?>>) input.type()).iterator(input);
-          final var result = new ArrayList<Value<?>>();
-
-          while (iterator.hasNext()) {
-            result.add(iterator.next());
-          }
-
-          vm.set(rResult, new Value<>(vectorType, result));
         });
 
     bindFunction("digit",
@@ -1054,7 +1037,14 @@ public class Core extends Library {
           vm.emit(new GetIterator(rResult, rResult, location));
         });
 
-    bindMacro("or", 2,
+    bindFunction("not",
+        new Parameter[]{new Parameter("value", anyType)}, 1,
+        bitType,
+        (function, vm, location, rParameters, rResult) -> {
+      vm.set(rResult, new Value<>(bitType, !vm.get(rParameters[0]).isTrue()));
+        });
+
+          bindMacro("or", 2,
         (vm, namespace, location, arguments, rResult) -> {
         arguments[0].emit(vm, namespace, rResult);
         final var skipPcs = new ArrayList<Integer>();
@@ -1223,6 +1213,23 @@ public class Core extends Library {
     bindMacro("trace", 0,
         (vm, namespace, location, rParameters, rResult) -> {
           vm.toggleTracing();
+        });
+
+    bindFunction("vector",
+        new Parameter[]{new Parameter("input", sequenceType)}, 1,
+        vectorType,
+        (function, vm, location, rParameters, rResult) -> {
+          final var input = vm.get(rParameters[0]);
+
+          @SuppressWarnings("unchecked")
+          final var iterator = ((SequenceTrait<Value<?>>) input.type()).iterator(input);
+          final var result = new ArrayList<Value<?>>();
+
+          while (iterator.hasNext()) {
+            result.add(iterator.next());
+          }
+
+          vm.set(rResult, new Value<>(vectorType, result));
         });
   }
 

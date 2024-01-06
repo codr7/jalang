@@ -21,8 +21,8 @@ public record Value<D>(Type<D> type, D data) implements Comparable<Value<?>> {
     }
 
     return switch (((Core.ComparableTrait) type).compare(this, other)) {
-      case Compare.LessThan -> -1;
-      case Compare.GreaterThan -> 1;
+      case Order.LessThan -> -1;
+      case Order.GreaterThan -> 1;
       default -> 0;
     };
   }
