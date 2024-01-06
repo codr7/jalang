@@ -145,7 +145,10 @@
 
 (check 'foo
   (or F 0 "" [] {} 'foo 'bar))
-  
+
+(check 'bar
+  (and T 42 "foo" [1] {1:2} 'foo 'bar))
+
 (check 'foo
   (if T 'foo 'bar))
 

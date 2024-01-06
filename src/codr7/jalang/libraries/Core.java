@@ -755,6 +755,21 @@ public class Core extends Library {
           vm.emit(new Decrement(rValue, rResult));
         });
 
+    bindMacro("and", 2,
+        (vm, namespace, location, arguments, rResult) -> {
+          arguments[0].emit(vm, namespace, rResult);
+          final var andPcs = new ArrayList<Integer>();
+
+          for (int i = 1; i < arguments.length; i++) {
+            andPcs.add(vm.emit(Nop.instance));
+            arguments[i].emit(vm, namespace, rResult);
+          }
+
+          for (final var pc: andPcs) {
+            vm.emit(pc, new If(rResult, vm.emitPc()));
+          }
+        });
+
     bindMacro("benchmark", 1,
         (vm, namespace, location, arguments, rResult) -> {
           final var repetitions = vm.allocateRegister();

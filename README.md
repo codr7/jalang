@@ -9,7 +9,7 @@ $ git clone https://github.com/codr7/jalang.git
 $ cd jalang
 $ rlwrap java -jar jalang.jar
 
-jalang v2
+jalang v3
 May the source be with you!
 
   (say "hello world")
@@ -27,6 +27,15 @@ _
   (or F 0 "" [] {} 'foo 'bar)
 
 'foo
+```
+
+### and
+`and` evaluates its arguments in specified order as long as the result is true.
+
+```
+  (and T 42 "foo" [1] {1:2} 'foo 'bar)
+
+'bar
 ```
 
 ### if
@@ -185,7 +194,7 @@ Maps may be created using `{...}`.
 3
 ```
 
-Calling a map performs a lookup or update depending on the number of arguments.
+Calling a map returns the value for the specified key (`_` if not found) or updates it depending on the number of arguments.
 
 ```
   ({'foo:1 'bar:2 'baz:3} 'bar)
