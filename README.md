@@ -217,9 +217,9 @@ The core interpreter is currently roughly as fast as Python, but there is plenty
 
 ```
 $ java -jar jalang.jar benchmarks.jlg
-0.16241229
-0.009546042
-0.06330887
+0.1559245
+0.00796775
+0.06560529
 ```
 ```
 $ python3 python/fib.py

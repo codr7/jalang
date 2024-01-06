@@ -2,10 +2,6 @@
 0.010435875
 0.1980878
 
-* store register count on function emit
-** only copy up to
-** pushCall/Return
-
 * add TimeType
 ** Duration
 ** use in benchmark macro
