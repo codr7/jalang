@@ -21,6 +21,10 @@ import java.util.stream.Stream;
 public class Core extends Library {
   public interface CallableTrait {
     void call(Value<?> target, Vm vm, Location location, int[] rParameters, int rResult);
+
+    default void emitCall(Value<?> target, Vm vm, Location location, int[] rParameters, int rResult) {
+      vm.emit(new CallDirect(location, target, rParameters, rResult));
+    }
   }
 
   public interface CollectionTrait {
@@ -141,6 +145,17 @@ public class Core extends Library {
                      final int rResult) {
       target.as(this).call(vm, location, rParameters, rResult);
     }
+
+    public void emitCall(Value<?> target, Vm vm, Location location, int[] rParameters, int rResult) {
+        final var function = target.as(this);
+
+        if (function.arity() != -1 && rParameters.length < function.arity()) {
+          throw new EmitError(location, "Not enough arguments.");
+        }
+
+        CallableTrait.super.emitCall(target, vm, location, rParameters, rResult);
+    }
+
   }
 
   public static class IntegerType

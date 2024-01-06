@@ -2,6 +2,7 @@ package codr7.jalang.forms;
 
 import codr7.jalang.*;
 import codr7.jalang.errors.EmitError;
+import codr7.jalang.errors.EvaluationError;
 import codr7.jalang.libraries.Core;
 import codr7.jalang.operations.CallDirect;
 import codr7.jalang.operations.CallIndirect;
@@ -76,23 +77,19 @@ public class SexprForm extends Form {
       System.arraycopy(body, 1, arguments, 0, arity);
       macro.call(vm, namespace, location(), arguments, rResult);
     } else {
-      if (target.type() == Core.functionType) {
-        final var function = target.as(Core.functionType);
-
-        if (function.arity() != -1 && arity < function.arity()) {
-          throw new EmitError(location(), "Not enough arguments.");
-        }
+      if (!(target.type() instanceof Core.CallableTrait)) {
+        throw new EvaluationError(location(), "Invalid call target: %s.", target);
       }
 
-      final var parameters = new int[body.length - 1];
+      final var rParameters = new int[body.length - 1];
 
       for (int i = 1; i < body.length; i++) {
         final var rParameter = vm.allocateRegister();
-        parameters[i - 1] = rParameter;
+        rParameters[i - 1] = rParameter;
         body[i].emit(vm, namespace, rParameter);
       }
 
-      vm.emit(new CallDirect(location(), target, parameters, rResult));
+      ((Core.CallableTrait)target.type()).emitCall(target, vm, location(), rParameters, rResult);
     }
 
     if (head) {

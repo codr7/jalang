@@ -12,11 +12,6 @@ public class CallDirect extends Operation {
                     final int[] rParameters,
                     final int rResult) {
     super(Code.CallDirect);
-
-    if (!(target.type() instanceof Core.CallableTrait)) {
-      throw new EvaluationError(location, "Invalid call target: %s.", target);
-    }
-
     this.target = target;
     this.rParameters = rParameters;
     this.rResult = rResult;

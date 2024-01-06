@@ -2,13 +2,10 @@
 0.010435875
 0.1980878
 
-* add warmup to benchmark op
-* move Function special case from SexprForm.emit to FunctionType.call
+* change trait argument types to Value<?>
 
 * add and macro
 * add not function
-
-* change trait argument types to Value<?>
 
 * add let macro
 ** change lookup fib (benchmarks/tests) to use let
