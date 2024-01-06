@@ -1,5 +1,6 @@
-0.38647935
-0.21343191
+0.4594874
+0.010435875
+0.1980878
 
 * add warmup to benchmark op
 * move Function special case from SexprForm.emit to FunctionType.call

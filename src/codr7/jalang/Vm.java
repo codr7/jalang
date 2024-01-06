@@ -60,9 +60,14 @@ public class Vm {
       switch (op.code) {
         case Benchmark: {
           final var o = (Benchmark) op;
-          final var t = System.nanoTime();
           final var bodyPc = pc + 1;
           final var repetitions = registers.get(o.rRepetitions).as(Core.instance.integerType);
+
+          for (int i = 0; i < repetitions; i++) {
+            evaluate(bodyPc);
+          }
+
+          final var t = System.nanoTime();
 
           for (int i = 0; i < repetitions; i++) {
             evaluate(bodyPc);
