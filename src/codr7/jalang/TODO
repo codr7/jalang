@@ -2,6 +2,13 @@
 0.010435875
 0.1980878
 
+* store register count on function emit
+** add vm.registerCount
+** increase in allocateRegister()
+** realloc registers if needed in evaluate
+** only copy up to
+** pushCall/Return
+
 * add TimeType
 ** Duration
 ** use in benchmark macro
@@ -21,6 +28,8 @@
 ** add is function
 
 * turn pair into collection/sequence type
+
+* test/fix closures
 
 * add or-types
 ** Integer|None
