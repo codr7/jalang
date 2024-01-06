@@ -718,7 +718,7 @@ public class Core extends Library {
             rValue = r.index();
           } else if (a instanceof LiteralForm) {
             rValue = vm.allocateRegister();
-            vm.set(rValue, ((LiteralForm) a).value());
+            vm.emit(new Set(((LiteralForm) a).value(), rValue));
           } else {
             throw new EmitError(location, "Invalid target: %s", a.toString());
           }
@@ -747,7 +747,7 @@ public class Core extends Library {
             rValue = r.index();
           } else if (a instanceof LiteralForm) {
             rValue = vm.allocateRegister();
-            vm.set(rValue, ((LiteralForm) a).value());
+            vm.emit(new Set(((LiteralForm) a).value(), rValue));
           } else {
             throw new EmitError(location, "Invalid target: %s", a.toString());
           }

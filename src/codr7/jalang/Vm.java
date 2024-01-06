@@ -18,15 +18,9 @@ public class Vm {
   public static final int REGISTER_COUNT = 10;
   public static final int VERSION = 3;
 
-  public Vm() {
-    for (var i = 0; i < REGISTER_COUNT; i++) {
-      registers.add(null);
-    }
-  }
-
   public final int allocateRegister() {
-    final var i = registers.size();
-    registers.add(null);
+    final var i = registerCount;
+    registerCount++;
     return i;
   }
 
@@ -52,6 +46,10 @@ public class Vm {
   }
 
   public final void evaluate(final int startPc) {
+    if (registers.length != registerCount) {
+      registers = Arrays.copyOf(registers, registerCount);
+    }
+
     pc = startPc;
 
     for (; ; ) {
@@ -61,7 +59,7 @@ public class Vm {
         case Benchmark: {
           final var o = (Benchmark) op;
           final var bodyPc = pc + 1;
-          final var repetitions = registers.get(o.rRepetitions).as(Core.instance.integerType);
+          final var repetitions = registers[o.rRepetitions].as(Core.instance.integerType);
 
           for (int i = 0; i < repetitions; i++) {
             evaluate(bodyPc);
@@ -73,8 +71,8 @@ public class Vm {
             evaluate(bodyPc);
           }
 
-          registers.set(o.rRegister,
-              new Value<>(Core.instance.floatType, (float) ((System.nanoTime() - t) / 1000000000.0)));
+          registers[o.rRegister] =
+              new Value<>(Core.instance.floatType, (float) ((System.nanoTime() - t) / 1000000000.0));
           break;
         }
         case CallDirect: {
@@ -90,7 +88,7 @@ public class Vm {
         }
         case CallIndirect: {
           final var o = (CallIndirect) op;
-          final var target = registers.get(o.rTarget);
+          final var target = registers[o.rTarget];
 
           if (!(target.type() instanceof Core.CallableTrait)) {
             throw new EvaluationError(o.location, "Invalid call target: %s.", target);
@@ -102,9 +100,9 @@ public class Vm {
         }
         case Check: {
           final var o = (Check) op;
-          final var expected = registers.get(o.rExpected);
+          final var expected = registers[o.rExpected];
           evaluate(pc + 1);
-          final var actual = registers.get(o.rActual);
+          final var actual = registers[o.rActual];
 
           if (!actual.equals(expected)) {
             throw new EvaluationError(o.location,
@@ -115,44 +113,44 @@ public class Vm {
         }
         case Decrement: {
           final var o = (Decrement) op;
-          final var v = registers.get(o.rValue);
+          final var v = registers[o.rValue];
           final var dv = new Value<>(Core.instance.integerType, v.as(Core.instance.integerType) - 1);
-          registers.set(o.rValue, dv);
-          registers.set(o.rResult, dv);
+          registers[o.rValue] = dv;
+          registers[o.rResult] = dv;
           pc++;
           break;
         }
         case EqualsZero: {
           final var o = (EqualsZero) op;
-          final var value = registers.get(o.rValue).as(Core.instance.integerType);
-          registers.set(o.rResult, new Value<>(Core.instance.bitType, value == 0));
+          final var value = registers[o.rValue].as(Core.instance.integerType);
+          registers[o.rResult] = new Value<>(Core.instance.bitType, value == 0);
           pc++;
           break;
         }
         case Get: {
           final var o = (Get) op;
-          registers.set(o.rResult, registers.get(o.rValue));
+          registers[o.rResult] = registers[o.rValue];
           pc++;
           break;
         }
         case GetIterator: {
           final var o = (GetIterator) op;
-          final var v = registers.get(o.rValue);
+          final var v = registers[o.rValue];
 
           if (!(v.type() instanceof Core.SequenceTrait<?>)) {
             throw new EvaluationError(o.location, "Expected sequence: %s.", v);
           }
 
           final var i = ((Core.SequenceTrait<Value<?>>) v.type()).iterator(v);
-          registers.set(o.rResult, new Value<>(Core.instance.iteratorType, i));
+          registers[o.rResult] = new Value<>(Core.instance.iteratorType, i);
           pc++;
           break;
         }
         case GetKey: {
           final var o = (GetKey) op;
-          final var map = registers.get(o.rMap).as(Core.instance.mapType);
-          final var key = registers.get(o.rKey);
-          registers.set(o.rResult, map.get(key));
+          final var map = registers[o.rMap].as(Core.instance.mapType);
+          final var key = registers[o.rKey];
+          registers[o.rResult] = map.get(key);
           pc++;
           break;
         }
@@ -162,14 +160,14 @@ public class Vm {
         }
         case Head: {
           final var o = (Head) op;
-          registers.set(o.rResult, registers.get(o.rValue).as(Core.instance.pairType).left());
+          registers[o.rResult] = registers[o.rValue].as(Core.instance.pairType).left();
           pc++;
           break;
         }
         case If: {
           final var o = (If) op;
 
-          if (registers.get(o.rCondition).isTrue()) {
+          if (registers[o.rCondition].isTrue()) {
             pc++;
           } else {
             pc = o.elsePc;
@@ -179,19 +177,19 @@ public class Vm {
         }
         case Increment: {
           final var o = (Increment) op;
-          final var v = registers.get(o.rValue);
+          final var v = registers[o.rValue];
           final var iv = new Value<>(Core.instance.integerType, v.as(Core.instance.integerType) + 1);
-          registers.set(o.rValue, iv);
-          registers.set(o.rResult, iv);
+          registers[o.rValue] = iv;
+          registers[o.rResult] = iv;
           pc++;
           break;
         }
         case Iterate: {
           final var o = (Iterate) op;
-          final var it = registers.get(o.rIterator).as(Core.instance.iteratorType);
+          final var it = registers[o.rIterator].as(Core.instance.iteratorType);
 
           if (it.hasNext()) {
-            registers.set(o.rResult, it.next());
+            registers[o.rResult] = it.next();
             pc++;
           } else {
             pc = o.endPc;
@@ -201,19 +199,18 @@ public class Vm {
         }
         case MakePair: {
           final var o = (MakePair) op;
-          registers.set(o.rResult,
-              new Value<>(Core.instance.pairType,
-                  new Pair(registers.get(o.rLeft), registers.get(o.rRight))));
+          registers[o.rResult] = new Value<>(Core.instance.pairType,
+                  new Pair(registers[o.rLeft], registers[o.rRight]));
           pc++;
           break;
         }
         case MapIterators: {
           final var o = (MapIterators) op;
-          final var function = registers.get(o.rFunction).as(Core.functionType);
+          final var function = registers[o.rFunction].as(Core.functionType);
           final var iterators = new ArrayList<Iterator<Value<?>>>();
 
           for (int i = 0; i < o.rIterators.length; i++) {
-            iterators.add(registers.get(o.rIterators[i]).as(Core.instance.iteratorType));
+            iterators.add(registers[o.rIterators[i]].as(Core.instance.iteratorType));
           }
 
           var done = false;
@@ -226,7 +223,7 @@ public class Vm {
               break;
             }
 
-            registers.set(o.rValues[i], it.next());
+            registers[o.rValues[i]] = it.next();
           }
 
           if (done) {
@@ -243,34 +240,34 @@ public class Vm {
         }
         case Peek: {
           final var o = (Peek) op;
-          final var target = registers.get(o.rTarget);
-          registers.set(o.rResult, ((Core.StackTrait)target.type()).peek(this, target));
+          final var target = registers[o.rTarget];
+          registers[o.rResult] = ((Core.StackTrait)target.type()).peek(this, target);
           pc++;
           break;
         }
         case Pop: {
           final var o = (Pop) op;
-          final var target = registers.get(o.rTarget);
-          registers.set(o.rResult, ((Core.StackTrait)target.type()).pop(this, target, o.rTarget));
+          final var target = registers[o.rTarget];
+          registers[o.rResult] = ((Core.StackTrait)target.type()).pop(this, target, o.rTarget);
           pc++;
           break;
         }
         case Push: {
           final var o = (Push) op;
-          final var target = registers.get(o.rTarget);
-          final var result = ((Core.StackTrait)target.type()).push(target, registers.get(o.rValue));
-          registers.set(o.rResult, result);
+          final var target = registers[o.rTarget];
+          final var result = ((Core.StackTrait)target.type()).push(target, registers[o.rValue]);
+          registers[o.rResult] = result;
           pc++;
           break;
         }
         case ReduceIterator: {
           final var o = (ReduceIterator) op;
-          final var f = registers.get(o.rFunction).as(Core.functionType);
-          final var i = registers.get(o.rIterator).as(Core.instance.iteratorType);
-          final var r = registers.get(o.rResult);
+          final var f = registers[o.rFunction].as(Core.functionType);
+          final var i = registers[o.rIterator].as(Core.instance.iteratorType);
+          final var r = registers[o.rResult];
 
           if (i.hasNext()) {
-            registers.set(o.rValue, i.next());
+            registers[o.rValue] = i.next();
             f.call(this, o.location, new int[]{o.rValue, o.rResult}, o.rResult);
           } else {
             pc++;
@@ -280,24 +277,23 @@ public class Vm {
         }
         case Return: {
           final var o = (Return) op;
-          final var result = registers.get(o.rResult);
-          registers.clear();
-          Collections.addAll(registers, callFrame.registers());
-          registers.set(callFrame.rResult(), result);
+          final var result = registers[o.rResult];
+          registers = callFrame.registers();
+          registers[callFrame.rResult()] = result;
           pc = callFrame.returnPc();
           callFrame = callFrame.parentFrame();
           break;
         }
         case Set: {
           final var o = (Set) op;
-          registers.set(o.rResult, o.value);
+          registers[o.rResult] = o.value;
           pc++;
           break;
         }
         case SetKey: {
           final var o = (SetKey) op;
-          final var map = registers.get(o.rMap).as(Core.instance.mapType);
-          map.put(registers.get(o.rKey), registers.get(o.rValue));
+          final var map = registers[o.rMap].as(Core.instance.mapType);
+          map.put(registers[o.rKey], registers[o.rValue]);
           pc++;
           break;
         }
@@ -307,7 +303,7 @@ public class Vm {
         }
         case Tail: {
           final var o = (Tail) op;
-          registers.set(o.rResult, registers.get(o.rValue).as(Core.instance.pairType).right());
+          registers[o.rResult] = registers[o.rValue].as(Core.instance.pairType).right();
           pc++;
           break;
         }
@@ -333,7 +329,7 @@ public class Vm {
   }
 
   public final Value<?> get(final int index) {
-    return registers.get(index);
+    return registers[index];
   }
 
   public final void load(final Path path,
@@ -374,7 +370,7 @@ public class Vm {
         callFrame,
         target,
         location,
-        registers.toArray(new Value<?>[0]),
+        Arrays.copyOf(registers, registers.length),
         this.pc,
         resultRegister);
 
@@ -382,13 +378,14 @@ public class Vm {
   }
 
   public final void set(final int index, Value<?> value) {
-    registers.set(index, value);
+    registers[index] = value;
   }
 
   private CallFrame callFrame;
   private final List<Operation> code = new ArrayList<>();
   private Path loadPath = Paths.get("");
   private int pc = -1;
-  private final ArrayList<Value<?>> registers = new ArrayList<>();
+  private Value<?>[] registers = new Value<?>[REGISTER_COUNT];
+  private int registerCount = REGISTER_COUNT;
   private boolean tracingEnabled = false;
 }

@@ -3,9 +3,6 @@
 0.1980878
 
 * store register count on function emit
-** add vm.registerCount
-** increase in allocateRegister()
-** realloc registers if needed in evaluate
 ** only copy up to
 ** pushCall/Return
 
