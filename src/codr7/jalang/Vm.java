@@ -75,6 +75,11 @@ public class Vm {
         case CallDirect: {
           final var o = (CallDirect) op;
           pc++;
+
+          if (!(o.target.type() instanceof Core.CallableTrait)) {
+            throw new EvaluationError(o.location, "Invalid call target: %s.", o.target);
+          }
+
           ((Core.CallableTrait) o.target.type()).call(o.target, this, o.location, o.rParameters, o.rResult);
           break;
         }

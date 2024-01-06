@@ -185,6 +185,14 @@
   (fib 10))
 
 (check 55
+  (function fib [n:Integer lookup:Map]:Integer
+    (or (lookup n)
+	((lookup n (if (< n 2) n (+ (fib (- n 1) lookup)
+                                    (fib (- n 2) lookup)))) n)))
+
+  (fib 10 {}))
+				 
+(check 55
   (function fib[n:Integer a:Integer b:Integer]:Integer
     (if (> n 1) (fib (-1 n) b (+ a b)) (if (=0 n) a b)))
     

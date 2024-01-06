@@ -134,7 +134,11 @@ public class Core extends Library {
       super(name);
     }
 
-    public void call(final Value<?> target, Vm vm, Location location, int[] rParameters, int rResult) {
+    public void call(final Value<?> target,
+                     final Vm vm,
+                     final Location location,
+                     final int[] rParameters,
+                     final int rResult) {
       target.as(this).call(vm, location, rParameters, rResult);
     }
   }
@@ -198,7 +202,11 @@ public class Core extends Library {
       super(name);
     }
 
-    public void call(Value<?> target, Vm vm, Location location, int[] rParameters, int rResult) {
+    public void call(final Value<?> target,
+                     final Vm vm,
+                     final Location location,
+                     final int[] rParameters,
+                     final int rResult) {
       final var map = target.as(this);
 
       switch (rParameters.length) {
@@ -333,6 +341,26 @@ public class Core extends Library {
     }
   }
 
+  public static class RegisterType extends Type<Register> implements CallableTrait {
+    public RegisterType(final String name) {
+      super(name);
+    }
+
+    public void call(final Value<?> target,
+                     final Vm vm,
+                     final Location location,
+                     final int[] rParameters,
+                     final int rResult) {
+      final var t = vm.get(target.as(this).index());
+
+      if (!(t.type() instanceof Core.CallableTrait)) {
+        throw new EvaluationError(location, "Invalid call target: %s.", t);
+      }
+
+      ((Core.CallableTrait) t.type()).call(t, vm, location, rParameters, rResult);
+    }
+  }
+
   public static class SequenceType extends Type<Object> {
     public SequenceType(final String name) {
       super(name);
@@ -416,7 +444,11 @@ public class Core extends Library {
       super(name);
     }
 
-    public void call(final Value<?> target, Vm vm, Location location, int[] rParameters, int rResult) {
+    public void call(final Value<?> target,
+                     final Vm vm,
+                     final Location location,
+                     final int[] rParameters,
+                     final int rResult) {
       final var vector = target.as(this);
 
       switch (rParameters.length) {
@@ -1178,7 +1210,7 @@ public class Core extends Library {
   public final Value<Object> NONE = new Value<>(noneType, null);
   public final PairType pairType = new PairType("Pair");
   public final Type<Path> pathType = new Type<>("Path");
-  public final Type<Register> registerType = new Type<>("Register");
+  public final RegisterType registerType = new RegisterType("Register");
   public final SequenceType sequenceType = new SequenceType("Sequence");
   public final StringType stringType = new StringType("String");
   public final SymbolType symbolType = new SymbolType("Symbol");

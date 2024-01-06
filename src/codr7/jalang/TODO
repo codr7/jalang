@@ -1,19 +1,19 @@
-0.4520028
-0.14301105
+0.38647935
+0.21343191
 
-* add lookup fib test/benchmark
-
-(function fib(n:Integer lookup:Map):Integer
-  (or (lookup n)
-      (lookup n (if (< n 2) n (+ (fib (-1 n) lookup)
-                                 (fib (-1 n) lookup))))))
-
-(say (benchmark 10000 (fib 70 {})))
+* add warmup to benchmark op
+* move Function special case from SexprForm.emit to FunctionType.call
 
 * add and macro
 * add not function
 
 * change trait argument types to Value<?>
+
+* add let macro
+** change lookup fib (benchmarks/tests) to use let
+
+(let [x 1 y 2]
+  (+ x y))
 
 * hook up type hierarchy
 ** add type function
@@ -27,11 +27,6 @@
 ** change find-if resultType Any?
 
 * convert reduce/map ops to macros like find/index-if
-
-* add let macro
-
-(let [x 1 y 2]
-  (+ x y))
 
 * add dynamic scope support for defines in let
 
