@@ -211,6 +211,8 @@ Calling a map returns the value for the specified key (`_` if not found) or upda
 [tests.jlg](https://github.com/codr7/jalang/blob/main/tests.jlg) contains the humble beginnings of a test suite.
 
 ## Benchmarks
+`(benchmark n ...)` measures the time it takes to repeat its body `n` times after warming up the JIT.
+
 The core interpreter is currently roughly as fast as Python, but there is plenty of low hanging fruit left to pick.
 
 ```
@@ -225,5 +227,3 @@ $ python3 python/fib.py
 0.12554220899999996
 0.0671775
 ```
-
-`(benchmark n ...)` measures the time it takes to repeat its body `n` times after warming up the JIT.
