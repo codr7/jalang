@@ -4,6 +4,14 @@
 
 * add not function
 
+* add TimeType
+** Duration
+** use in benchmark macro
+
+* add symbol macros
+** add register-count
+** say in benchmarks.jlg
+
 * add let macro
 ** change lookup fib (benchmarks/tests) to use let
 
