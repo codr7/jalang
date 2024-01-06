@@ -2,8 +2,6 @@
 0.010435875
 0.1980878
 
-* change trait argument types to Value<?>
-
 * add and macro
 * add not function
 

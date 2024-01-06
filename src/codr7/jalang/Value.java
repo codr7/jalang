@@ -20,7 +20,7 @@ public record Value<D>(Type<D> type, D data) implements Comparable<Value<?>> {
       throw new RuntimeException(String.format("Type is not comparable: %s.", type));
     }
 
-    return switch (((Core.ComparableTrait) type).compare(data, other.data)) {
+    return switch (((Core.ComparableTrait) type).compare(this, other)) {
       case Compare.LessThan -> -1;
       case Compare.GreaterThan -> 1;
       default -> 0;

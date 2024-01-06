@@ -28,19 +28,19 @@ public class Core extends Library {
   }
 
   public interface CollectionTrait {
-    int length(final Object value);
+    int length(final Value<?> value);
   }
 
   public interface ComparableTrait {
-    Compare compare(final Object left, final Object right);
+    Compare compare(final Value<?> left, final Value<?> right);
   }
 
   public interface IndexedCollectionTrait {
-    Value<?> slice(final Object value, final Value<?> start, final Value<?> end);
+    Value<?> slice(final Value<?> value, final Value<?> start, final Value<?> end);
   }
 
   public interface SequenceTrait<T> {
-    Iterator<T> iterator(final Object value);
+    Iterator<T> iterator(final Value<?> value);
   }
 
   public interface StackTrait {
@@ -68,9 +68,9 @@ public class Core extends Library {
       super(name);
     }
 
-    public Compare compare(final Object left, final Object right) {
-      final char l = (Character) left;
-      final char r = (Character) right;
+    public Compare compare(final Value<?> left, final Value<?> right) {
+      final char l = left.as(this);
+      final char r = right.as(this);
 
       if (l < r) {
         return Compare.LessThan;
@@ -107,9 +107,9 @@ public class Core extends Library {
       super(name);
     }
 
-    public Compare compare(final Object left, final Object right) {
-      final float l = (Float) left;
-      final float r = (Float) right;
+    public Compare compare(final Value<?> left, final Value<?> right) {
+      final float l = left.as(this);
+      final float r = right.as(this);
 
       if (l < r) {
         return Compare.LessThan;
@@ -165,9 +165,9 @@ public class Core extends Library {
       super(name);
     }
 
-    public Compare compare(final Object left, final Object right) {
-      final int l = (Integer) left;
-      final int r = (Integer) right;
+    public Compare compare(final Value<?> left, final Value<?> right) {
+      final int l = left.as(this);
+      final int r = right.as(this);
 
       if (l < r) {
         return Compare.LessThan;
@@ -184,10 +184,10 @@ public class Core extends Library {
       return value != 0;
     }
 
-    public Iterator<Value<Integer>> iterator(final Object value) {
+    public Iterator<Value<Integer>> iterator(final Value<?> value) {
       return Stream
           .iterate(0, x -> x + 1)
-          .limit((Integer) value)
+          .limit(value.as(this))
           .map(v -> new Value<>(Core.instance.integerType, v))
           .iterator();
     }
@@ -205,8 +205,8 @@ public class Core extends Library {
     }
 
     @SuppressWarnings("unchecked")
-    public Iterator<Value<?>> iterator(final Object value) {
-      return (Iterator<Value<?>>) value;
+    public Iterator<Value<?>> iterator(final Value<?> value) {
+      return value.as(this);
     }
   }
 
@@ -293,10 +293,10 @@ public class Core extends Library {
     }
 
     @SuppressWarnings("unchecked")
-    public Iterator<Value<?>> iterator(final Object value) {
+    public Iterator<Value<?>> iterator(final Value<?> value) {
       final var items = new ArrayList<Value<?>>();
 
-      for (final var e : ((Map<Value<?>, Value<?>>) value).entrySet()) {
+      for (final var e : value.as(this).entrySet()) {
         if (e.getKey().equals(e.getValue())) {
           items.add(e.getKey());
         } else {
@@ -308,8 +308,8 @@ public class Core extends Library {
     }
 
     @SuppressWarnings("unchecked")
-    public int length(final Object value) {
-      return ((Map<Value<?>, Value<?>>) value).size();
+    public int length(final Value<?> value) {
+      return value.as(this).size();
     }
   }
 
@@ -389,9 +389,9 @@ public class Core extends Library {
       super(name);
     }
 
-    public Compare compare(final Object left, final Object right) {
-      final var l = (String) left;
-      final var r = (String) right;
+    public Compare compare(final Value<?> left, final Value<?> right) {
+      final var l = left.as(this);
+      final var r = right.as(this);
       final var result = l.compareTo(r);
 
       if (result < 0) {
@@ -413,26 +413,27 @@ public class Core extends Library {
       return !value.isEmpty();
     }
 
-    public Iterator<Value<Character>> iterator(final Object value) {
-      return ((String) value).codePoints()
+    public Iterator<Value<Character>> iterator(final Value<?> value) {
+      return (value.as(this)).codePoints()
           .mapToObj((c) -> new Value<>(Core.instance.characterType, (char) c))
           .iterator();
     }
 
-    public int length(final Object value) {
-      return ((String) value).length();
+    public int length(final Value<?> value) {
+      return value.as(this).length();
     }
 
     public String say(final String value) {
       return value;
     }
 
-    public Value<?> slice(final Object value, final Value<?> start, final Value<?> end) {
+    public Value<?> slice(final Value<?> value, final Value<?> start, final Value<?> end) {
       final var si = start.as(Core.instance.integerType);
+      final var v = value.as(this);
 
       final var result = (end == null)
-          ? ((String) value).substring(si)
-          : ((String) value).substring(si, end.as(Core.instance.integerType));
+          ? v.substring(si)
+          : v.substring(si, end.as(Core.instance.integerType));
 
       return new Value<>(Core.instance.stringType, result);
     }
@@ -524,13 +525,13 @@ public class Core extends Library {
     }
 
     @SuppressWarnings("unchecked")
-    public Iterator<Value<?>> iterator(final Object value) {
-      return ((ArrayList<Value<?>>) value).iterator();
+    public Iterator<Value<?>> iterator(final Value<?> value) {
+      return value.as(this).iterator();
     }
 
     @SuppressWarnings("unchecked")
-    public int length(final Object value) {
-      return ((ArrayList<Value<?>>) value).size();
+    public int length(final Value<?> value) {
+      return value.as(this).size();
     }
 
     public Value<?> peek(final Vm vm, final Value<?> target) {
@@ -619,7 +620,7 @@ public class Core extends Library {
               throw new EvaluationError(location, "Type mismatch: %s/%s.", value1.type(), v.type());
             }
 
-            if (type.compare(value1.data(), v.data()) != Compare.LessThan) {
+            if (type.compare(value1, v) != Compare.LessThan) {
               result = false;
               break;
             }
@@ -647,7 +648,7 @@ public class Core extends Library {
               throw new EvaluationError(location, "Type mismatch: %s/%s.", value1.type(), v.type());
             }
 
-            if (type.compare(value1.data(), v.data()) != Compare.GreaterThan) {
+            if (type.compare(value1, v) != Compare.GreaterThan) {
               result = false;
               break;
             }
@@ -800,7 +801,8 @@ public class Core extends Library {
         (function, vm, location, rParameters, rResult) -> {
           final var input = vm.get(rParameters[0]);
 
-          @SuppressWarnings("unchecked") final var iterator = ((SequenceTrait<Value<?>>) input.type()).iterator(input.data());
+          @SuppressWarnings("unchecked")
+          final var iterator = ((SequenceTrait<Value<?>>) input.type()).iterator(input);
           final var result = new ArrayList<Value<?>>();
 
           while (iterator.hasNext()) {
@@ -985,7 +987,7 @@ public class Core extends Library {
         (function, vm, location, rParameters, rResult) -> {
           final var s = vm.get(rParameters[0]);
           @SuppressWarnings("unchecked") final var st = (SequenceTrait<Value<?>>) s.type();
-          vm.set(rResult, new Value<>(iteratorType, st.iterator(s.data())));
+          vm.set(rResult, new Value<>(iteratorType, st.iterator(s)));
         });
 
     bindFunction("length",
@@ -994,7 +996,7 @@ public class Core extends Library {
         (function, vm, location, rParameters, rResult) -> {
           final var c = vm.get(rParameters[0]);
           final var ct = (CollectionTrait) c.type();
-          vm.set(rResult, new Value<>(integerType, ct.length(c.data())));
+          vm.set(rResult, new Value<>(integerType, ct.length(c)));
         });
 
     bindMacro("load", 1,
@@ -1142,7 +1144,7 @@ public class Core extends Library {
           final var it = (IndexedCollectionTrait) i.type();
           final var start = vm.get(rParameters[1]);
           final var end = (rParameters.length == 2) ? null : vm.get(rParameters[2]);
-          vm.set(rResult, it.slice(i.data(), start, end));
+          vm.set(rResult, it.slice(i, start, end));
         });
 
     bindFunction("string",
