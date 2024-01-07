@@ -5,9 +5,6 @@ import codr7.jalang.Location;
 import codr7.jalang.Namespace;
 import codr7.jalang.Vm;
 import codr7.jalang.errors.EmitError;
-import codr7.jalang.libraries.Core;
-import codr7.jalang.operations.Get;
-import codr7.jalang.operations.Set;
 
 public class IdForm extends Form {
   public IdForm(final Location location, final String name) {

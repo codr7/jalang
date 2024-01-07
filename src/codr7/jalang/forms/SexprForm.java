@@ -88,7 +88,7 @@ public class SexprForm extends Form {
         body[i].emit(vm, namespace, rParameter);
       }
 
-      ((Core.CallableTrait)target.type()).emitCall(target, vm, location(), rParameters, rResult);
+      ((Core.CallableTrait) target.type()).emitCall(target, vm, location(), rParameters, rResult);
     }
 
     if (head) {

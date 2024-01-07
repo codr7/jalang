@@ -7,8 +7,8 @@ import codr7.jalang.forms.IdForm;
 import codr7.jalang.forms.LiteralForm;
 import codr7.jalang.forms.PairForm;
 import codr7.jalang.forms.VectorForm;
-import codr7.jalang.operations.*;
 import codr7.jalang.operations.Set;
+import codr7.jalang.operations.*;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -46,7 +46,9 @@ public class Core extends Library {
 
   public interface StackTrait {
     Value<?> peek(final Vm vm, final Value<?> target);
+
     Value<?> pop(final Vm vm, final Value<?> target, final int rTarget);
+
     Value<?> push(final Value<?> target, final Value<?> value);
   }
 
@@ -121,13 +123,13 @@ public class Core extends Library {
     }
 
     public void emitCall(Value<?> target, Vm vm, Location location, int[] rParameters, int rResult) {
-        final var function = target.as(this);
+      final var function = target.as(this);
 
-        if (function.arity() != -1 && rParameters.length < function.arity()) {
-          throw new EmitError(location, "Not enough arguments.");
-        }
+      if (function.arity() != -1 && rParameters.length < function.arity()) {
+        throw new EmitError(location, "Not enough arguments.");
+      }
 
-        CallableTrait.super.emitCall(target, vm, location, rParameters, rResult);
+      CallableTrait.super.emitCall(target, vm, location, rParameters, rResult);
     }
 
   }
@@ -775,7 +777,7 @@ public class Core extends Library {
             arguments[i].emit(vm, namespace, rResult);
           }
 
-          for (final var pc: andPcs) {
+          for (final var pc : andPcs) {
             vm.emit(pc, new If(rResult, vm.emitPc()));
           }
         });
@@ -1011,55 +1013,55 @@ public class Core extends Library {
 
     bindMacro("let", 2,
         (vm, namespace, location, arguments, rResult) -> {
-      final var bindingsForm = arguments[0];
+          final var bindingsForm = arguments[0];
 
-      if (!(bindingsForm instanceof VectorForm)) {
-        throw new EmitError(bindingsForm.location(), "Invalid let bindings: %s.", bindingsForm);
-      }
+          if (!(bindingsForm instanceof VectorForm)) {
+            throw new EmitError(bindingsForm.location(), "Invalid let bindings: %s.", bindingsForm);
+          }
 
-      final var bindings = ((VectorForm)bindingsForm).body();
-      final var variables = new TreeMap<Integer, Integer>();
+          final var bindings = ((VectorForm) bindingsForm).body();
+          final var variables = new TreeMap<Integer, Integer>();
 
-      for (int i = 0; i < bindings.length; i += 2) {
-        final var nameForm = bindings[i];
+          for (int i = 0; i < bindings.length; i += 2) {
+            final var nameForm = bindings[i];
 
-        if (!(nameForm instanceof IdForm)) {
-          throw new EmitError(nameForm.location(), "Expected identifier: %s.", nameForm);
-        }
+            if (!(nameForm instanceof IdForm)) {
+              throw new EmitError(nameForm.location(), "Expected identifier: %s.", nameForm);
+            }
 
-        if (i == bindings.length - 1) {
-          throw new EmitError(bindingsForm.location(), "Missing Value.");
-        }
+            if (i == bindings.length - 1) {
+              throw new EmitError(bindingsForm.location(), "Missing Value.");
+            }
 
-        final var valueForm = bindings[i + 1];
-        final var valueType = (valueForm instanceof LiteralForm)
-            ? ((LiteralForm)valueForm).value().type()
-            : null;
-        final var name = ((IdForm)nameForm).name();
-        var rValue = -1;
-        final var found = namespace.find(name);
+            final var valueForm = bindings[i + 1];
+            final var valueType = (valueForm instanceof LiteralForm)
+                ? ((LiteralForm) valueForm).value().type()
+                : null;
+            final var name = ((IdForm) nameForm).name();
+            var rValue = -1;
+            final var found = namespace.find(name);
 
-        if (found != null && found.type() == variableType) {
-          rValue = found.as(variableType).index();
-          final var rPreviousValue = vm.allocateRegister();
-          variables.put(rPreviousValue, rValue);
-          vm.emit(new Get(rValue, rPreviousValue));
-        } else {
-          rValue = vm.allocateRegister();
-          namespace.bind(name, new Value<>(registerType, new Register(rValue, valueType)));
-        }
+            if (found != null && found.type() == variableType) {
+              rValue = found.as(variableType).index();
+              final var rPreviousValue = vm.allocateRegister();
+              variables.put(rPreviousValue, rValue);
+              vm.emit(new Get(rValue, rPreviousValue));
+            } else {
+              rValue = vm.allocateRegister();
+              namespace.bind(name, new Value<>(registerType, new Register(rValue, valueType)));
+            }
 
-        valueForm.emit(vm, namespace, rValue);
-      }
+            valueForm.emit(vm, namespace, rValue);
+          }
 
-      for (int i = 1; i < arguments.length; i++) {
-        arguments[i].emit(vm, namespace, rResult);
-      }
+          for (int i = 1; i < arguments.length; i++) {
+            arguments[i].emit(vm, namespace, rResult);
+          }
 
-      for (final var e: variables.entrySet()) {
-        vm.emit(new Get(e.getKey(), e.getValue()));
-      }
-    });
+          for (final var e : variables.entrySet()) {
+            vm.emit(new Get(e.getKey(), e.getValue()));
+          }
+        });
 
     bindMacro("load", 1,
         (vm, namespace, location, arguments, rResult) -> {
@@ -1105,33 +1107,33 @@ public class Core extends Library {
         new Parameter[]{new Parameter("n", integerType)}, 1,
         timeType,
         (function, vm, location, rParameters, rResult) -> {
-        final var n = vm.get(rParameters[0]).as(integerType);
-        vm.set(rResult, new Value<>(timeType, Duration.ofMillis(n)));
-    });
+          final var n = vm.get(rParameters[0]).as(integerType);
+          vm.set(rResult, new Value<>(timeType, Duration.ofMillis(n)));
+        });
 
     bindFunction("not",
         new Parameter[]{new Parameter("value", anyType)}, 1,
         bitType,
         (function, vm, location, rParameters, rResult) -> {
-      vm.set(rResult, new Value<>(bitType, !vm.get(rParameters[0]).isTrue()));
+          vm.set(rResult, new Value<>(bitType, !vm.get(rParameters[0]).isTrue()));
         });
 
-          bindMacro("or", 2,
+    bindMacro("or", 2,
         (vm, namespace, location, arguments, rResult) -> {
-        arguments[0].emit(vm, namespace, rResult);
-        final var skipPcs = new ArrayList<Integer>();
+          arguments[0].emit(vm, namespace, rResult);
+          final var skipPcs = new ArrayList<Integer>();
 
-        for (int i = 1; i < arguments.length; i++) {
-          final var orPc = vm.emit(Nop.instance);
-          skipPcs.add(vm.emit(Nop.instance));
-          vm.emit(orPc, new If(rResult, vm.emitPc()));
-          arguments[i].emit(vm, namespace, rResult);
-        }
+          for (int i = 1; i < arguments.length; i++) {
+            final var orPc = vm.emit(Nop.instance);
+            skipPcs.add(vm.emit(Nop.instance));
+            vm.emit(orPc, new If(rResult, vm.emitPc()));
+            arguments[i].emit(vm, namespace, rResult);
+          }
 
-        for (final var pc: skipPcs) {
-          vm.emit(pc, new Goto(vm.emitPc()));
-        }
-    });
+          for (final var pc : skipPcs) {
+            vm.emit(pc, new Goto(vm.emitPc()));
+          }
+        });
 
     bindFunction("parse-integer",
         new Parameter[]{new Parameter("input", stringType)}, 1,
@@ -1172,11 +1174,11 @@ public class Core extends Library {
 
     bindMacro("push", 2,
         (vm, namespace, location, arguments, rResult) -> {
-      arguments[0].emit(vm, namespace, rResult);
-      final var rValue = vm.allocateRegister();
-      arguments[1].emit(vm, namespace, rValue);
-      vm.emit(new Push(rResult, rValue, rResult));
-    });
+          arguments[0].emit(vm, namespace, rResult);
+          final var rValue = vm.allocateRegister();
+          arguments[1].emit(vm, namespace, rValue);
+          vm.emit(new Push(rResult, rValue, rResult));
+        });
 
     bindMacro("reduce", 3,
         (vm, namespace, location, arguments, rResult) -> {
@@ -1198,7 +1200,7 @@ public class Core extends Library {
         new Parameter[]{}, 0,
         integerType,
         (function, vm, location, rParameters, rResult) -> {
-      vm.set(rResult, new Value<>(integerType, vm.registerCount()));
+          vm.set(rResult, new Value<>(integerType, vm.registerCount()));
         });
 
     bindFunction("say",
@@ -1223,11 +1225,11 @@ public class Core extends Library {
         new Parameter[]{new Parameter("duration", timeType)}, 1,
         noneType,
         (function, vm, location, rParameters, rResult) -> {
-      try {
-        Thread.sleep(vm.get(rParameters[0]).as(timeType));
-      } catch (final InterruptedException e) {
-        throw new EvaluationError(location, e.toString());
-      }
+          try {
+            Thread.sleep(vm.get(rParameters[0]).as(timeType));
+          } catch (final InterruptedException e) {
+            throw new EvaluationError(location, e.toString());
+          }
         });
 
     bindFunction("slice",
@@ -1314,8 +1316,7 @@ public class Core extends Library {
         (function, vm, location, rParameters, rResult) -> {
           final var input = vm.get(rParameters[0]);
 
-          @SuppressWarnings("unchecked")
-          final var iterator = ((SequenceTrait<Value<?>>) input.type()).iterator(input);
+          @SuppressWarnings("unchecked") final var iterator = ((SequenceTrait<Value<?>>) input.type()).iterator(input);
           final var result = new ArrayList<Value<?>>();
 
           while (iterator.hasNext()) {

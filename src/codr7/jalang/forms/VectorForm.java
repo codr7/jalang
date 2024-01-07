@@ -2,8 +2,8 @@ package codr7.jalang.forms;
 
 import codr7.jalang.*;
 import codr7.jalang.libraries.Core;
-import codr7.jalang.operations.Set;
 import codr7.jalang.operations.Push;
+import codr7.jalang.operations.Set;
 
 import java.util.ArrayList;
 
@@ -22,7 +22,7 @@ public class VectorForm extends Form {
       f.emit(vm, namespace, rItem);
       vm.emit(new Push(rResult, rItem, rResult));
     }
- }
+  }
 
   public final Form[] body() {
     return body;

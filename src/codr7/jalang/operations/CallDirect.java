@@ -3,8 +3,6 @@ package codr7.jalang.operations;
 import codr7.jalang.Location;
 import codr7.jalang.Operation;
 import codr7.jalang.Value;
-import codr7.jalang.errors.EvaluationError;
-import codr7.jalang.libraries.Core;
 
 public class CallDirect extends Operation {
   public CallDirect(final Location location,

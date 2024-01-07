@@ -3,7 +3,6 @@ package codr7.jalang;
 import codr7.jalang.errors.EvaluationError;
 import codr7.jalang.libraries.Core;
 import codr7.jalang.operations.*;
-import codr7.jalang.operations.Set;
 import codr7.jalang.readers.FormReader;
 
 import java.io.IOException;
@@ -12,7 +11,10 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.Duration;
-import java.util.*;
+import java.util.ArrayDeque;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Iterator;
 
 public class Vm {
   public static final int DEFAULT_REGISTER = 0;
@@ -201,7 +203,7 @@ public class Vm {
         case MakePair: {
           final var o = (MakePair) op;
           registers[o.rResult] = new Value<>(Core.instance.pairType,
-                  new Pair(registers[o.rLeft], registers[o.rRight]));
+              new Pair(registers[o.rLeft], registers[o.rRight]));
           pc++;
           break;
         }
@@ -242,21 +244,21 @@ public class Vm {
         case Peek: {
           final var o = (Peek) op;
           final var target = registers[o.rTarget];
-          registers[o.rResult] = ((Core.StackTrait)target.type()).peek(this, target);
+          registers[o.rResult] = ((Core.StackTrait) target.type()).peek(this, target);
           pc++;
           break;
         }
         case Pop: {
           final var o = (Pop) op;
           final var target = registers[o.rTarget];
-          registers[o.rResult] = ((Core.StackTrait)target.type()).pop(this, target, o.rTarget);
+          registers[o.rResult] = ((Core.StackTrait) target.type()).pop(this, target, o.rTarget);
           pc++;
           break;
         }
         case Push: {
           final var o = (Push) op;
           final var target = registers[o.rTarget];
-          final var result = ((Core.StackTrait)target.type()).push(target, registers[o.rValue]);
+          final var result = ((Core.StackTrait) target.type()).push(target, registers[o.rValue]);
           registers[o.rResult] = result;
           pc++;
           break;
