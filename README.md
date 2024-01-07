@@ -102,16 +102,17 @@ Omitting the name creates an anonymous function.
 `define` may be used to introduce compile time bindings.
 
 ```
-  (define foo (+ 1 2))
+  (define foo (+ 35 7))
   foo
 
-3 
+42 
 ```
 
 `let` may be used to introduce scoped runtime bindings.
 
 ```
-  (let [foo 41 bar (+ foo 1)]
+  (let [foo 35
+        bar (+ foo 7)]
     bar)
 
 42

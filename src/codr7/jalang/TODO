@@ -1,4 +1,6 @@
-* add dynamic scope support for defines in let
+* add dynamic scope support
+** add Variable record type
+** add VariableType
 
 * test/fix closures
 
