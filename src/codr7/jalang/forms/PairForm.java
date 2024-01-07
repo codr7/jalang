@@ -18,8 +18,6 @@ public class PairForm extends codr7.jalang.Form {
     final var rRight = vm.allocateRegister();
     right.emit(vm, namespace, rRight);
     vm.emit(new MakePair(rLeft, rRight, register));
-    vm.freeRegisters(rLeft);
-    vm.freeRegisters(rRight);
   }
 
   public final codr7.jalang.Form left() {

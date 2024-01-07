@@ -22,9 +22,7 @@ public class VectorForm extends Form {
       f.emit(vm, namespace, rItem);
       vm.emit(new Push(rResult, rItem, rResult));
     }
-
-    vm.freeRegisters(rItem);
-  }
+ }
 
   public final Form[] body() {
     return body;

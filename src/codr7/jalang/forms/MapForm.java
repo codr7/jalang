@@ -25,7 +25,6 @@ public class MapForm extends Form {
         pf.left().emit(vm, namespace, rKey);
         pf.right().emit(vm, namespace, rValue);
         vm.emit(new SetKey(rResult, rKey, rValue));
-        vm.freeRegisters(rKey);
       } else {
         f.emit(vm, namespace, rValue);
         vm.emit(new SetKey(rResult, rValue, rValue));

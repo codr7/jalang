@@ -118,6 +118,23 @@ Omitting the name creates an anonymous function.
 42
 ```
 
+Defined names are dynamically scoped.
+
+```
+  (define foo _)
+
+  (function bar []
+    foo)
+
+  (function baz []
+    (let [foo 42]
+      (bar)))
+
+  (baz)
+
+42
+```
+
 ## Aggregates
 
 ### Pairs

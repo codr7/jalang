@@ -350,7 +350,7 @@ public class Core extends Library {
     }
 
     public void emitId(final Value<?> value, final Vm vm, final Namespace namespace, final int rResult) {
-      final var source = value.as(Core.instance.registerType).index();
+      final var source = value.as(this).index();
 
       if (source != rResult) {
         vm.emit(new Get(source, rResult));
@@ -729,7 +729,6 @@ public class Core extends Library {
           } else if (a instanceof LiteralForm) {
             rValue = vm.allocateRegister();
             vm.emit(new Set(((LiteralForm) a).value(), rValue));
-            vm.freeRegisters(rValue);
           } else {
             throw new EmitError(location, "Invalid target: %s", a.toString());
           }
@@ -759,7 +758,6 @@ public class Core extends Library {
           } else if (a instanceof LiteralForm) {
             rValue = vm.allocateRegister();
             vm.emit(new Set(((LiteralForm) a).value(), rValue));
-            vm.freeRegisters(rValue);
           } else {
             throw new EmitError(location, "Invalid target: %s", a.toString());
           }
@@ -792,7 +790,6 @@ public class Core extends Library {
             arguments[i].emit(vm, namespace, rRepetitions);
           }
 
-          vm.freeRegisters(rRepetitions);
           vm.emit(Stop.instance);
         });
 
@@ -808,8 +805,6 @@ public class Core extends Library {
             arguments[i].emit(vm, bodyNamespace, rActual);
           }
 
-          vm.freeRegisters(rExpected);
-          vm.freeRegisters(rActual);
           vm.emit(Stop.instance);
         });
 
@@ -820,9 +815,11 @@ public class Core extends Library {
           if (!(nameForm instanceof IdForm)) {
             throw new EmitError(nameForm.location(), "Expected identifier: %s.", nameForm);
           }
+
           final var name = ((IdForm) nameForm).name();
-          vm.evaluate(arguments[1], namespace, rResult);
-          namespace.bind(name, vm.get(rResult));
+          final var rValue = vm.allocateRegister();
+          vm.evaluate(arguments[1], namespace, rValue);
+          namespace.bind(name, new Value<>(variableType, new Register(rValue, null)));
         });
 
     bindFunction("digit",
@@ -877,7 +874,6 @@ public class Core extends Library {
           vm.emit(new Goto(iteratePc));
           vm.emit(iteratePc, new Iterate(rIterator, rValue, vm.emitPc()));
           vm.emit(exitPc, new Goto(vm.emitPc()));
-          vm.freeRegisters(rIndex, rPredicate, rPredicateResult, rValue);
         });
 
     bindMacro("function", 1,
@@ -1022,7 +1018,7 @@ public class Core extends Library {
       }
 
       final var bindings = ((VectorForm)bindingsForm).body();
-      final var registers = new ArrayList<Integer>();
+      final var variables = new TreeMap<Integer, Integer>();
 
       for (int i = 0; i < bindings.length; i += 2) {
         final var nameForm = bindings[i];
@@ -1040,9 +1036,19 @@ public class Core extends Library {
             ? ((LiteralForm)valueForm).value().type()
             : null;
         final var name = ((IdForm)nameForm).name();
-        final var rValue = vm.allocateRegister();
-        registers.add(rValue);
-        namespace.bind(name, new Value<>(registerType, new Register(rValue, valueType)));
+        var rValue = -1;
+        final var found = namespace.find(name);
+
+        if (found != null && found.type() == variableType) {
+          rValue = found.as(variableType).index();
+          final var rPreviousValue = vm.allocateRegister();
+          variables.put(rPreviousValue, rValue);
+          vm.emit(new Get(rValue, rPreviousValue));
+        } else {
+          rValue = vm.allocateRegister();
+          namespace.bind(name, new Value<>(registerType, new Register(rValue, valueType)));
+        }
+
         valueForm.emit(vm, namespace, rValue);
       }
 
@@ -1050,8 +1056,8 @@ public class Core extends Library {
         arguments[i].emit(vm, namespace, rResult);
       }
 
-      for (final var r: registers) {
-        vm.freeRegisters(r);
+      for (final var e: variables.entrySet()) {
+        vm.emit(new Get(e.getKey(), e.getValue()));
       }
     });
 
@@ -1147,7 +1153,6 @@ public class Core extends Library {
           final var rTarget = vm.allocateRegister();
           arguments[0].emit(vm, namespace, rTarget);
           vm.emit(new Peek(rTarget, rResult));
-          vm.freeRegisters(rTarget);
         });
 
     bindMacro("pop", 1,
@@ -1155,7 +1160,6 @@ public class Core extends Library {
           final var rTarget = vm.allocateRegister();
           arguments[0].emit(vm, namespace, rTarget);
           vm.emit(new Pop(rTarget, rResult));
-          vm.freeRegisters(rTarget);
         });
 
     bindMacro("push", 2,
@@ -1164,7 +1168,6 @@ public class Core extends Library {
       final var rValue = vm.allocateRegister();
       arguments[1].emit(vm, namespace, rValue);
       vm.emit(new Push(rResult, rValue, rResult));
-      vm.freeRegisters(rValue);
     });
 
     bindMacro("reduce", 3,
@@ -1321,5 +1324,6 @@ public class Core extends Library {
   public final StringType stringType = new StringType("String");
   public final SymbolType symbolType = new SymbolType("Symbol");
   public final TimeType timeType = new TimeType("Time");
+  public final RegisterType variableType = new RegisterType("Variable");
   public final VectorType vectorType = new VectorType("Vector");
 }

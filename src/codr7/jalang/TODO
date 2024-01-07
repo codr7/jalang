@@ -1,12 +1,6 @@
-* add for/while loops
+* switch Set arg order
 
-* add dynamic scope support
-** add Variable record type
-** add VariableType
-** add namespace support
-*** update original binding
-** add let support
-*** backup/restore values
+* add for/while loops
 
 * test/fix closures
 

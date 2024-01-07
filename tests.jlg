@@ -169,7 +169,7 @@
         bar (+ foo 7)]
     bar))
 
-(check 42
+(check 42:_
   (define foo _)
 
   (function bar []
@@ -179,7 +179,7 @@
     (let [foo 42]
       (bar)))
 
-  (baz))
+  (baz):foo)
 
 (check 42
   (function foo []:Integer 42)

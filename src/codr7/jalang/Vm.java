@@ -20,10 +20,6 @@ public class Vm {
   public static final int VERSION = 3;
 
   public final int allocateRegister() {
-    if (!freeRegisters.isEmpty()) {
-      return freeRegisters.removeLast();
-    }
-
     final var i = registerCount;
     registerCount++;
     return i;
@@ -333,12 +329,6 @@ public class Vm {
     evaluate(startPc);
   }
 
-  public final void freeRegisters(final int...indexes) {
-    for (int i = 0; i < indexes.length; i++) {
-      freeRegisters.add(indexes[i]);
-    }
-  }
-
   public final Value<?> get(final int index) {
     return registers[index];
   }
@@ -398,7 +388,6 @@ public class Vm {
 
   private CallFrame callFrame;
   private final ArrayList<Operation> code = new ArrayList<>();
-  private final ArrayList<Integer> freeRegisters = new ArrayList<>();
   private Path loadPath = Paths.get("");
   private int pc = -1;
   private Value<?>[] registers = new Value<?>[REGISTER_COUNT];

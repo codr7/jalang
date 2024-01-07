@@ -60,7 +60,6 @@ public class SexprForm extends Form {
       }
 
       vm.emit(new CallIndirect(location(), rTarget, parameters, rResult));
-      vm.freeRegisters(rTarget);
       return;
     }
 
@@ -90,10 +89,6 @@ public class SexprForm extends Form {
       }
 
       ((Core.CallableTrait)target.type()).emitCall(target, vm, location(), rParameters, rResult);
-
-      for (final var r: rParameters) {
-        vm.freeRegisters(r);
-      }
     }
 
     if (head) {
