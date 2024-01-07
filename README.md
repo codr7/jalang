@@ -98,6 +98,25 @@ Omitting the name creates an anonymous function.
   (Function [x:Any])
 ```
 
+## Bindings
+`define` may be used to introduce compile time bindings.
+
+```
+  (define foo (+ 1 2))
+  foo
+
+3 
+```
+
+`let` may be used to introduce scoped runtime bindings.
+
+```
+  (let [foo 41 bar (+ foo 1)]
+    bar)
+
+42
+```
+
 ## Aggregates
 
 ### Pairs
