@@ -1,10 +1,14 @@
+* add for/while loops
+
 * add dynamic scope support
 ** add Variable record type
 ** add VariableType
+** add namespace support
+*** update original binding
+** add let support
+*** backup/restore values
 
 * test/fix closures
-
-* add for/while loops
 
 * hook up type hierarchy
 ** add type function
