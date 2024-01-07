@@ -264,8 +264,25 @@ Calling a map returns the value for the specified key (`_` if not found) or upda
 ## Tests
 [tests.jlg](https://github.com/codr7/jalang/blob/main/tests.jlg) contains the humble beginnings of a test suite.
 
+### check
+`check` may be used to implement tests, it signals an error if the result of its body differs from the first argument.
+
+```
+  (check T F)
+
+EvaluationError in repl@1:1: Test failed; expected: T, actual: F.
+```
+
 ## Benchmarks
+
+### benchmark
 `(benchmark n ...)` measures the time it takes to repeat its body `n` times after warming up the JIT.
+
+```
+  (benchmark 10 (sleep (milliseconds 100)))
+
+PT1.020851167S
+```
 
 The core interpreter is currently roughly as fast as Python, but there is plenty of low hanging fruit left to pick.
 

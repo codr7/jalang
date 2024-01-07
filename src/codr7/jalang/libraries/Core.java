@@ -1101,6 +1101,14 @@ public class Core extends Library {
           vm.emit(new GetIterator(rResult, rResult, location));
         });
 
+    bindFunction("milliseconds",
+        new Parameter[]{new Parameter("n", integerType)}, 1,
+        timeType,
+        (function, vm, location, rParameters, rResult) -> {
+        final var n = vm.get(rParameters[0]).as(integerType);
+        vm.set(rResult, new Value<>(timeType, Duration.ofMillis(n)));
+    });
+
     bindFunction("not",
         new Parameter[]{new Parameter("value", anyType)}, 1,
         bitType,
@@ -1193,7 +1201,7 @@ public class Core extends Library {
       vm.set(rResult, new Value<>(integerType, vm.registerCount()));
         });
 
-          bindFunction("say",
+    bindFunction("say",
         new Parameter[]{new Parameter("value1", anyType)}, 1,
         noneType,
         (function, vm, location, rParameters, rResult) -> {
@@ -1209,6 +1217,17 @@ public class Core extends Library {
 
           System.out.println(what);
           System.out.flush();
+        });
+
+    bindFunction("sleep",
+        new Parameter[]{new Parameter("duration", timeType)}, 1,
+        noneType,
+        (function, vm, location, rParameters, rResult) -> {
+      try {
+        Thread.sleep(vm.get(rParameters[0]).as(timeType));
+      } catch (final InterruptedException e) {
+        throw new EvaluationError(location, e.toString());
+      }
         });
 
     bindFunction("slice",
