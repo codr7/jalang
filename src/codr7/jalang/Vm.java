@@ -11,6 +11,7 @@ import java.io.StringReader;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.time.Duration;
 import java.util.*;
 
 public class Vm {
@@ -65,14 +66,14 @@ public class Vm {
             evaluate(bodyPc);
           }
 
-          final var t = System.nanoTime();
+          final var startTime = System.nanoTime();
 
           for (int i = 0; i < repetitions; i++) {
             evaluate(bodyPc);
           }
 
-          registers[o.rRegister] =
-              new Value<>(Core.instance.floatType, (float) ((System.nanoTime() - t) / 1000000000.0));
+          final var elapsedTime = Duration.ofNanos(System.nanoTime() - startTime);
+          registers[o.rRegister] = new Value<>(Core.instance.timeType, elapsedTime);
           break;
         }
         case CallDirect: {

@@ -1,11 +1,3 @@
-0.4594874
-0.010435875
-0.1980878
-
-* add TimeType
-** Duration
-** use in benchmark macro
-
 * add symbol macros
 ** add register-count
 ** say in benchmarks.jlg

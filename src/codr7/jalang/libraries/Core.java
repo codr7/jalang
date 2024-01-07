@@ -14,6 +14,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.time.Duration;
 import java.util.*;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
@@ -97,33 +98,6 @@ public class Core extends Library {
   public static class ComparableType extends Type<Object> {
     public ComparableType(final String name) {
       super(name);
-    }
-  }
-
-  public static class FloatType
-      extends Type<Float>
-      implements ComparableTrait {
-    public FloatType(final String name) {
-      super(name);
-    }
-
-    public Order compare(final Value<?> left, final Value<?> right) {
-      final float l = left.as(this);
-      final float r = right.as(this);
-
-      if (l < r) {
-        return Order.LessThan;
-      }
-
-      if (l > r) {
-        return Order.GreaterThan;
-      }
-
-      return Order.Equal;
-    }
-
-    public boolean isTrue(final Float value) {
-      return value != 0;
     }
   }
 
@@ -453,6 +427,34 @@ public class Core extends Library {
     }
   }
 
+  public static class TimeType
+      extends Type<Duration>
+      implements ComparableTrait {
+    public TimeType(final String name) {
+      super(name);
+    }
+
+    public Order compare(final Value<?> left, final Value<?> right) {
+      final var l = left.as(this);
+      final var r = right.as(this);
+      final var result = l.compareTo(r);
+
+      if (result < 0) {
+        return Order.LessThan;
+      }
+
+      if (result > 0) {
+        return Order.GreaterThan;
+      }
+
+      return Order.Equal;
+    }
+
+    public boolean isTrue(final Duration value) {
+      return !value.equals(Duration.ZERO);
+    }
+  }
+
   public static class VectorType
       extends Type<ArrayList<Value<?>>>
       implements CallableTrait, CollectionTrait, SequenceTrait<Value<?>>, StackTrait {
@@ -563,7 +565,6 @@ public class Core extends Library {
     bindType(characterType);
     bindType(collectionType);
     bindType(comparableType);
-    bindType(floatType);
     bindType(functionType);
     bindType(indexedCollectionType);
     bindType(integerType);
@@ -578,6 +579,7 @@ public class Core extends Library {
     bindType(sequenceType);
     bindType(stringType);
     bindType(symbolType);
+    bindType(timeType);
     bindType(vectorType);
 
     bind("_", NONE);
@@ -1240,7 +1242,6 @@ public class Core extends Library {
   public final CharacterType characterType = new CharacterType("Character");
   public final CollectionType collectionType = new CollectionType("Collection");
   public final ComparableType comparableType = new ComparableType("Comparable");
-  public final FloatType floatType = new FloatType("Float");
   public final IndexedCollectionType indexedCollectionType = new IndexedCollectionType("IndexedCollection");
   public final IntegerType integerType = new IntegerType("Integer");
   public final IteratorType iteratorType = new IteratorType("Iterator");
@@ -1253,5 +1254,6 @@ public class Core extends Library {
   public final SequenceType sequenceType = new SequenceType("Sequence");
   public final StringType stringType = new StringType("String");
   public final SymbolType symbolType = new SymbolType("Symbol");
+  public final TimeType timeType = new TimeType("Time");
   public final VectorType vectorType = new VectorType("Vector");
 }
