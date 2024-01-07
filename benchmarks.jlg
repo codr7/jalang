@@ -5,8 +5,10 @@
 
 (function fib [n:Integer lookup:Map]:Integer
   (or (lookup n)
-      ((lookup n (if (< n 2) n (+ (fib (- n 1) lookup)
-                                  (fib (- n 2) lookup)))) n)))
+      (let [result (if (< n 2) n (+ (fib (- n 1) lookup)
+                                    (fib (- n 2) lookup)))] 
+        (lookup n result)
+	result)))
 
 (say (benchmark 10000 (fib 70 {})))
 

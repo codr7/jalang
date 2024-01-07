@@ -1,14 +1,14 @@
-* add let macro
-** change lookup fib (benchmarks/tests) to use let
-
-(let [x 1 y 2]
-  (+ x y))
+* add dynamic scope support for defines in let
 
 * test/fix closures
+
+* add for/while loops
 
 * hook up type hierarchy
 ** add type function
 ** add is function
+
+* convert reduce/map ops to macros like find/index-if
 
 * turn pair into collection/sequence type
 
@@ -19,14 +19,10 @@
 ** add X? as alias for X|None
 ** change find-if resultType Any?
 
-* convert reduce/map ops to macros like find/index-if
-
 * add user macros
 ** add Form.quote/unquote
 ** change SymbolReader to QupteReader
 *** add QuoteForm
-
-* add dynamic scope support for defines in let
 
 * check function argument types at compile time
 

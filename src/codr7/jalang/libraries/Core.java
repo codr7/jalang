@@ -1005,6 +1005,48 @@ public class Core extends Library {
           vm.set(rResult, new Value<>(integerType, ct.length(c)));
         });
 
+    bindMacro("let", 2,
+        (vm, namespace, location, arguments, rResult) -> {
+      final var bindingsForm = arguments[0];
+
+      if (!(bindingsForm instanceof VectorForm)) {
+        throw new EmitError(bindingsForm.location(), "Invalid let bindings: %s.", bindingsForm);
+      }
+
+      final var bindings = ((VectorForm)bindingsForm).body();
+      final var registers = new ArrayList<Integer>();
+
+      for (int i = 0; i < bindings.length; i += 2) {
+        final var nameForm = bindings[i];
+
+        if (!(nameForm instanceof IdForm)) {
+          throw new EmitError(nameForm.location(), "Expected identifier: %s.", nameForm);
+        }
+
+        if (i == bindings.length - 1) {
+          throw new EmitError(bindingsForm.location(), "Missing Value.");
+        }
+
+        final var valueForm = bindings[i + 1];
+        final var valueType = (valueForm instanceof LiteralForm)
+            ? ((LiteralForm)valueForm).value().type()
+            : null;
+        final var name = ((IdForm)nameForm).name();
+        final var rValue = vm.allocateRegister();
+        registers.add(rValue);
+        namespace.bind(name, new Value<>(registerType, new Register(rValue, valueType)));
+        valueForm.emit(vm, namespace, rValue);
+      }
+
+      for (int i = 1; i < arguments.length; i++) {
+        arguments[i].emit(vm, namespace, rResult);
+      }
+
+      for (final var r: registers) {
+        vm.freeRegisters(r);
+      }
+    });
+
     bindMacro("load", 1,
         (vm, namespace, location, arguments, rResult) -> {
           vm.evaluate(arguments[0], namespace, rResult);

@@ -163,6 +163,10 @@
 
 (check 'bar
   (if T (do 'foo 'bar)))
+
+(check 42
+  (let [foo 41 bar (+ foo 1)]
+    bar))
   
 (check 42
   (function foo []:Integer 42)
@@ -196,8 +200,10 @@
 (check 55
   (function fib [n:Integer lookup:Map]:Integer
     (or (lookup n)
-	((lookup n (if (< n 2) n (+ (fib (- n 1) lookup)
-                                    (fib (- n 2) lookup)))) n)))
+        (let [result (if (< n 2) n (+ (fib (- n 1) lookup)
+                                      (fib (- n 2) lookup)))] 
+          (lookup n result)
+	  result)))
 
   (fib 10 {}))
 				 
