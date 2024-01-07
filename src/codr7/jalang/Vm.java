@@ -261,21 +261,6 @@ public class Vm {
           pc++;
           break;
         }
-        case ReduceIterator: {
-          final var o = (ReduceIterator) op;
-          final var f = registers[o.rFunction].as(Core.functionType);
-          final var i = registers[o.rIterator].as(Core.instance.iteratorType);
-          final var r = registers[o.rResult];
-
-          if (i.hasNext()) {
-            registers[o.rValue] = i.next();
-            f.call(this, o.location, new int[]{o.rValue, o.rResult}, o.rResult);
-          } else {
-            pc++;
-          }
-
-          break;
-        }
         case Return: {
           final var o = (Return) op;
           final var result = registers[o.rResult];

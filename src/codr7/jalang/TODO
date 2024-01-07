@@ -1,4 +1,5 @@
-* convert reduce/map ops to macros like find/index-if
+* convert map ops to use Iterate
+** remove custom op
 
 * add for/while loops
 

@@ -244,6 +244,23 @@ Calling a map returns the value for the specified key (`_` if not found) or upda
 {'foo:1 'bar:4 'baz:3}
 ```
 
+## Iterators
+`map` may be used to map a function over any number of iterable values, it returns an iterator that may be further processed or drained into an aggregate.
+
+```
+  (vector (map + [1 2 3] [4 5 6 7]))
+
+[5 7 9]
+```
+
+`reduce` may be used to reduce any iterable value by passing items left to right and the current result to the specified function.
+
+```
+  (reduce + [2 3] 1)
+
+6
+```
+
 ## Tests
 [tests.jlg](https://github.com/codr7/jalang/blob/main/tests.jlg) contains the humble beginnings of a test suite.
 

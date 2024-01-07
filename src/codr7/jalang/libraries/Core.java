@@ -1180,7 +1180,10 @@ public class Core extends Library {
           vm.emit(new GetIterator(rIterator, rIterator, f.location()));
           final var rValue = vm.allocateRegister();
           arguments[2].emit(vm, namespace, rResult);
-          vm.emit(new ReduceIterator(rFunction, rIterator, rValue, rResult, location));
+          final var iteratePc = vm.emit(Nop.instance);
+          vm.emit(new CallIndirect(location, rFunction, new int[]{rValue, rResult}, rResult));
+          vm.emit(new Goto(iteratePc));
+          vm.emit(iteratePc, new Iterate(rIterator, rValue, vm.emitPc()));
         });
 
     bindFunction("register-count",
