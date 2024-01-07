@@ -13,11 +13,13 @@ public class PairForm extends codr7.jalang.Form {
   }
 
   public final void emit(final Vm vm, final Namespace namespace, final int register) {
-    final var leftRegister = vm.allocateRegister();
-    left.emit(vm, namespace, leftRegister);
-    final var rightRegister = vm.allocateRegister();
-    right.emit(vm, namespace, rightRegister);
-    vm.emit(new MakePair(leftRegister, rightRegister, register));
+    final var rLeft = vm.allocateRegister();
+    left.emit(vm, namespace, rLeft);
+    final var rRight = vm.allocateRegister();
+    right.emit(vm, namespace, rRight);
+    vm.emit(new MakePair(rLeft, rRight, register));
+    vm.freeRegisters(rLeft);
+    vm.freeRegisters(rRight);
   }
 
   public final codr7.jalang.Form left() {

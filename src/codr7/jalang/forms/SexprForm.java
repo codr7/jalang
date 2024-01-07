@@ -4,7 +4,6 @@ import codr7.jalang.*;
 import codr7.jalang.errors.EmitError;
 import codr7.jalang.errors.EvaluationError;
 import codr7.jalang.libraries.Core;
-import codr7.jalang.operations.CallDirect;
 import codr7.jalang.operations.CallIndirect;
 import codr7.jalang.operations.Head;
 import codr7.jalang.operations.Tail;
@@ -61,6 +60,7 @@ public class SexprForm extends Form {
       }
 
       vm.emit(new CallIndirect(location(), rTarget, parameters, rResult));
+      vm.freeRegisters(rTarget);
       return;
     }
 
@@ -90,6 +90,10 @@ public class SexprForm extends Form {
       }
 
       ((Core.CallableTrait)target.type()).emitCall(target, vm, location(), rParameters, rResult);
+
+      for (final var r: rParameters) {
+        vm.freeRegisters(r);
+      }
     }
 
     if (head) {

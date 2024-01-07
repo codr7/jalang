@@ -1,21 +1,16 @@
-* add (register-count)
-
-* grep allocateRegister
-** add vm.freeRegisters
-
 * add let macro
 ** change lookup fib (benchmarks/tests) to use let
 
 (let [x 1 y 2]
   (+ x y))
 
+* test/fix closures
+
 * hook up type hierarchy
 ** add type function
 ** add is function
 
 * turn pair into collection/sequence type
-
-* test/fix closures
 
 * add or-types
 ** Integer|None

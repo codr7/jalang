@@ -721,6 +721,7 @@ public class Core extends Library {
           } else if (a instanceof LiteralForm) {
             rValue = vm.allocateRegister();
             vm.emit(new Set(((LiteralForm) a).value(), rValue));
+            vm.freeRegisters(rValue);
           } else {
             throw new EmitError(location, "Invalid target: %s", a.toString());
           }
@@ -750,6 +751,7 @@ public class Core extends Library {
           } else if (a instanceof LiteralForm) {
             rValue = vm.allocateRegister();
             vm.emit(new Set(((LiteralForm) a).value(), rValue));
+            vm.freeRegisters(rValue);
           } else {
             throw new EmitError(location, "Invalid target: %s", a.toString());
           }
@@ -774,14 +776,15 @@ public class Core extends Library {
 
     bindMacro("benchmark", 1,
         (vm, namespace, location, arguments, rResult) -> {
-          final var repetitions = vm.allocateRegister();
-          arguments[0].emit(vm, namespace, repetitions);
-          vm.emit(new Benchmark(repetitions, rResult));
+          final var rRepetitions = vm.allocateRegister();
+          arguments[0].emit(vm, namespace, rRepetitions);
+          vm.emit(new Benchmark(rRepetitions, rResult));
 
           for (int i = 1; i < arguments.length; i++) {
-            arguments[i].emit(vm, namespace, repetitions);
+            arguments[i].emit(vm, namespace, rRepetitions);
           }
 
+          vm.freeRegisters(rRepetitions);
           vm.emit(Stop.instance);
         });
 
@@ -797,6 +800,8 @@ public class Core extends Library {
             arguments[i].emit(vm, bodyNamespace, rActual);
           }
 
+          vm.freeRegisters(rExpected);
+          vm.freeRegisters(rActual);
           vm.emit(Stop.instance);
         });
 
@@ -864,6 +869,7 @@ public class Core extends Library {
           vm.emit(new Goto(iteratePc));
           vm.emit(iteratePc, new Iterate(rIterator, rValue, vm.emitPc()));
           vm.emit(exitPc, new Goto(vm.emitPc()));
+          vm.freeRegisters(rIndex, rPredicate, rPredicateResult, rValue);
         });
 
     bindMacro("function", 1,
@@ -1091,6 +1097,7 @@ public class Core extends Library {
           final var rTarget = vm.allocateRegister();
           arguments[0].emit(vm, namespace, rTarget);
           vm.emit(new Peek(rTarget, rResult));
+          vm.freeRegisters(rTarget);
         });
 
     bindMacro("pop", 1,
@@ -1098,6 +1105,7 @@ public class Core extends Library {
           final var rTarget = vm.allocateRegister();
           arguments[0].emit(vm, namespace, rTarget);
           vm.emit(new Pop(rTarget, rResult));
+          vm.freeRegisters(rTarget);
         });
 
     bindMacro("push", 2,
@@ -1106,6 +1114,7 @@ public class Core extends Library {
       final var rValue = vm.allocateRegister();
       arguments[1].emit(vm, namespace, rValue);
       vm.emit(new Push(rResult, rValue, rResult));
+      vm.freeRegisters(rValue);
     });
 
     bindMacro("reduce", 3,
