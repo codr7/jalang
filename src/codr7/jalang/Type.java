@@ -1,5 +1,7 @@
 package codr7.jalang;
 
+import codr7.jalang.operations.Set;
+
 public class Type<D> {
   public Type(final String name) {
     this.name = name;
@@ -7,6 +9,10 @@ public class Type<D> {
 
   public String dump(final D value) {
     return value.toString();
+  }
+
+  public void emitId(final Value<?> value, final Vm vm, final Namespace namespace, final int rResult) {
+    vm.emit(new Set(value, rResult));
   }
 
   public boolean equalValues(final D left, final D right) {

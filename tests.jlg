@@ -170,6 +170,18 @@
     bar))
 
 (check 42
+  (define foo _)
+
+  (function bar []
+    foo)
+
+  (function baz []
+    (let [foo 42]
+      (bar)))
+
+  (baz))
+
+(check 42
   (function foo []:Integer 42)
   
   (foo))

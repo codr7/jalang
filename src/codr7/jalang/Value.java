@@ -31,6 +31,10 @@ public record Value<D>(Type<D> type, D data) implements Comparable<Value<?>> {
     return type.dump(data);
   }
 
+  public void emitId(final Vm vm, final Namespace namespace, final int rResult) {
+    type.emitId(this, vm, namespace, rResult);
+  }
+
   public boolean equals(Value<?> other) {
     if (other.type() != type) {
       return false;

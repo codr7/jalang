@@ -348,6 +348,14 @@ public class Core extends Library {
 
       ((Core.CallableTrait) t.type()).call(t, vm, location, rParameters, rResult);
     }
+
+    public void emitId(final Value<?> value, final Vm vm, final Namespace namespace, final int rResult) {
+      final var source = value.as(Core.instance.registerType).index();
+
+      if (source != rResult) {
+        vm.emit(new Get(source, rResult));
+      }
+    }
   }
 
   public static class SequenceType extends Type<Object> {

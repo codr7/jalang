@@ -22,15 +22,7 @@ public class IdForm extends Form {
       throw new EmitError(location(), "Unknown identifer: %s", name);
     }
 
-    if (value.type() == Core.instance.registerType) {
-      final var source = value.as(Core.instance.registerType).index();
-
-      if (source != rResult) {
-        vm.emit(new Get(source, rResult));
-      }
-    } else {
-      vm.emit(new Set(value, rResult));
-    }
+    value.emitId(vm, namespace, rResult);
   }
 
   public final String name() {
