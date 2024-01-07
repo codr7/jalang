@@ -15,7 +15,7 @@ public class MapForm extends Form {
 
   public void emit(final Vm vm, final Namespace namespace, final int rResult) {
     final var value = new Value<>(Core.instance.mapType, new TreeMap<>());
-    vm.emit(new Set(value, rResult));
+    vm.emit(new Set(rResult, value));
     final var rValue = vm.allocateRegister();
 
     for (final var f : body) {

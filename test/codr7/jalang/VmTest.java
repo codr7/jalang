@@ -14,8 +14,8 @@ class VmTest {
     final var vm = new Vm();
     final var left = new Value<Integer>(Core.instance.integerType, 1);
     final var right = new Value<Integer>(Core.instance.integerType, 2);
-    vm.emit(new Set(left, 1));
-    vm.emit(new Set(right, 2));
+    vm.emit(new Set(1, left));
+    vm.emit(new Set(2, right));
     vm.emit(new MakePair(1, 2, 3));
     vm.emit(Stop.instance);
     vm.evaluate(0);

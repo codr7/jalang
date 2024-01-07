@@ -4,14 +4,14 @@ import codr7.jalang.Operation;
 import codr7.jalang.Value;
 
 public class Set extends Operation {
-  public Set(final Value<?> value, final int rResult) {
+  public Set(final int rResult, final Value<?> value) {
     super(Code.Set);
-    this.value = value;
     this.rResult = rResult;
+    this.value = value;
   }
 
   public String toString() {
-    return String.format("%s value: %s result: %d", super.toString(), value, rResult);
+    return String.format("%s result: %d value: %s", super.toString(), rResult, value);
   }
 
   public final int rResult;

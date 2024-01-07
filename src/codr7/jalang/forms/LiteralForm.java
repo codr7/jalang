@@ -10,7 +10,7 @@ public class LiteralForm extends Form {
   }
 
   public void emit(final Vm vm, final Namespace namespace, final int rResult) {
-    vm.emit(new Set(value, rResult));
+    vm.emit(new Set(rResult, value));
   }
 
   public String toString() {

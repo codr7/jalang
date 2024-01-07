@@ -728,7 +728,7 @@ public class Core extends Library {
             rValue = r.index();
           } else if (a instanceof LiteralForm) {
             rValue = vm.allocateRegister();
-            vm.emit(new Set(((LiteralForm) a).value(), rValue));
+            vm.emit(new Set(rValue, ((LiteralForm) a).value()));
           } else {
             throw new EmitError(location, "Invalid target: %s", a.toString());
           }
@@ -757,7 +757,7 @@ public class Core extends Library {
             rValue = r.index();
           } else if (a instanceof LiteralForm) {
             rValue = vm.allocateRegister();
-            vm.emit(new Set(((LiteralForm) a).value(), rValue));
+            vm.emit(new Set(rValue, ((LiteralForm) a).value()));
           } else {
             throw new EmitError(location, "Invalid target: %s", a.toString());
           }
@@ -857,10 +857,10 @@ public class Core extends Library {
           inputForm.emit(vm, namespace, rIterator);
           vm.emit(new GetIterator(rIterator, rIterator, inputForm.location()));
 
-          vm.emit(new Set(new Value<>(integerType, -1), rResult));
+          vm.emit(new Set(rResult, new Value<>(integerType, -1)));
 
           final var rIndex = vm.allocateRegister();
-          vm.emit(new Set(new Value<>(integerType, 0), rIndex));
+          vm.emit(new Set(rIndex, new Value<>(integerType, 0)));
 
           final var iteratePc = vm.emit(Nop.instance);
           final var rValue = vm.allocateRegister();
@@ -967,7 +967,7 @@ public class Core extends Library {
           vm.emit(skipPc, new Goto(vm.emitPc()));
 
           if (name.isEmpty()) {
-            vm.emit(new Set(v, rResult));
+            vm.emit(new Set(rResult, v));
           }
         });
 
@@ -1092,7 +1092,7 @@ public class Core extends Library {
           }
 
           final var rCall = vm.allocateRegister();
-          vm.emit(new Set(new Value<>(Core.instance.vectorType, new ArrayList<>()), rResult));
+          vm.emit(new Set(rResult, new Value<>(Core.instance.vectorType, new ArrayList<>())));
           final var mapPc = vm.emit(Nop.instance);
           vm.emit(new CallIndirect(location, rFunction, rValues, rCall));
           vm.emit(new Push(rResult, rCall, rResult));

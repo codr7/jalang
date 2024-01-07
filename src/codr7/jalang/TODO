@@ -1,4 +1,4 @@
-* switch Set arg order
+* convert reduce/map ops to macros like find/index-if
 
 * add for/while loops
 
@@ -7,8 +7,6 @@
 * hook up type hierarchy
 ** add type function
 ** add is function
-
-* convert reduce/map ops to macros like find/index-if
 
 * turn pair into collection/sequence type
 

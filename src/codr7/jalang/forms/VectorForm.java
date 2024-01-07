@@ -15,7 +15,7 @@ public class VectorForm extends Form {
 
   public void emit(final Vm vm, final Namespace namespace, final int rResult) {
     final var value = new Value<>(Core.instance.vectorType, new ArrayList<>());
-    vm.emit(new Set(value, rResult));
+    vm.emit(new Set(rResult, value));
     final var rItem = vm.allocateRegister();
 
     for (final var f : body) {

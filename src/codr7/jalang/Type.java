@@ -12,7 +12,7 @@ public class Type<D> {
   }
 
   public void emitId(final Value<?> value, final Vm vm, final Namespace namespace, final int rResult) {
-    vm.emit(new Set(value, rResult));
+    vm.emit(new Set(rResult, value));
   }
 
   public boolean equalValues(final D left, final D right) {
