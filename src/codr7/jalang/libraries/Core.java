@@ -1121,7 +1121,14 @@ public class Core extends Library {
           vm.emit(new ReduceIterator(rFunction, rIterator, rValue, rResult, location));
         });
 
-    bindFunction("say",
+    bindFunction("register-count",
+        new Parameter[]{}, 0,
+        integerType,
+        (function, vm, location, rParameters, rResult) -> {
+      vm.set(rResult, new Value<>(integerType, vm.registerCount()));
+        });
+
+          bindFunction("say",
         new Parameter[]{new Parameter("value1", anyType)}, 1,
         noneType,
         (function, vm, location, rParameters, rResult) -> {

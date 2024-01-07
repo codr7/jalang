@@ -14,3 +14,5 @@
   (if (> n 1) (fib (-1 n) b (+ a b)) (if (=0 n) a b)))
 
 (say (benchmark 10000 (fib 70 0 1)))
+
+(say (register-count) "registers allocated")

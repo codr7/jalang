@@ -378,6 +378,10 @@ public class Vm {
     this.pc = pc;
   }
 
+  public final int registerCount() {
+    return registerCount;
+  }
+
   public final void set(final int index, Value<?> value) {
     registers[index] = value;
   }
