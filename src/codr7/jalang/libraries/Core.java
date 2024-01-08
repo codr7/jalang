@@ -773,7 +773,7 @@ public class Core extends Library {
           final var andPcs = new ArrayList<Integer>();
 
           for (int i = 1; i < arguments.length; i++) {
-            andPcs.add(vm.emit(Nop.instance));
+            andPcs.add(vm.emit());
             arguments[i].emit(vm, namespace, rResult);
           }
 
@@ -864,13 +864,13 @@ public class Core extends Library {
           final var rIndex = vm.allocateRegister();
           vm.emit(new Set(rIndex, new Value<>(integerType, 0)));
 
-          final var iteratePc = vm.emit(Nop.instance);
+          final var iteratePc = vm.emit();
           final var rValue = vm.allocateRegister();
           final var rPredicateResult = vm.allocateRegister();
           vm.emit(new CallIndirect(location, rPredicate, new int[]{rValue}, rPredicateResult));
-          final var ifPc = vm.emit(Nop.instance);
+          final var ifPc = vm.emit();
           vm.emit(new MakePair(rValue, rIndex, rResult));
-          final var exitPc = vm.emit(Nop.instance);
+          final var exitPc = vm.emit();
           vm.emit(ifPc, new If(rPredicateResult, vm.emitPc()));
           vm.emit(new Increment(rIndex, rIndex));
           vm.emit(new Goto(iteratePc));
@@ -936,7 +936,7 @@ public class Core extends Library {
             return new Parameter(pn, pt);
           }).toArray(Parameter[]::new);
 
-          final var skipPc = vm.emit(Nop.instance);
+          final var skipPc = vm.emit();
           final var startPc = vm.emitPc();
 
           final var function = new Function(name, ps, ps.length, resultType,
@@ -982,9 +982,9 @@ public class Core extends Library {
     bindMacro("if", 2,
         (vm, namespace, location, arguments, rResult) -> {
           arguments[0].emit(vm, namespace, rResult);
-          final var ifPc = vm.emit(Nop.instance);
+          final var ifPc = vm.emit();
           arguments[1].emit(vm, namespace, rResult);
-          final var skipPc = (arguments.length > 2) ? vm.emit(Nop.instance) : -1;
+          final var skipPc = (arguments.length > 2) ? vm.emit() : -1;
           vm.emit(ifPc, new If(rResult, vm.emitPc()));
 
           if (skipPc != -1) {
@@ -1098,7 +1098,7 @@ public class Core extends Library {
           var iteratePcs = new int[rIterators.length];
 
           for (int i = 0; i < rIterators.length; i++) {
-            iteratePcs[i] = vm.emit(Nop.instance);
+            iteratePcs[i] = vm.emit();
           }
 
           vm.emit(new CallIndirect(location, rFunction, rValues, rCall));
@@ -1133,8 +1133,8 @@ public class Core extends Library {
           final var skipPcs = new ArrayList<Integer>();
 
           for (int i = 1; i < arguments.length; i++) {
-            final var orPc = vm.emit(Nop.instance);
-            skipPcs.add(vm.emit(Nop.instance));
+            final var orPc = vm.emit();
+            skipPcs.add(vm.emit());
             vm.emit(orPc, new If(rResult, vm.emitPc()));
             arguments[i].emit(vm, namespace, rResult);
           }
@@ -1199,7 +1199,7 @@ public class Core extends Library {
           vm.emit(new GetIterator(rIterator, rIterator, f.location()));
           final var rValue = vm.allocateRegister();
           arguments[2].emit(vm, namespace, rResult);
-          final var iteratePc = vm.emit(Nop.instance);
+          final var iteratePc = vm.emit();
           vm.emit(new CallIndirect(location, rFunction, new int[]{rValue, rResult}, rResult));
           vm.emit(new Goto(iteratePc));
           vm.emit(iteratePc, new Iterate(rIterator, rValue, vm.emitPc()));

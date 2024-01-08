@@ -36,6 +36,10 @@ public class Vm {
     return pc;
   }
 
+  public final int emit() {
+    return emit(NotImplemented.instance);
+  }
+
   public final void emit(final int pc, final Operation operation) {
     code.set(pc, operation);
   }
@@ -211,6 +215,9 @@ public class Vm {
           pc++;
           break;
         }
+        case NotImplemented: {
+          throw new RuntimeException("Not implemented.");
+        }
         case Peek: {
           final var o = (Peek) op;
           final var target = registers[o.rTarget];
@@ -278,7 +285,7 @@ public class Vm {
   }
 
   public final void evaluate(final Form form, final Namespace namespace, final int register) {
-    final var skipPc = emit(Nop.instance);
+    final var skipPc = emit();
     final var startPc = emitPc();
     form.emit(this, namespace, register);
     emit(Stop.instance);

@@ -10,7 +10,7 @@ public abstract class Operation {
     Head,
     If, Increment, Iterate,
     MakePair,
-    Nop,
+    Nop, NotImplemented,
     Peek, Pop, Push,
     Return,
     Set, SetKey, Stop,
