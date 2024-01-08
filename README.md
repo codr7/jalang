@@ -275,15 +275,6 @@ EvaluationError in repl@1:1: Test failed; expected: T, actual: F.
 
 ## Benchmarks
 
-### benchmark
-`(benchmark n ...)` measures the time it takes to repeat its body `n` times after warming up the JIT.
-
-```
-  (benchmark 10 (sleep (milliseconds 100)))
-
-PT1.020851167S
-```
-
 The core interpreter is currently roughly as fast as Python, but there is plenty of low hanging fruit left to pick.
 
 ```
@@ -297,4 +288,13 @@ $ python3 python/fib.py
 0.12464387500000002
 0.12554220899999996
 0.0671775
+```
+
+### benchmark
+`(benchmark n ...)` measures the time it takes to repeat its body `n` times after warming up the JIT.
+
+```
+  (benchmark 10 (sleep (milliseconds 100)))
+
+PT1.020851167S
 ```
