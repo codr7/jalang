@@ -1,5 +1,3 @@
-* extract benchmark arg into vector
-
 * add while loop
 
 * test/fix closures
@@ -9,6 +7,9 @@
 ** add is function
 
 * turn pair into collection/sequence type
+** allow pushing onto any value
+*** create pair
+*** _ -> value
 
 * add or-types
 ** Integer|None
