@@ -878,6 +878,42 @@ public class Core extends Library {
           vm.emit(exitPc, new Goto(vm.emitPc()));
         });
 
+    bindMacro("for", 1,
+        (vm, namespace, location, arguments, rResult) -> {
+          final var argsForm = arguments[0];
+
+          if (!(argsForm instanceof VectorForm)) {
+            throw new EmitError(argsForm.location(), "Invalid for arguments: %s.", argsForm);
+          }
+
+          final var argForms = ((VectorForm)argsForm).body();
+
+          if (argForms.length != 2) {
+            throw new EmitError(argsForm.location(), "Invalid for arguments: %s.", argsForm);
+          }
+
+          final var varForm = argForms[0];
+
+          if (!(varForm instanceof IdForm)) {
+            throw new EmitError(argsForm.location(), "Invalid for variable: %s.", varForm);
+          }
+
+          final var rIterator = vm.allocateRegister();
+          argForms[1].emit(vm, namespace, rIterator);
+          vm.emit(new GetIterator(rIterator, rIterator, location));
+          final var iteratePc = vm.emit();
+          final var rValue = vm.allocateRegister();
+          namespace.bind(((IdForm)varForm).name(),
+              new Value<>(registerType, new Register(rValue, null)));
+
+          for (int i = 1; i < arguments.length; i++) {
+            arguments[i].emit(vm, namespace, rResult);
+          }
+
+          vm.emit(new Goto(iteratePc));
+          vm.emit(iteratePc, new Iterate(rIterator, rValue, vm.emitPc()));
+        });
+
     bindMacro("function", 1,
         (vm, namespace, location, arguments, rResult) -> {
           final var as = new ArrayDeque<Form>();

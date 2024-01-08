@@ -9,7 +9,7 @@ $ git clone https://github.com/codr7/jalang.git
 $ cd jalang
 $ rlwrap java -jar jalang.jar
 
-jalang v3
+jalang v4
 May the source be with you!
 
   (say "hello world")
@@ -259,6 +259,18 @@ Calling a map returns the value for the specified key (`_` if not found) or upda
   (reduce + [2 3] 1)
 
 6
+```
+
+## Loops
+`for` binds the specified name to succesive values from any iterative value within its body.
+
+```
+(for [v ['foo 'bar 'baz]]
+  (say v))
+
+foo
+bar
+baz
 ```
 
 ## Tests

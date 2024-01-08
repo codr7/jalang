@@ -1,4 +1,6 @@
-* add for/while loops
+* extract benchmark arg into vector
+
+* add while loop
 
 * test/fix closures
 
