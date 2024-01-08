@@ -1,6 +1,3 @@
-* convert map ops to use Iterate
-** remove custom op
-
 * add for/while loops
 
 * test/fix closures

@@ -1095,11 +1095,20 @@ public class Core extends Library {
 
           final var rCall = vm.allocateRegister();
           vm.emit(new Set(rResult, new Value<>(Core.instance.vectorType, new ArrayList<>())));
-          final var mapPc = vm.emit(Nop.instance);
+          var iteratePcs = new int[rIterators.length];
+
+          for (int i = 0; i < rIterators.length; i++) {
+            iteratePcs[i] = vm.emit(Nop.instance);
+          }
+
           vm.emit(new CallIndirect(location, rFunction, rValues, rCall));
           vm.emit(new Push(rResult, rCall, rResult));
-          vm.emit(new Goto(mapPc));
-          vm.emit(mapPc, new MapIterators(rFunction, rIterators, rValues, rResult, vm.emitPc(), location));
+          vm.emit(new Goto(iteratePcs[0]));
+
+          for (int i = 0; i < iteratePcs.length; i++) {
+            vm.emit(iteratePcs[i], new Iterate(rIterators[i], rValues[i], vm.emitPc()));
+          }
+
           vm.emit(new GetIterator(rResult, rResult, location));
         });
 

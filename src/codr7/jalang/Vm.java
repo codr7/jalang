@@ -207,36 +207,6 @@ public class Vm {
           pc++;
           break;
         }
-        case MapIterators: {
-          final var o = (MapIterators) op;
-          final var function = registers[o.rFunction].as(Core.functionType);
-          final var iterators = new ArrayList<Iterator<Value<?>>>();
-
-          for (int i = 0; i < o.rIterators.length; i++) {
-            iterators.add(registers[o.rIterators[i]].as(Core.instance.iteratorType));
-          }
-
-          var done = false;
-
-          for (int i = 0; i < o.rIterators.length; i++) {
-            final var it = iterators.get(i);
-
-            if (!it.hasNext()) {
-              done = true;
-              break;
-            }
-
-            registers[o.rValues[i]] = it.next();
-          }
-
-          if (done) {
-            pc = o.endPc;
-          } else {
-            pc++;
-          }
-
-          break;
-        }
         case Nop: {
           pc++;
           break;

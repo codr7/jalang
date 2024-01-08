@@ -9,10 +9,10 @@ public abstract class Operation {
     Get, GetIterator, GetKey, Goto,
     Head,
     If, Increment, Iterate,
-    MakePair, MapIterators,
+    MakePair,
     Nop,
     Peek, Pop, Push,
-    ReduceIterator, Return,
+    Return,
     Set, SetKey, Stop,
     Tail, Trace
   }
