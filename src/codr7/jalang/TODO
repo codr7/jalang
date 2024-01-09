@@ -1,3 +1,12 @@
+* add optimization pass
+** track registers
+*** map to pc where first/last seen in separate pass
+** add tail calls
+*** add Enter op
+**** replaces separate assignment of args
+**** contains Function
+*** add startPc to CallFrame
+
 * add while loop
 
 * test/fix closures
