@@ -232,3 +232,11 @@
     
   (fib 10 0 1))
 
+(check 45
+  (function foo[x]
+    (function bar[y]
+      (+ x y))
+      
+    (bar 42))
+    
+  (foo 3))

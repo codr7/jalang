@@ -858,15 +858,19 @@ public class Core extends Library {
   public interface CollectionTrait {
     int length(final Value<?> value);
   }
+
   public interface ComparableTrait {
     Order compare(final Value<?> left, final Value<?> right);
   }
+
   public interface IndexedCollectionTrait {
     Value<?> slice(final Value<?> value, final Value<?> start, final Value<?> end);
   }
+
   public interface SequenceTrait<T> {
     Iterator<T> iterator(final Value<?> value);
   }
+
   public interface StackTrait {
     Value<?> peek(final Vm vm, final Value<?> target);
 

@@ -9,6 +9,7 @@ public class CallDirect extends Operation {
   public final Value<?> target;
   public final int[] rParameters;
   public final int rResult;
+
   public CallDirect(final Location location,
                     final Value<?> target,
                     final int[] rParameters,

@@ -7,6 +7,7 @@ public class CallIndirect extends Operation {
   public final Location location;
   public final int[] rParameters;
   public final int rTarget, rResult;
+
   public CallIndirect(final Location location,
                       final int rTarget,
                       final int[] rParameters,

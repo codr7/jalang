@@ -7,6 +7,7 @@ public class Check extends Operation {
   public final int rActual;
   public final int rExpected;
   public final Location location;
+
   public Check(final int rExpected, final int rActual, final Location location) {
     super(Code.Check);
     this.rExpected = rExpected;
