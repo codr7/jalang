@@ -1,18 +1,13 @@
-* fix nested functions
-** allocate separate registers in function macro
-** remove default registers 1-9
-** skip copying in CallFrame
-
-* test/fix closures
-
-* hook up type hierarchy
-** add type function
-** add is function
-
 * turn pair into collection/sequence type
 ** allow pushing onto any value
 *** create pair
 *** _ -> value
+
+* AoC 2-1
+
+* hook up type hierarchy
+** add type function
+** add is function
 
 * add or-types
 ** Integer|None
