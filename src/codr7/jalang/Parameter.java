@@ -1,6 +1,6 @@
 package codr7.jalang;
 
-public record Parameter(String name, Type<?> type) {
+public record Parameter(String name, Type<?> type, int rValue) {
   public String toString() {
     final var result = new StringBuilder();
     result.append(name);
