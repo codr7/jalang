@@ -882,24 +882,20 @@ public class Core extends Library {
         (vm, namespace, location, arguments, rResult) -> {
           final var argsForm = arguments[0];
 
-          if (!(argsForm instanceof VectorForm)) {
+          if (!(argsForm instanceof PairForm)) {
             throw new EmitError(argsForm.location(), "Invalid for arguments: %s.", argsForm);
           }
 
-          final var argForms = ((VectorForm)argsForm).body();
+          final var args = (PairForm)argsForm;
 
-          if (argForms.length != 2) {
-            throw new EmitError(argsForm.location(), "Invalid for arguments: %s.", argsForm);
-          }
-
-          final var varForm = argForms[0];
+          final var varForm = args.left();
 
           if (!(varForm instanceof IdForm)) {
             throw new EmitError(argsForm.location(), "Invalid for variable: %s.", varForm);
           }
 
           final var rIterator = vm.allocateRegister();
-          argForms[1].emit(vm, namespace, rIterator);
+          args.right().emit(vm, namespace, rIterator);
           vm.emit(new GetIterator(rIterator, rIterator, location));
           final var iteratePc = vm.emit();
           final var rValue = vm.allocateRegister();

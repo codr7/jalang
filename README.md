@@ -262,10 +262,10 @@ Calling a map returns the value for the specified key (`_` if not found) or upda
 ```
 
 ## Loops
-`for` binds the specified name to succesive values from any iterative value within its body.
+`for` evaluates its body with the specified variable bound to successive values of its input.
 
 ```
-(for [v ['foo 'bar 'baz]]
+(for v:['foo 'bar 'baz]
   (say v))
 
 foo
