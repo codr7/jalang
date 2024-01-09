@@ -8,6 +8,8 @@ import codr7.jalang.operations.SetKey;
 import java.util.TreeMap;
 
 public class MapForm extends Form {
+  private final Form[] body;
+
   public MapForm(final Location location, Form... body) {
     super(location);
     this.body = body;
@@ -51,6 +53,4 @@ public class MapForm extends Form {
     result.append('}');
     return result.toString();
   }
-
-  private final Form[] body;
 }

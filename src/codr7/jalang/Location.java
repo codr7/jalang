@@ -1,8 +1,17 @@
 package codr7.jalang;
 
 public final class Location {
+  public final String source;
+  private int line, column;
+
   public Location(final String source) {
     this(source, 1, 1);
+  }
+
+  private Location(final String source, final int line, final int column) {
+    this.source = source;
+    this.line = line;
+    this.column = column;
   }
 
   public Location clone() {
@@ -23,13 +32,4 @@ public final class Location {
   public String toString() {
     return String.format("%s@%d:%d", source, line, column);
   }
-
-  private Location(final String source, final int line, final int column) {
-    this.source = source;
-    this.line = line;
-    this.column = column;
-  }
-
-  public final String source;
-  private int line, column;
 }

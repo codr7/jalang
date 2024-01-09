@@ -4,6 +4,9 @@ import codr7.jalang.Operation;
 import codr7.jalang.Value;
 
 public class Set extends Operation {
+  public final int rResult;
+  public final Value<?> value;
+
   public Set(final int rResult, final Value<?> value) {
     super(Code.Set);
     this.rResult = rResult;
@@ -13,7 +16,4 @@ public class Set extends Operation {
   public String toString() {
     return String.format("%s result: %d value: %s", super.toString(), rResult, value);
   }
-
-  public final int rResult;
-  public final Value<?> value;
 }

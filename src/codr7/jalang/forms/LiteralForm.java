@@ -4,6 +4,8 @@ import codr7.jalang.*;
 import codr7.jalang.operations.Set;
 
 public class LiteralForm extends Form {
+  private final Value<?> value;
+
   public LiteralForm(final Location location, final Value<?> value) {
     super(location);
     this.value = value;
@@ -20,6 +22,4 @@ public class LiteralForm extends Form {
   public final Value<?> value() {
     return value;
   }
-
-  private final Value<?> value;
 }

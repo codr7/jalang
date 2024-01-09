@@ -3,6 +3,8 @@ package codr7.jalang;
 import codr7.jalang.operations.Set;
 
 public class Type<D> {
+  private final String name;
+
   public Type(final String name) {
     this.name = name;
   }
@@ -34,6 +36,4 @@ public class Type<D> {
   public final String toString() {
     return name;
   }
-
-  private final String name;
 }

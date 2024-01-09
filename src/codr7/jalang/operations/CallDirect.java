@@ -5,6 +5,10 @@ import codr7.jalang.Operation;
 import codr7.jalang.Value;
 
 public class CallDirect extends Operation {
+  public final Location location;
+  public final Value<?> target;
+  public final int[] rParameters;
+  public final int rResult;
   public CallDirect(final Location location,
                     final Value<?> target,
                     final int[] rParameters,
@@ -20,9 +24,4 @@ public class CallDirect extends Operation {
     return String.format("%s target: %s parameters: %s result: %d location: %s",
         super.toString(), target, rParameters, rResult, location);
   }
-
-  public final Location location;
-  public final Value<?> target;
-  public final int[] rParameters;
-  public final int rResult;
 }

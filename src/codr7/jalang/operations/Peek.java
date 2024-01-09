@@ -3,6 +3,8 @@ package codr7.jalang.operations;
 import codr7.jalang.Operation;
 
 public class Peek extends Operation {
+  public final int rResult, rTarget;
+
   public Peek(final int rTarget, final int rResult) {
     super(Code.Peek);
     this.rTarget = rTarget;
@@ -13,7 +15,5 @@ public class Peek extends Operation {
     return String.format("%s target: %d result: %d",
         super.toString(), rTarget, rResult);
   }
-
-  public final int rResult, rTarget;
 }
 

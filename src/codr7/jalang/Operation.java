@@ -1,6 +1,16 @@
 package codr7.jalang;
 
 public abstract class Operation {
+  public final Code code;
+
+  public Operation(final Code code) {
+    this.code = code;
+  }
+
+  public String toString() {
+    return code.toString();
+  }
+
   public enum Code {
     Benchmark,
     CallDirect, CallIndirect, Check,
@@ -16,14 +26,4 @@ public abstract class Operation {
     Set, SetKey, Stop,
     Tail, Trace
   }
-
-  public Operation(final Code code) {
-    this.code = code;
-  }
-
-  public String toString() {
-    return code.toString();
-  }
-
-  public final Code code;
 }

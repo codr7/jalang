@@ -8,6 +8,8 @@ import codr7.jalang.operations.Set;
 import java.util.ArrayList;
 
 public class VectorForm extends Form {
+  private final Form[] body;
+
   public VectorForm(final Location location, Form... body) {
     super(location);
     this.body = body;
@@ -43,6 +45,4 @@ public class VectorForm extends Form {
     result.append(']');
     return result.toString();
   }
-
-  private final Form[] body;
 }

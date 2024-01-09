@@ -7,6 +7,8 @@ import codr7.jalang.Vm;
 import codr7.jalang.errors.EmitError;
 
 public class IdForm extends Form {
+  private final String name;
+
   public IdForm(final Location location, final String name) {
     super(location);
     this.name = name;
@@ -29,6 +31,4 @@ public class IdForm extends Form {
   public String toString() {
     return name;
   }
-
-  private final String name;
 }

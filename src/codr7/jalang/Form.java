@@ -1,6 +1,8 @@
 package codr7.jalang;
 
 public abstract class Form {
+  private final Location location;
+
   public Form(final Location location) {
     this.location = location;
   }
@@ -12,6 +14,4 @@ public abstract class Form {
   }
 
   public abstract String toString();
-
-  private final Location location;
 }

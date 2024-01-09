@@ -1,14 +1,6 @@
 package codr7.jalang;
 
 public record Function(String name, Parameter[] parameters, int arity, Type<?> resultType, Body body) {
-  public interface Body {
-    void call(final Function function,
-              final Vm vm,
-              final Location location,
-              final int[] rParameters,
-              final int rResult);
-  }
-
   public int arity() {
     return arity;
   }
@@ -39,5 +31,13 @@ public record Function(String name, Parameter[] parameters, int arity, Type<?> r
 
     result.append(')');
     return result.toString();
+  }
+
+  public interface Body {
+    void call(final Function function,
+              final Vm vm,
+              final Location location,
+              final int[] rParameters,
+              final int rResult);
   }
 }

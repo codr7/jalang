@@ -9,6 +9,8 @@ import codr7.jalang.operations.Head;
 import codr7.jalang.operations.Tail;
 
 public class SexprForm extends Form {
+  private final Form[] body;
+
   public SexprForm(final Location location, Form... body) {
     super(location);
     this.body = body;
@@ -113,6 +115,4 @@ public class SexprForm extends Form {
     result.append(')');
     return result.toString();
   }
-
-  private final Form[] body;
 }

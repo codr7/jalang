@@ -14,12 +14,18 @@ import java.time.Duration;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Iterator;
 
 public class Vm {
   public static final int DEFAULT_REGISTER = 0;
   public static final int REGISTER_COUNT = 10;
-  public static final int VERSION = 4;
+  public static final int VERSION = 5;
+  private final ArrayList<Operation> code = new ArrayList<>();
+  private CallFrame callFrame;
+  private Path loadPath = Paths.get("");
+  private int pc = -1;
+  private Value<?>[] registers = new Value<?>[REGISTER_COUNT];
+  private int registerCount = REGISTER_COUNT;
+  private boolean tracingEnabled = false;
 
   public final int allocateRegister() {
     final var i = registerCount;
@@ -349,12 +355,4 @@ public class Vm {
   public final void set(final int index, Value<?> value) {
     registers[index] = value;
   }
-
-  private CallFrame callFrame;
-  private final ArrayList<Operation> code = new ArrayList<>();
-  private Path loadPath = Paths.get("");
-  private int pc = -1;
-  private Value<?>[] registers = new Value<?>[REGISTER_COUNT];
-  private int registerCount = REGISTER_COUNT;
-  private boolean tracingEnabled = false;
 }

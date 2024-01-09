@@ -20,6 +20,833 @@ import java.util.regex.Pattern;
 import java.util.stream.Stream;
 
 public class Core extends Library {
+  public static final Type<Function> functionType = new FunctionType("Function");
+  public static final Type<Macro> macroType = new Type<>("Macro");
+  public static final Type<Type<?>> metaType = new Type<>("Meta");
+  public static final Core instance = new Core();
+  public final Type<Object> anyType = new Type<>("Any");
+  public final BitType bitType = new BitType("Bit");
+  public final Value<Boolean> T = new Value<>(bitType, true);
+  public final Value<Boolean> F = new Value<>(bitType, false);
+  public final CharacterType characterType = new CharacterType("Character");
+  public final CollectionType collectionType = new CollectionType("Collection");
+  public final ComparableType comparableType = new ComparableType("Comparable");
+  public final IndexedCollectionType indexedCollectionType = new IndexedCollectionType("IndexedCollection");
+  public final IntegerType integerType = new IntegerType("Integer");
+  public final IteratorType iteratorType = new IteratorType("Iterator");
+  public final MapType mapType = new MapType("Map");
+  public final NoneType noneType = new NoneType("None");
+  public final Value<Object> NONE = new Value<>(noneType, null);
+  public final PairType pairType = new PairType("Pair");
+  public final Type<Path> pathType = new Type<>("Path");
+  public final RegisterType registerType = new RegisterType("Register");
+  public final SequenceType sequenceType = new SequenceType("Sequence");
+  public final StringType stringType = new StringType("String");
+  public final SymbolType symbolType = new SymbolType("Symbol");
+  public final TimeType timeType = new TimeType("Time");
+  public final RegisterType variableType = new RegisterType("Variable");
+  public final VectorType vectorType = new VectorType("Vector");
+
+  public Core() {
+    super("core", null);
+    bindType(anyType);
+    bindType(bitType);
+    bindType(characterType);
+    bindType(collectionType);
+    bindType(comparableType);
+    bindType(functionType);
+    bindType(indexedCollectionType);
+    bindType(integerType);
+    bindType(iteratorType);
+    bindType(macroType);
+    bindType(mapType);
+    bindType(metaType);
+    bindType(noneType);
+    bindType(pairType);
+    bindType(pathType);
+    bindType(registerType);
+    bindType(sequenceType);
+    bindType(stringType);
+    bindType(symbolType);
+    bindType(timeType);
+    bindType(vectorType);
+
+    bind("_", NONE);
+    bind("T", T);
+    bind("F", F);
+
+    bindFunction("=",
+        new Parameter[]{
+            new Parameter("value1", anyType),
+            new Parameter("value2", anyType)}, 2,
+        bitType,
+        (function, vm, location, rParameters, rResult) -> {
+          final var value1 = vm.get(rParameters[0]);
+          var result = true;
+
+          for (int i = 1; i < rParameters.length; i++) {
+            if (!vm.get(rParameters[i]).equals(value1)) {
+              result = false;
+              break;
+            }
+          }
+
+          vm.set(rResult, new Value<>(bitType, result));
+        });
+
+    bindFunction("<",
+        new Parameter[]{
+            new Parameter("value1", comparableType),
+            new Parameter("value2", comparableType)}, 2,
+        bitType,
+        (function, vm, location, rParameters, rResult) -> {
+          var value1 = vm.get(rParameters[0]);
+          var type = (ComparableTrait) value1.type();
+          var result = true;
+
+          for (var i = 1; i < rParameters.length; i++) {
+            final var v = vm.get(rParameters[i]);
+
+            if (v.type() != value1.type()) {
+              throw new EvaluationError(location, "Type mismatch: %s/%s.", value1.type(), v.type());
+            }
+
+            if (type.compare(value1, v) != Order.LessThan) {
+              result = false;
+              break;
+            }
+
+            value1 = v;
+          }
+
+          vm.set(rResult, new Value<>(bitType, result));
+        });
+
+    bindFunction(">",
+        new Parameter[]{
+            new Parameter("value1", comparableType),
+            new Parameter("value2", comparableType)}, 2,
+        bitType,
+        (function, vm, location, rParameters, rResult) -> {
+          var value1 = vm.get(rParameters[0]);
+          var type = (ComparableTrait) value1.type();
+          var result = true;
+
+          for (var i = 1; i < rParameters.length; i++) {
+            final var v = vm.get(rParameters[i]);
+
+            if (v.type() != value1.type()) {
+              throw new EvaluationError(location, "Type mismatch: %s/%s.", value1.type(), v.type());
+            }
+
+            if (type.compare(value1, v) != Order.GreaterThan) {
+              result = false;
+              break;
+            }
+
+            value1 = v;
+          }
+
+          vm.set(rResult, new Value<>(bitType, result));
+        });
+
+    bindFunction("+", new Parameter[]{
+            new Parameter("value1", integerType),
+            new Parameter("value2", integerType)}, 2,
+        integerType,
+        (function, vm, location, rParameters, rResult) -> {
+          int result = 0;
+
+          for (var i = 0; i < rParameters.length; i++) {
+            result += vm.get(rParameters[i]).as(integerType);
+          }
+
+          vm.set(rResult, new Value<>(integerType, result));
+        });
+
+    bindFunction("-", new Parameter[]{
+            new Parameter("value1", integerType),
+            new Parameter("value2", integerType)}, 2,
+        integerType,
+        (function, vm, location, rParameters, rResult) -> {
+          int result = vm.get(rParameters[0]).as(integerType);
+
+          if (rParameters.length == 1) {
+            result = -result;
+          } else {
+            for (var i = 1; i < rParameters.length; i++) {
+              result -= vm.get(rParameters[i]).as(integerType);
+            }
+          }
+
+          vm.set(rResult, new Value<>(integerType, result));
+        });
+
+    bindMacro("=0", 1,
+        (vm, namespace, location, arguments, rResult) -> {
+          arguments[0].emit(vm, namespace, rResult);
+          vm.emit(new EqualsZero(rResult, rResult));
+        });
+
+    bindMacro("+1", 1,
+        (vm, namespace, location, arguments, rResult) -> {
+          final var a = arguments[0];
+          int rValue;
+
+          if (a instanceof IdForm) {
+            final var v = namespace.find(((IdForm) a).name());
+
+            if (v.type() != registerType) {
+              throw new EmitError(location, "Invalid target: %s", v.toString());
+            }
+
+            final var r = (Register) v.data();
+
+            if (r.type() != null && r.type() != integerType) {
+              throw new EmitError(location, "Invalid target: %s", r.type());
+            }
+
+            rValue = r.index();
+          } else if (a instanceof LiteralForm) {
+            rValue = vm.allocateRegister();
+            vm.emit(new Set(rValue, ((LiteralForm) a).value()));
+          } else {
+            throw new EmitError(location, "Invalid target: %s", a.toString());
+          }
+
+          vm.emit(new Increment(rValue, rResult));
+        });
+
+    bindMacro("-1", 1,
+        (vm, namespace, location, arguments, rResult) -> {
+          final var a = arguments[0];
+          int rValue;
+
+          if (a instanceof IdForm) {
+            final var v = namespace.find(((IdForm) a).name());
+
+            if (v.type() != registerType) {
+              throw new EmitError(location, "Invalid target: %s", v.toString());
+            }
+
+            final var r = (Register) v.data();
+
+            if (r.type() != null && r.type() != integerType) {
+              throw new EmitError(location, "Invalid target: %s", r.type());
+            }
+
+            rValue = r.index();
+          } else if (a instanceof LiteralForm) {
+            rValue = vm.allocateRegister();
+            vm.emit(new Set(rValue, ((LiteralForm) a).value()));
+          } else {
+            throw new EmitError(location, "Invalid target: %s", a.toString());
+          }
+
+          vm.emit(new Decrement(rValue, rResult));
+        });
+
+    bindMacro("and", 2,
+        (vm, namespace, location, arguments, rResult) -> {
+          arguments[0].emit(vm, namespace, rResult);
+          final var andPcs = new ArrayList<Integer>();
+
+          for (int i = 1; i < arguments.length; i++) {
+            andPcs.add(vm.emit());
+            arguments[i].emit(vm, namespace, rResult);
+          }
+
+          for (final var pc : andPcs) {
+            vm.emit(pc, new If(rResult, vm.emitPc()));
+          }
+        });
+
+    bindMacro("benchmark", 1,
+        (vm, namespace, location, arguments, rResult) -> {
+          final var rRepetitions = vm.allocateRegister();
+          arguments[0].emit(vm, namespace, rRepetitions);
+          vm.emit(new Benchmark(rRepetitions, rResult));
+
+          for (int i = 1; i < arguments.length; i++) {
+            arguments[i].emit(vm, namespace, rRepetitions);
+          }
+
+          vm.emit(Stop.instance);
+        });
+
+    bindMacro("check", 2,
+        (vm, namespace, location, arguments, rResult) -> {
+          final var rExpected = vm.allocateRegister();
+          arguments[0].emit(vm, namespace, rExpected);
+          final var rActual = vm.allocateRegister();
+          vm.emit(new Check(rExpected, rActual, location));
+          final var bodyNamespace = new Namespace(namespace);
+
+          for (var i = 1; i < arguments.length; i++) {
+            arguments[i].emit(vm, bodyNamespace, rActual);
+          }
+
+          vm.emit(Stop.instance);
+        });
+
+    bindMacro("define", 2,
+        (vm, namespace, location, arguments, rResult) -> {
+          final var nameForm = arguments[0];
+
+          if (!(nameForm instanceof IdForm)) {
+            throw new EmitError(nameForm.location(), "Expected identifier: %s.", nameForm);
+          }
+
+          final var name = ((IdForm) nameForm).name();
+          final var rValue = vm.allocateRegister();
+          vm.evaluate(arguments[1], namespace, rValue);
+          namespace.bind(name, new Value<>(variableType, new Register(rValue, null)));
+        });
+
+    bindFunction("digit",
+        new Parameter[]{new Parameter("value", characterType)}, 1,
+        integerType,
+        (function, vm, location, rParameters, rResult) -> {
+          final var c = vm.get(rParameters[0]).as(characterType);
+          final var result = Character.isDigit(c) ? Character.digit(c, 10) : -1;
+          vm.set(rResult, new Value<>(integerType, result));
+        });
+
+    bindFunction("digit?",
+        new Parameter[]{new Parameter("value", characterType)}, 1,
+        bitType,
+        (function, vm, location, rParameters, rResult) -> {
+          final var c = vm.get(rParameters[0]).as(characterType);
+          vm.set(rResult, new Value<>(bitType, Character.isDigit(c)));
+        });
+
+    bindMacro("do", 0,
+        (vm, namespace, location, arguments, rResult) -> {
+          for (final var a : arguments) {
+            a.emit(vm, namespace, rResult);
+          }
+        });
+
+    bindMacro("find", 2,
+        (vm, namespace, location, arguments, rResult) -> {
+          final var rPredicate = vm.allocateRegister();
+          final var predicateForm = arguments[0];
+          predicateForm.emit(vm, namespace, rPredicate);
+
+          final var rIterator = vm.allocateRegister();
+          final var inputForm = arguments[1];
+          inputForm.emit(vm, namespace, rIterator);
+          vm.emit(new GetIterator(rIterator, rIterator, inputForm.location()));
+
+          vm.emit(new Set(rResult, new Value<>(integerType, -1)));
+
+          final var rIndex = vm.allocateRegister();
+          vm.emit(new Set(rIndex, new Value<>(integerType, 0)));
+
+          final var iteratePc = vm.emit();
+          final var rValue = vm.allocateRegister();
+          final var rPredicateResult = vm.allocateRegister();
+          vm.emit(new CallIndirect(location, rPredicate, new int[]{rValue}, rPredicateResult));
+          final var ifPc = vm.emit();
+          vm.emit(new MakePair(rValue, rIndex, rResult));
+          final var exitPc = vm.emit();
+          vm.emit(ifPc, new If(rPredicateResult, vm.emitPc()));
+          vm.emit(new Increment(rIndex, rIndex));
+          vm.emit(new Goto(iteratePc));
+          vm.emit(iteratePc, new Iterate(rIterator, rValue, vm.emitPc()));
+          vm.emit(exitPc, new Goto(vm.emitPc()));
+        });
+
+    bindMacro("for", 1,
+        (vm, namespace, location, arguments, rResult) -> {
+          final var argsForm = arguments[0];
+
+          if (!(argsForm instanceof PairForm)) {
+            throw new EmitError(argsForm.location(), "Invalid for arguments: %s.", argsForm);
+          }
+
+          final var args = (PairForm) argsForm;
+
+          final var varForm = args.left();
+
+          if (!(varForm instanceof IdForm)) {
+            throw new EmitError(argsForm.location(), "Invalid for variable: %s.", varForm);
+          }
+
+          final var rIterator = vm.allocateRegister();
+          args.right().emit(vm, namespace, rIterator);
+          vm.emit(new GetIterator(rIterator, rIterator, location));
+          final var iteratePc = vm.emit();
+          final var rValue = vm.allocateRegister();
+          namespace.bind(((IdForm) varForm).name(),
+              new Value<>(registerType, new Register(rValue, null)));
+
+          for (int i = 1; i < arguments.length; i++) {
+            arguments[i].emit(vm, namespace, rResult);
+          }
+
+          vm.emit(new Goto(iteratePc));
+          vm.emit(iteratePc, new Iterate(rIterator, rValue, vm.emitPc()));
+        });
+
+    bindMacro("function", 1,
+        (vm, namespace, location, arguments, rResult) -> {
+          final var as = new ArrayDeque<Form>();
+          Collections.addAll(as, arguments);
+          var name = "";
+
+          if (arguments[0] instanceof IdForm) {
+            name = ((IdForm) as.removeFirst()).name();
+          }
+
+          var psForm = as.removeFirst();
+          Type<?> resultType = null;
+
+          if (psForm instanceof PairForm) {
+            var p = (PairForm) psForm;
+            var tnf = p.right();
+            var tv = namespace.find(((IdForm) tnf).name());
+
+            if (tv == null) {
+              throw new EmitError(tnf.location(), "Type not found: %s.", tnf);
+            }
+
+            resultType = tv.as(metaType);
+            psForm = p.left();
+          }
+
+          if (!(psForm instanceof VectorForm)) {
+            throw new EmitError(psForm.location(), "Invalid parameter specification: %s.", psForm);
+          }
+
+          final var ps = Arrays.stream(((VectorForm) psForm).body()).map((f) -> {
+            var pn = "";
+            Type<?> pt = anyType;
+
+            if (f instanceof PairForm) {
+              final var pf = (PairForm) f;
+              if (!((pf.left() instanceof IdForm) && (pf.right() instanceof IdForm))) {
+                throw new EmitError(f.location(), "Invalid parameter: %s.", pf);
+              }
+
+              final var tf = ((IdForm) pf.left());
+              pn = tf.name();
+              final var tv = namespace.find(((IdForm) pf.right()).name());
+
+              if (tv == null) {
+                throw new EmitError(tf.location(), "Type not found: %s.", pf.right());
+              }
+
+              pt = tv.as(metaType);
+            } else if (f instanceof IdForm) {
+              pn = ((IdForm) f).name();
+            } else {
+              throw new EmitError(f.location(), "Invalid parameter: %s.", f);
+            }
+
+            return new Parameter(pn, pt);
+          }).toArray(Parameter[]::new);
+
+          final var skipPc = vm.emit();
+          final var startPc = vm.emitPc();
+
+          final var function = new Function(name, ps, ps.length, resultType,
+              (_function, _vm, _location, _parameters, _result) -> {
+                _vm.pushCall(_function, _location, startPc, _result);
+
+                for (var i = 0; i < _parameters.length; i++) {
+                  vm.set(i + 1, vm.get(_parameters[i]));
+                }
+              });
+
+          final var v = new Value<>(functionType, function);
+
+          if (!name.isEmpty()) {
+            namespace.bind(name, v);
+          }
+
+          final var bodyNamespace = new Namespace(namespace);
+
+          for (var i = 0; i < ps.length; i++) {
+            final var p = ps[i];
+            bodyNamespace.bind(p.name(), new Value<>(registerType, new Register(i + 1, p.type())));
+          }
+
+          for (final var f : as) {
+            f.emit(vm, bodyNamespace, rResult);
+          }
+
+          vm.emit(new Return(rResult));
+          vm.emit(skipPc, new Goto(vm.emitPc()));
+
+          if (name.isEmpty()) {
+            vm.emit(new Set(rResult, v));
+          }
+        });
+
+    bindMacro("head", 1,
+        (vm, namespace, location, arguments, rResult) -> {
+          arguments[0].emit(vm, namespace, rResult);
+          vm.emit(new Head(rResult, rResult));
+        });
+
+    bindMacro("if", 2,
+        (vm, namespace, location, arguments, rResult) -> {
+          arguments[0].emit(vm, namespace, rResult);
+          final var ifPc = vm.emit();
+          arguments[1].emit(vm, namespace, rResult);
+          final var skipPc = (arguments.length > 2) ? vm.emit() : -1;
+          vm.emit(ifPc, new If(rResult, vm.emitPc()));
+
+          if (skipPc != -1) {
+            arguments[2].emit(vm, namespace, rResult);
+            vm.emit(skipPc, new Goto(vm.emitPc()));
+          }
+        });
+
+    bindFunction("iterator",
+        new Parameter[]{new Parameter("sequence", sequenceType)}, 1,
+        iteratorType,
+        (function, vm, location, rParameters, rResult) -> {
+          final var s = vm.get(rParameters[0]);
+          @SuppressWarnings("unchecked") final var st = (SequenceTrait<Value<?>>) s.type();
+          vm.set(rResult, new Value<>(iteratorType, st.iterator(s)));
+        });
+
+    bindFunction("length",
+        new Parameter[]{new Parameter("collection", collectionType)}, 1,
+        integerType,
+        (function, vm, location, rParameters, rResult) -> {
+          final var c = vm.get(rParameters[0]);
+          final var ct = (CollectionTrait) c.type();
+          vm.set(rResult, new Value<>(integerType, ct.length(c)));
+        });
+
+    bindMacro("let", 2,
+        (vm, namespace, location, arguments, rResult) -> {
+          final var bindingsForm = arguments[0];
+
+          if (!(bindingsForm instanceof VectorForm)) {
+            throw new EmitError(bindingsForm.location(), "Invalid let bindings: %s.", bindingsForm);
+          }
+
+          final var bindings = ((VectorForm) bindingsForm).body();
+          final var variables = new TreeMap<Integer, Integer>();
+
+          for (int i = 0; i < bindings.length; i += 2) {
+            final var nameForm = bindings[i];
+
+            if (!(nameForm instanceof IdForm)) {
+              throw new EmitError(nameForm.location(), "Expected identifier: %s.", nameForm);
+            }
+
+            if (i == bindings.length - 1) {
+              throw new EmitError(bindingsForm.location(), "Missing Value.");
+            }
+
+            final var valueForm = bindings[i + 1];
+            final var valueType = (valueForm instanceof LiteralForm)
+                ? ((LiteralForm) valueForm).value().type()
+                : null;
+            final var name = ((IdForm) nameForm).name();
+            var rValue = -1;
+            final var found = namespace.find(name);
+
+            if (found != null && found.type() == variableType) {
+              rValue = found.as(variableType).index();
+              final var rPreviousValue = vm.allocateRegister();
+              variables.put(rPreviousValue, rValue);
+              vm.emit(new Get(rValue, rPreviousValue));
+            } else {
+              rValue = vm.allocateRegister();
+              namespace.bind(name, new Value<>(registerType, new Register(rValue, valueType)));
+            }
+
+            valueForm.emit(vm, namespace, rValue);
+          }
+
+          for (int i = 1; i < arguments.length; i++) {
+            arguments[i].emit(vm, namespace, rResult);
+          }
+
+          for (final var e : variables.entrySet()) {
+            vm.emit(new Get(e.getKey(), e.getValue()));
+          }
+        });
+
+    bindMacro("load", 1,
+        (vm, namespace, location, arguments, rResult) -> {
+          vm.evaluate(arguments[0], namespace, rResult);
+          final var path = vm.get(rResult).as(pathType);
+          vm.set(rResult, null);
+
+          try {
+            vm.load(path, namespace, rResult);
+          } catch (final IOException e) {
+            throw new EmitError(location, e.toString());
+          }
+        });
+
+
+    bindMacro("map", 2,
+        (vm, namespace, location, arguments, rResult) -> {
+          final var rFunction = vm.allocateRegister();
+          arguments[0].emit(vm, namespace, rFunction);
+          final var rIterators = new int[arguments.length - 1];
+          final var rValues = new int[rIterators.length];
+
+          for (int i = 0; i < rIterators.length; i++) {
+            final var r = vm.allocateRegister();
+            final var f = arguments[i + 1];
+            f.emit(vm, namespace, r);
+            vm.emit(new GetIterator(r, r, f.location()));
+            rIterators[i] = r;
+            rValues[i] = vm.allocateRegister();
+          }
+
+          final var rCall = vm.allocateRegister();
+          vm.emit(new Set(rResult, new Value<>(Core.instance.vectorType, new ArrayList<>())));
+          var iteratePcs = new int[rIterators.length];
+
+          for (int i = 0; i < rIterators.length; i++) {
+            iteratePcs[i] = vm.emit();
+          }
+
+          vm.emit(new CallIndirect(location, rFunction, rValues, rCall));
+          vm.emit(new Push(rResult, rCall, rResult));
+          vm.emit(new Goto(iteratePcs[0]));
+
+          for (int i = 0; i < iteratePcs.length; i++) {
+            vm.emit(iteratePcs[i], new Iterate(rIterators[i], rValues[i], vm.emitPc()));
+          }
+
+          vm.emit(new GetIterator(rResult, rResult, location));
+        });
+
+    bindFunction("milliseconds",
+        new Parameter[]{new Parameter("n", integerType)}, 1,
+        timeType,
+        (function, vm, location, rParameters, rResult) -> {
+          final var n = vm.get(rParameters[0]).as(integerType);
+          vm.set(rResult, new Value<>(timeType, Duration.ofMillis(n)));
+        });
+
+    bindFunction("not",
+        new Parameter[]{new Parameter("value", anyType)}, 1,
+        bitType,
+        (function, vm, location, rParameters, rResult) -> {
+          vm.set(rResult, new Value<>(bitType, !vm.get(rParameters[0]).isTrue()));
+        });
+
+    bindMacro("or", 2,
+        (vm, namespace, location, arguments, rResult) -> {
+          arguments[0].emit(vm, namespace, rResult);
+          final var skipPcs = new ArrayList<Integer>();
+
+          for (int i = 1; i < arguments.length; i++) {
+            final var orPc = vm.emit();
+            skipPcs.add(vm.emit());
+            vm.emit(orPc, new If(rResult, vm.emitPc()));
+            arguments[i].emit(vm, namespace, rResult);
+          }
+
+          for (final var pc : skipPcs) {
+            vm.emit(pc, new Goto(vm.emitPc()));
+          }
+        });
+
+    bindFunction("parse-integer",
+        new Parameter[]{new Parameter("input", stringType)}, 1,
+        pairType,
+        (function, vm, location, rParameters, rResult) -> {
+          final var input = vm.get(rParameters[0]).as(stringType);
+          final var match = Pattern.compile("^\\s*(\\d+).*").matcher(input);
+
+          if (!match.find()) {
+            throw new EvaluationError(location, "Invalid integer: %s", input);
+          }
+
+          vm.set(rResult, new Value<>(pairType, new Pair(
+              new Value<>(integerType, Integer.valueOf(match.group(1))),
+              new Value<>(integerType, match.end(1)))));
+        });
+
+    bindFunction("path",
+        new Parameter[]{new Parameter("value", stringType)}, 1,
+        pathType,
+        (function, vm, location, rParameters, rResult) -> {
+          vm.set(rResult, new Value<>(pathType, Paths.get(vm.get(rParameters[0]).as(stringType))));
+        });
+
+    bindMacro("peek", 1,
+        (vm, namespace, location, arguments, rResult) -> {
+          final var rTarget = vm.allocateRegister();
+          arguments[0].emit(vm, namespace, rTarget);
+          vm.emit(new Peek(rTarget, rResult));
+        });
+
+    bindMacro("pop", 1,
+        (vm, namespace, location, arguments, rResult) -> {
+          final var rTarget = vm.allocateRegister();
+          arguments[0].emit(vm, namespace, rTarget);
+          vm.emit(new Pop(rTarget, rResult));
+        });
+
+    bindMacro("push", 2,
+        (vm, namespace, location, arguments, rResult) -> {
+          arguments[0].emit(vm, namespace, rResult);
+          final var rValue = vm.allocateRegister();
+          arguments[1].emit(vm, namespace, rValue);
+          vm.emit(new Push(rResult, rValue, rResult));
+        });
+
+    bindMacro("reduce", 3,
+        (vm, namespace, location, arguments, rResult) -> {
+          final var rFunction = vm.allocateRegister();
+          arguments[0].emit(vm, namespace, rFunction);
+          final var rIterator = vm.allocateRegister();
+          final var f = arguments[1];
+          f.emit(vm, namespace, rIterator);
+          vm.emit(new GetIterator(rIterator, rIterator, f.location()));
+          final var rValue = vm.allocateRegister();
+          arguments[2].emit(vm, namespace, rResult);
+          final var iteratePc = vm.emit();
+          vm.emit(new CallIndirect(location, rFunction, new int[]{rValue, rResult}, rResult));
+          vm.emit(new Goto(iteratePc));
+          vm.emit(iteratePc, new Iterate(rIterator, rValue, vm.emitPc()));
+        });
+
+    bindFunction("register-count",
+        new Parameter[]{}, 0,
+        integerType,
+        (function, vm, location, rParameters, rResult) -> {
+          vm.set(rResult, new Value<>(integerType, vm.registerCount()));
+        });
+
+    bindFunction("say",
+        new Parameter[]{new Parameter("value1", anyType)}, 1,
+        noneType,
+        (function, vm, location, rParameters, rResult) -> {
+          final var what = new StringBuilder();
+
+          for (var i = 0; i < rParameters.length; i++) {
+            if (i > 0) {
+              what.append(' ');
+            }
+
+            what.append(vm.get(rParameters[i]).say());
+          }
+
+          System.out.println(what);
+          System.out.flush();
+        });
+
+    bindFunction("sleep",
+        new Parameter[]{new Parameter("duration", timeType)}, 1,
+        noneType,
+        (function, vm, location, rParameters, rResult) -> {
+          try {
+            Thread.sleep(vm.get(rParameters[0]).as(timeType));
+          } catch (final InterruptedException e) {
+            throw new EvaluationError(location, e.toString());
+          }
+        });
+
+    bindFunction("slice",
+        new Parameter[]{
+            new Parameter("input", indexedCollectionType),
+            new Parameter("start", anyType),
+            new Parameter("end", anyType)
+        }, 2,
+        indexedCollectionType,
+        (function, vm, location, rParameters, rResult) -> {
+          final var i = vm.get(rParameters[0]);
+          final var it = (IndexedCollectionTrait) i.type();
+          final var start = vm.get(rParameters[1]);
+          final var end = (rParameters.length == 2) ? null : vm.get(rParameters[2]);
+          vm.set(rResult, it.slice(i, start, end));
+        });
+
+    bindFunction("string",
+        new Parameter[]{new Parameter("value1", anyType)}, 1,
+        stringType,
+        (function, vm, location, rParameters, rResult) -> {
+          final var result = new StringBuilder();
+
+          for (var i = 0; i < rParameters.length; i++) {
+            result.append(vm.get(rParameters[i]).say());
+          }
+
+          vm.set(rResult, new Value<>(stringType, result.toString()));
+        });
+
+    bindFunction("reverse-string",
+        new Parameter[]{new Parameter("input", stringType)}, 1,
+        stringType,
+        (function, vm, location, rParameters, rResult) -> {
+          final var result = new StringBuilder(vm.get(rParameters[0]).as(stringType)).reverse().toString();
+          vm.set(rResult, new Value<>(stringType, result));
+        });
+
+    bindFunction("slurp",
+        new Parameter[]{new Parameter("path", pathType)}, 1,
+        stringType,
+        (function, vm, location, rParameters, rResult) -> {
+          try {
+            final var p = vm.loadPath().resolve(vm.get(rParameters[0]).as(pathType));
+            final String data = Files.readString(p);
+            vm.set(rResult, new Value<>(stringType, data));
+          } catch (final IOException e) {
+            throw new EvaluationError(location, "Failed reading file: %s", e);
+          }
+        });
+
+    bindFunction("split",
+        new Parameter[]{
+            new Parameter("whole", stringType),
+            new Parameter("separator", stringType)}, 2,
+        iteratorType,
+        (function, vm, location, rParameters, rResult) -> {
+          final var w = vm.get(rParameters[0]).as(stringType);
+          final var s = vm.get(rParameters[1]).as(stringType);
+          final String[] parts = w.split(Pattern.quote(s));
+          final var result = new ArrayList<Value<?>>();
+
+          for (final var p : parts) {
+            result.add(new Value<>(stringType, p));
+          }
+
+          vm.set(rResult, new Value<>(iteratorType, result.iterator()));
+        });
+
+    bindMacro("tail", 1,
+        (vm, namespace, location, arguments, rResult) -> {
+          arguments[0].emit(vm, namespace, rResult);
+          vm.emit(new Tail(rResult, rResult));
+        });
+
+    bindMacro("trace", 0,
+        (vm, namespace, location, rParameters, rResult) -> {
+          vm.toggleTracing();
+        });
+
+    bindFunction("vector",
+        new Parameter[]{new Parameter("input", sequenceType)}, 1,
+        vectorType,
+        (function, vm, location, rParameters, rResult) -> {
+          final var input = vm.get(rParameters[0]);
+
+          @SuppressWarnings("unchecked") final var iterator = ((SequenceTrait<Value<?>>) input.type()).iterator(input);
+          final var result = new ArrayList<Value<?>>();
+
+          while (iterator.hasNext()) {
+            result.add(iterator.next());
+          }
+
+          vm.set(rResult, new Value<>(vectorType, result));
+        });
+  }
+
   public interface CallableTrait {
     void call(Value<?> target, Vm vm, Location location, int[] rParameters, int rResult);
 
@@ -31,19 +858,15 @@ public class Core extends Library {
   public interface CollectionTrait {
     int length(final Value<?> value);
   }
-
   public interface ComparableTrait {
     Order compare(final Value<?> left, final Value<?> right);
   }
-
   public interface IndexedCollectionTrait {
     Value<?> slice(final Value<?> value, final Value<?> start, final Value<?> end);
   }
-
   public interface SequenceTrait<T> {
     Iterator<T> iterator(final Value<?> value);
   }
-
   public interface StackTrait {
     Value<?> peek(final Vm vm, final Value<?> target);
 
@@ -561,833 +1384,4 @@ public class Core extends Library {
       return target;
     }
   }
-
-  public static final Type<Function> functionType = new FunctionType("Function");
-  public static final Type<Macro> macroType = new Type<>("Macro");
-  public static final Type<Type<?>> metaType = new Type<>("Meta");
-
-  public static final Core instance = new Core();
-
-  public Core() {
-    super("core", null);
-    bindType(anyType);
-    bindType(bitType);
-    bindType(characterType);
-    bindType(collectionType);
-    bindType(comparableType);
-    bindType(functionType);
-    bindType(indexedCollectionType);
-    bindType(integerType);
-    bindType(iteratorType);
-    bindType(macroType);
-    bindType(mapType);
-    bindType(metaType);
-    bindType(noneType);
-    bindType(pairType);
-    bindType(pathType);
-    bindType(registerType);
-    bindType(sequenceType);
-    bindType(stringType);
-    bindType(symbolType);
-    bindType(timeType);
-    bindType(vectorType);
-
-    bind("_", NONE);
-    bind("T", T);
-    bind("F", F);
-
-    bindFunction("=",
-        new Parameter[]{
-            new Parameter("value1", anyType),
-            new Parameter("value2", anyType)}, 2,
-        bitType,
-        (function, vm, location, rParameters, rResult) -> {
-          final var value1 = vm.get(rParameters[0]);
-          var result = true;
-
-          for (int i = 1; i < rParameters.length; i++) {
-            if (!vm.get(rParameters[i]).equals(value1)) {
-              result = false;
-              break;
-            }
-          }
-
-          vm.set(rResult, new Value<>(bitType, result));
-        });
-
-    bindFunction("<",
-        new Parameter[]{
-            new Parameter("value1", comparableType),
-            new Parameter("value2", comparableType)}, 2,
-        bitType,
-        (function, vm, location, rParameters, rResult) -> {
-          var value1 = vm.get(rParameters[0]);
-          var type = (ComparableTrait) value1.type();
-          var result = true;
-
-          for (var i = 1; i < rParameters.length; i++) {
-            final var v = vm.get(rParameters[i]);
-
-            if (v.type() != value1.type()) {
-              throw new EvaluationError(location, "Type mismatch: %s/%s.", value1.type(), v.type());
-            }
-
-            if (type.compare(value1, v) != Order.LessThan) {
-              result = false;
-              break;
-            }
-
-            value1 = v;
-          }
-
-          vm.set(rResult, new Value<>(bitType, result));
-        });
-
-    bindFunction(">",
-        new Parameter[]{
-            new Parameter("value1", comparableType),
-            new Parameter("value2", comparableType)}, 2,
-        bitType,
-        (function, vm, location, rParameters, rResult) -> {
-          var value1 = vm.get(rParameters[0]);
-          var type = (ComparableTrait) value1.type();
-          var result = true;
-
-          for (var i = 1; i < rParameters.length; i++) {
-            final var v = vm.get(rParameters[i]);
-
-            if (v.type() != value1.type()) {
-              throw new EvaluationError(location, "Type mismatch: %s/%s.", value1.type(), v.type());
-            }
-
-            if (type.compare(value1, v) != Order.GreaterThan) {
-              result = false;
-              break;
-            }
-
-            value1 = v;
-          }
-
-          vm.set(rResult, new Value<>(bitType, result));
-        });
-
-    bindFunction("+", new Parameter[]{
-            new Parameter("value1", integerType),
-            new Parameter("value2", integerType)}, 2,
-        integerType,
-        (function, vm, location, rParameters, rResult) -> {
-          int result = 0;
-
-          for (var i = 0; i < rParameters.length; i++) {
-            result += vm.get(rParameters[i]).as(integerType);
-          }
-
-          vm.set(rResult, new Value<>(integerType, result));
-        });
-
-    bindFunction("-", new Parameter[]{
-            new Parameter("value1", integerType),
-            new Parameter("value2", integerType)}, 2,
-        integerType,
-        (function, vm, location, rParameters, rResult) -> {
-          int result = vm.get(rParameters[0]).as(integerType);
-
-          if (rParameters.length == 1) {
-            result = -result;
-          } else {
-            for (var i = 1; i < rParameters.length; i++) {
-              result -= vm.get(rParameters[i]).as(integerType);
-            }
-          }
-
-          vm.set(rResult, new Value<>(integerType, result));
-        });
-
-    bindMacro("=0", 1,
-        (vm, namespace, location, arguments, rResult) -> {
-          arguments[0].emit(vm, namespace, rResult);
-          vm.emit(new EqualsZero(rResult, rResult));
-        });
-
-    bindMacro("+1", 1,
-        (vm, namespace, location, arguments, rResult) -> {
-          final var a = arguments[0];
-          int rValue;
-
-          if (a instanceof IdForm) {
-            final var v = namespace.find(((IdForm) a).name());
-
-            if (v.type() != registerType) {
-              throw new EmitError(location, "Invalid target: %s", v.toString());
-            }
-
-            final var r = (Register) v.data();
-
-            if (r.type() != null && r.type() != integerType) {
-              throw new EmitError(location, "Invalid target: %s", r.type());
-            }
-
-            rValue = r.index();
-          } else if (a instanceof LiteralForm) {
-            rValue = vm.allocateRegister();
-            vm.emit(new Set(rValue, ((LiteralForm) a).value()));
-          } else {
-            throw new EmitError(location, "Invalid target: %s", a.toString());
-          }
-
-          vm.emit(new Increment(rValue, rResult));
-        });
-
-    bindMacro("-1", 1,
-        (vm, namespace, location, arguments, rResult) -> {
-          final var a = arguments[0];
-          int rValue;
-
-          if (a instanceof IdForm) {
-            final var v = namespace.find(((IdForm) a).name());
-
-            if (v.type() != registerType) {
-              throw new EmitError(location, "Invalid target: %s", v.toString());
-            }
-
-            final var r = (Register) v.data();
-
-            if (r.type() != null && r.type() != integerType) {
-              throw new EmitError(location, "Invalid target: %s", r.type());
-            }
-
-            rValue = r.index();
-          } else if (a instanceof LiteralForm) {
-            rValue = vm.allocateRegister();
-            vm.emit(new Set(rValue, ((LiteralForm) a).value()));
-          } else {
-            throw new EmitError(location, "Invalid target: %s", a.toString());
-          }
-
-          vm.emit(new Decrement(rValue, rResult));
-        });
-
-    bindMacro("and", 2,
-        (vm, namespace, location, arguments, rResult) -> {
-          arguments[0].emit(vm, namespace, rResult);
-          final var andPcs = new ArrayList<Integer>();
-
-          for (int i = 1; i < arguments.length; i++) {
-            andPcs.add(vm.emit());
-            arguments[i].emit(vm, namespace, rResult);
-          }
-
-          for (final var pc : andPcs) {
-            vm.emit(pc, new If(rResult, vm.emitPc()));
-          }
-        });
-
-    bindMacro("benchmark", 1,
-        (vm, namespace, location, arguments, rResult) -> {
-          final var rRepetitions = vm.allocateRegister();
-          arguments[0].emit(vm, namespace, rRepetitions);
-          vm.emit(new Benchmark(rRepetitions, rResult));
-
-          for (int i = 1; i < arguments.length; i++) {
-            arguments[i].emit(vm, namespace, rRepetitions);
-          }
-
-          vm.emit(Stop.instance);
-        });
-
-    bindMacro("check", 2,
-        (vm, namespace, location, arguments, rResult) -> {
-          final var rExpected = vm.allocateRegister();
-          arguments[0].emit(vm, namespace, rExpected);
-          final var rActual = vm.allocateRegister();
-          vm.emit(new Check(rExpected, rActual, location));
-          final var bodyNamespace = new Namespace(namespace);
-
-          for (var i = 1; i < arguments.length; i++) {
-            arguments[i].emit(vm, bodyNamespace, rActual);
-          }
-
-          vm.emit(Stop.instance);
-        });
-
-    bindMacro("define", 2,
-        (vm, namespace, location, arguments, rResult) -> {
-          final var nameForm = arguments[0];
-
-          if (!(nameForm instanceof IdForm)) {
-            throw new EmitError(nameForm.location(), "Expected identifier: %s.", nameForm);
-          }
-
-          final var name = ((IdForm) nameForm).name();
-          final var rValue = vm.allocateRegister();
-          vm.evaluate(arguments[1], namespace, rValue);
-          namespace.bind(name, new Value<>(variableType, new Register(rValue, null)));
-        });
-
-    bindFunction("digit",
-        new Parameter[]{new Parameter("value", characterType)}, 1,
-        integerType,
-        (function, vm, location, rParameters, rResult) -> {
-          final var c = vm.get(rParameters[0]).as(characterType);
-          final var result = Character.isDigit(c) ? Character.digit(c, 10) : -1;
-          vm.set(rResult, new Value<>(integerType, result));
-        });
-
-    bindFunction("digit?",
-        new Parameter[]{new Parameter("value", characterType)}, 1,
-        bitType,
-        (function, vm, location, rParameters, rResult) -> {
-          final var c = vm.get(rParameters[0]).as(characterType);
-          vm.set(rResult, new Value<>(bitType, Character.isDigit(c)));
-        });
-
-    bindMacro("do", 0,
-        (vm, namespace, location, arguments, rResult) -> {
-          for (final var a : arguments) {
-            a.emit(vm, namespace, rResult);
-          }
-        });
-
-    bindMacro("find", 2,
-        (vm, namespace, location, arguments, rResult) -> {
-          final var rPredicate = vm.allocateRegister();
-          final var predicateForm = arguments[0];
-          predicateForm.emit(vm, namespace, rPredicate);
-
-          final var rIterator = vm.allocateRegister();
-          final var inputForm = arguments[1];
-          inputForm.emit(vm, namespace, rIterator);
-          vm.emit(new GetIterator(rIterator, rIterator, inputForm.location()));
-
-          vm.emit(new Set(rResult, new Value<>(integerType, -1)));
-
-          final var rIndex = vm.allocateRegister();
-          vm.emit(new Set(rIndex, new Value<>(integerType, 0)));
-
-          final var iteratePc = vm.emit();
-          final var rValue = vm.allocateRegister();
-          final var rPredicateResult = vm.allocateRegister();
-          vm.emit(new CallIndirect(location, rPredicate, new int[]{rValue}, rPredicateResult));
-          final var ifPc = vm.emit();
-          vm.emit(new MakePair(rValue, rIndex, rResult));
-          final var exitPc = vm.emit();
-          vm.emit(ifPc, new If(rPredicateResult, vm.emitPc()));
-          vm.emit(new Increment(rIndex, rIndex));
-          vm.emit(new Goto(iteratePc));
-          vm.emit(iteratePc, new Iterate(rIterator, rValue, vm.emitPc()));
-          vm.emit(exitPc, new Goto(vm.emitPc()));
-        });
-
-    bindMacro("for", 1,
-        (vm, namespace, location, arguments, rResult) -> {
-          final var argsForm = arguments[0];
-
-          if (!(argsForm instanceof PairForm)) {
-            throw new EmitError(argsForm.location(), "Invalid for arguments: %s.", argsForm);
-          }
-
-          final var args = (PairForm)argsForm;
-
-          final var varForm = args.left();
-
-          if (!(varForm instanceof IdForm)) {
-            throw new EmitError(argsForm.location(), "Invalid for variable: %s.", varForm);
-          }
-
-          final var rIterator = vm.allocateRegister();
-          args.right().emit(vm, namespace, rIterator);
-          vm.emit(new GetIterator(rIterator, rIterator, location));
-          final var iteratePc = vm.emit();
-          final var rValue = vm.allocateRegister();
-          namespace.bind(((IdForm)varForm).name(),
-              new Value<>(registerType, new Register(rValue, null)));
-
-          for (int i = 1; i < arguments.length; i++) {
-            arguments[i].emit(vm, namespace, rResult);
-          }
-
-          vm.emit(new Goto(iteratePc));
-          vm.emit(iteratePc, new Iterate(rIterator, rValue, vm.emitPc()));
-        });
-
-    bindMacro("function", 1,
-        (vm, namespace, location, arguments, rResult) -> {
-          final var as = new ArrayDeque<Form>();
-          Collections.addAll(as, arguments);
-          var name = "";
-
-          if (arguments[0] instanceof IdForm) {
-            name = ((IdForm) as.removeFirst()).name();
-          }
-
-          var psForm = as.removeFirst();
-          Type<?> resultType = null;
-
-          if (psForm instanceof PairForm) {
-            var p = (PairForm) psForm;
-            var tnf = p.right();
-            var tv = namespace.find(((IdForm) tnf).name());
-
-            if (tv == null) {
-              throw new EmitError(tnf.location(), "Type not found: %s.", tnf);
-            }
-
-            resultType = tv.as(metaType);
-            psForm = p.left();
-          }
-
-          if (!(psForm instanceof VectorForm)) {
-            throw new EmitError(psForm.location(), "Invalid parameter specification: %s.", psForm);
-          }
-
-          final var ps = Arrays.stream(((VectorForm) psForm).body()).map((f) -> {
-            var pn = "";
-            Type<?> pt = anyType;
-
-            if (f instanceof PairForm) {
-              final var pf = (PairForm) f;
-              if (!((pf.left() instanceof IdForm) && (pf.right() instanceof IdForm))) {
-                throw new EmitError(f.location(), "Invalid parameter: %s.", pf);
-              }
-
-              final var tf = ((IdForm) pf.left());
-              pn = tf.name();
-              final var tv = namespace.find(((IdForm) pf.right()).name());
-
-              if (tv == null) {
-                throw new EmitError(tf.location(), "Type not found: %s.", pf.right());
-              }
-
-              pt = tv.as(metaType);
-            } else if (f instanceof IdForm) {
-              pn = ((IdForm) f).name();
-            } else {
-              throw new EmitError(f.location(), "Invalid parameter: %s.", f);
-            }
-
-            return new Parameter(pn, pt);
-          }).toArray(Parameter[]::new);
-
-          final var skipPc = vm.emit();
-          final var startPc = vm.emitPc();
-
-          final var function = new Function(name, ps, ps.length, resultType,
-              (_function, _vm, _location, _parameters, _result) -> {
-                _vm.pushCall(_function, _location, startPc, _result);
-
-                for (var i = 0; i < _parameters.length; i++) {
-                  vm.set(i + 1, vm.get(_parameters[i]));
-                }
-              });
-
-          final var v = new Value<>(functionType, function);
-
-          if (!name.isEmpty()) {
-            namespace.bind(name, v);
-          }
-
-          final var bodyNamespace = new Namespace(namespace);
-
-          for (var i = 0; i < ps.length; i++) {
-            final var p = ps[i];
-            bodyNamespace.bind(p.name(), new Value<>(registerType, new Register(i + 1, p.type())));
-          }
-
-          for (final var f : as) {
-            f.emit(vm, bodyNamespace, rResult);
-          }
-
-          vm.emit(new Return(rResult));
-          vm.emit(skipPc, new Goto(vm.emitPc()));
-
-          if (name.isEmpty()) {
-            vm.emit(new Set(rResult, v));
-          }
-        });
-
-    bindMacro("head", 1,
-        (vm, namespace, location, arguments, rResult) -> {
-          arguments[0].emit(vm, namespace, rResult);
-          vm.emit(new Head(rResult, rResult));
-        });
-
-    bindMacro("if", 2,
-        (vm, namespace, location, arguments, rResult) -> {
-          arguments[0].emit(vm, namespace, rResult);
-          final var ifPc = vm.emit();
-          arguments[1].emit(vm, namespace, rResult);
-          final var skipPc = (arguments.length > 2) ? vm.emit() : -1;
-          vm.emit(ifPc, new If(rResult, vm.emitPc()));
-
-          if (skipPc != -1) {
-            arguments[2].emit(vm, namespace, rResult);
-            vm.emit(skipPc, new Goto(vm.emitPc()));
-          }
-        });
-
-    bindFunction("iterator",
-        new Parameter[]{new Parameter("sequence", sequenceType)}, 1,
-        iteratorType,
-        (function, vm, location, rParameters, rResult) -> {
-          final var s = vm.get(rParameters[0]);
-          @SuppressWarnings("unchecked") final var st = (SequenceTrait<Value<?>>) s.type();
-          vm.set(rResult, new Value<>(iteratorType, st.iterator(s)));
-        });
-
-    bindFunction("length",
-        new Parameter[]{new Parameter("collection", collectionType)}, 1,
-        integerType,
-        (function, vm, location, rParameters, rResult) -> {
-          final var c = vm.get(rParameters[0]);
-          final var ct = (CollectionTrait) c.type();
-          vm.set(rResult, new Value<>(integerType, ct.length(c)));
-        });
-
-    bindMacro("let", 2,
-        (vm, namespace, location, arguments, rResult) -> {
-          final var bindingsForm = arguments[0];
-
-          if (!(bindingsForm instanceof VectorForm)) {
-            throw new EmitError(bindingsForm.location(), "Invalid let bindings: %s.", bindingsForm);
-          }
-
-          final var bindings = ((VectorForm) bindingsForm).body();
-          final var variables = new TreeMap<Integer, Integer>();
-
-          for (int i = 0; i < bindings.length; i += 2) {
-            final var nameForm = bindings[i];
-
-            if (!(nameForm instanceof IdForm)) {
-              throw new EmitError(nameForm.location(), "Expected identifier: %s.", nameForm);
-            }
-
-            if (i == bindings.length - 1) {
-              throw new EmitError(bindingsForm.location(), "Missing Value.");
-            }
-
-            final var valueForm = bindings[i + 1];
-            final var valueType = (valueForm instanceof LiteralForm)
-                ? ((LiteralForm) valueForm).value().type()
-                : null;
-            final var name = ((IdForm) nameForm).name();
-            var rValue = -1;
-            final var found = namespace.find(name);
-
-            if (found != null && found.type() == variableType) {
-              rValue = found.as(variableType).index();
-              final var rPreviousValue = vm.allocateRegister();
-              variables.put(rPreviousValue, rValue);
-              vm.emit(new Get(rValue, rPreviousValue));
-            } else {
-              rValue = vm.allocateRegister();
-              namespace.bind(name, new Value<>(registerType, new Register(rValue, valueType)));
-            }
-
-            valueForm.emit(vm, namespace, rValue);
-          }
-
-          for (int i = 1; i < arguments.length; i++) {
-            arguments[i].emit(vm, namespace, rResult);
-          }
-
-          for (final var e : variables.entrySet()) {
-            vm.emit(new Get(e.getKey(), e.getValue()));
-          }
-        });
-
-    bindMacro("load", 1,
-        (vm, namespace, location, arguments, rResult) -> {
-          vm.evaluate(arguments[0], namespace, rResult);
-          final var path = vm.get(rResult).as(pathType);
-          vm.set(rResult, null);
-
-          try {
-            vm.load(path, namespace, rResult);
-          } catch (final IOException e) {
-            throw new EmitError(location, e.toString());
-          }
-        });
-
-
-    bindMacro("map", 2,
-        (vm, namespace, location, arguments, rResult) -> {
-          final var rFunction = vm.allocateRegister();
-          arguments[0].emit(vm, namespace, rFunction);
-          final var rIterators = new int[arguments.length - 1];
-          final var rValues = new int[rIterators.length];
-
-          for (int i = 0; i < rIterators.length; i++) {
-            final var r = vm.allocateRegister();
-            final var f = arguments[i + 1];
-            f.emit(vm, namespace, r);
-            vm.emit(new GetIterator(r, r, f.location()));
-            rIterators[i] = r;
-            rValues[i] = vm.allocateRegister();
-          }
-
-          final var rCall = vm.allocateRegister();
-          vm.emit(new Set(rResult, new Value<>(Core.instance.vectorType, new ArrayList<>())));
-          var iteratePcs = new int[rIterators.length];
-
-          for (int i = 0; i < rIterators.length; i++) {
-            iteratePcs[i] = vm.emit();
-          }
-
-          vm.emit(new CallIndirect(location, rFunction, rValues, rCall));
-          vm.emit(new Push(rResult, rCall, rResult));
-          vm.emit(new Goto(iteratePcs[0]));
-
-          for (int i = 0; i < iteratePcs.length; i++) {
-            vm.emit(iteratePcs[i], new Iterate(rIterators[i], rValues[i], vm.emitPc()));
-          }
-
-          vm.emit(new GetIterator(rResult, rResult, location));
-        });
-
-    bindFunction("milliseconds",
-        new Parameter[]{new Parameter("n", integerType)}, 1,
-        timeType,
-        (function, vm, location, rParameters, rResult) -> {
-          final var n = vm.get(rParameters[0]).as(integerType);
-          vm.set(rResult, new Value<>(timeType, Duration.ofMillis(n)));
-        });
-
-    bindFunction("not",
-        new Parameter[]{new Parameter("value", anyType)}, 1,
-        bitType,
-        (function, vm, location, rParameters, rResult) -> {
-          vm.set(rResult, new Value<>(bitType, !vm.get(rParameters[0]).isTrue()));
-        });
-
-    bindMacro("or", 2,
-        (vm, namespace, location, arguments, rResult) -> {
-          arguments[0].emit(vm, namespace, rResult);
-          final var skipPcs = new ArrayList<Integer>();
-
-          for (int i = 1; i < arguments.length; i++) {
-            final var orPc = vm.emit();
-            skipPcs.add(vm.emit());
-            vm.emit(orPc, new If(rResult, vm.emitPc()));
-            arguments[i].emit(vm, namespace, rResult);
-          }
-
-          for (final var pc : skipPcs) {
-            vm.emit(pc, new Goto(vm.emitPc()));
-          }
-        });
-
-    bindFunction("parse-integer",
-        new Parameter[]{new Parameter("input", stringType)}, 1,
-        pairType,
-        (function, vm, location, rParameters, rResult) -> {
-          final var input = vm.get(rParameters[0]).as(stringType);
-          final var match = Pattern.compile("^\\s*(\\d+).*").matcher(input);
-
-          if (!match.find()) {
-            throw new EvaluationError(location, "Invalid integer: %s", input);
-          }
-
-          vm.set(rResult, new Value<>(pairType, new Pair(
-              new Value<>(integerType, Integer.valueOf(match.group(1))),
-              new Value<>(integerType, match.end(1)))));
-        });
-
-    bindFunction("path",
-        new Parameter[]{new Parameter("value", stringType)}, 1,
-        pathType,
-        (function, vm, location, rParameters, rResult) -> {
-          vm.set(rResult, new Value<>(pathType, Paths.get(vm.get(rParameters[0]).as(stringType))));
-        });
-
-    bindMacro("peek", 1,
-        (vm, namespace, location, arguments, rResult) -> {
-          final var rTarget = vm.allocateRegister();
-          arguments[0].emit(vm, namespace, rTarget);
-          vm.emit(new Peek(rTarget, rResult));
-        });
-
-    bindMacro("pop", 1,
-        (vm, namespace, location, arguments, rResult) -> {
-          final var rTarget = vm.allocateRegister();
-          arguments[0].emit(vm, namespace, rTarget);
-          vm.emit(new Pop(rTarget, rResult));
-        });
-
-    bindMacro("push", 2,
-        (vm, namespace, location, arguments, rResult) -> {
-          arguments[0].emit(vm, namespace, rResult);
-          final var rValue = vm.allocateRegister();
-          arguments[1].emit(vm, namespace, rValue);
-          vm.emit(new Push(rResult, rValue, rResult));
-        });
-
-    bindMacro("reduce", 3,
-        (vm, namespace, location, arguments, rResult) -> {
-          final var rFunction = vm.allocateRegister();
-          arguments[0].emit(vm, namespace, rFunction);
-          final var rIterator = vm.allocateRegister();
-          final var f = arguments[1];
-          f.emit(vm, namespace, rIterator);
-          vm.emit(new GetIterator(rIterator, rIterator, f.location()));
-          final var rValue = vm.allocateRegister();
-          arguments[2].emit(vm, namespace, rResult);
-          final var iteratePc = vm.emit();
-          vm.emit(new CallIndirect(location, rFunction, new int[]{rValue, rResult}, rResult));
-          vm.emit(new Goto(iteratePc));
-          vm.emit(iteratePc, new Iterate(rIterator, rValue, vm.emitPc()));
-        });
-
-    bindFunction("register-count",
-        new Parameter[]{}, 0,
-        integerType,
-        (function, vm, location, rParameters, rResult) -> {
-          vm.set(rResult, new Value<>(integerType, vm.registerCount()));
-        });
-
-    bindFunction("say",
-        new Parameter[]{new Parameter("value1", anyType)}, 1,
-        noneType,
-        (function, vm, location, rParameters, rResult) -> {
-          final var what = new StringBuilder();
-
-          for (var i = 0; i < rParameters.length; i++) {
-            if (i > 0) {
-              what.append(' ');
-            }
-
-            what.append(vm.get(rParameters[i]).say());
-          }
-
-          System.out.println(what);
-          System.out.flush();
-        });
-
-    bindFunction("sleep",
-        new Parameter[]{new Parameter("duration", timeType)}, 1,
-        noneType,
-        (function, vm, location, rParameters, rResult) -> {
-          try {
-            Thread.sleep(vm.get(rParameters[0]).as(timeType));
-          } catch (final InterruptedException e) {
-            throw new EvaluationError(location, e.toString());
-          }
-        });
-
-    bindFunction("slice",
-        new Parameter[]{
-            new Parameter("input", indexedCollectionType),
-            new Parameter("start", anyType),
-            new Parameter("end", anyType)
-        }, 2,
-        indexedCollectionType,
-        (function, vm, location, rParameters, rResult) -> {
-          final var i = vm.get(rParameters[0]);
-          final var it = (IndexedCollectionTrait) i.type();
-          final var start = vm.get(rParameters[1]);
-          final var end = (rParameters.length == 2) ? null : vm.get(rParameters[2]);
-          vm.set(rResult, it.slice(i, start, end));
-        });
-
-    bindFunction("string",
-        new Parameter[]{new Parameter("value1", anyType)}, 1,
-        stringType,
-        (function, vm, location, rParameters, rResult) -> {
-          final var result = new StringBuilder();
-
-          for (var i = 0; i < rParameters.length; i++) {
-            result.append(vm.get(rParameters[i]).say());
-          }
-
-          vm.set(rResult, new Value<>(stringType, result.toString()));
-        });
-
-    bindFunction("reverse-string",
-        new Parameter[]{new Parameter("input", stringType)}, 1,
-        stringType,
-        (function, vm, location, rParameters, rResult) -> {
-          final var result = new StringBuilder(vm.get(rParameters[0]).as(stringType)).reverse().toString();
-          vm.set(rResult, new Value<>(stringType, result));
-        });
-
-    bindFunction("slurp",
-        new Parameter[]{new Parameter("path", pathType)}, 1,
-        stringType,
-        (function, vm, location, rParameters, rResult) -> {
-          try {
-            final var p = vm.loadPath().resolve(vm.get(rParameters[0]).as(pathType));
-            final String data = Files.readString(p);
-            vm.set(rResult, new Value<>(stringType, data));
-          } catch (final IOException e) {
-            throw new EvaluationError(location, "Failed reading file: %s", e);
-          }
-        });
-
-    bindFunction("split",
-        new Parameter[]{
-            new Parameter("whole", stringType),
-            new Parameter("separator", stringType)}, 2,
-        iteratorType,
-        (function, vm, location, rParameters, rResult) -> {
-          final var w = vm.get(rParameters[0]).as(stringType);
-          final var s = vm.get(rParameters[1]).as(stringType);
-          final String[] parts = w.split(Pattern.quote(s));
-          final var result = new ArrayList<Value<?>>();
-
-          for (final var p : parts) {
-            result.add(new Value<>(stringType, p));
-          }
-
-          vm.set(rResult, new Value<>(iteratorType, result.iterator()));
-        });
-
-    bindMacro("tail", 1,
-        (vm, namespace, location, arguments, rResult) -> {
-          arguments[0].emit(vm, namespace, rResult);
-          vm.emit(new Tail(rResult, rResult));
-        });
-
-    bindMacro("trace", 0,
-        (vm, namespace, location, rParameters, rResult) -> {
-          vm.toggleTracing();
-        });
-
-    bindFunction("vector",
-        new Parameter[]{new Parameter("input", sequenceType)}, 1,
-        vectorType,
-        (function, vm, location, rParameters, rResult) -> {
-          final var input = vm.get(rParameters[0]);
-
-          @SuppressWarnings("unchecked") final var iterator = ((SequenceTrait<Value<?>>) input.type()).iterator(input);
-          final var result = new ArrayList<Value<?>>();
-
-          while (iterator.hasNext()) {
-            result.add(iterator.next());
-          }
-
-          vm.set(rResult, new Value<>(vectorType, result));
-        });
-  }
-
-  public final Type<Object> anyType = new Type<>("Any");
-  public final BitType bitType = new BitType("Bit");
-  public final Value<Boolean> T = new Value<>(bitType, true);
-  public final Value<Boolean> F = new Value<>(bitType, false);
-  public final CharacterType characterType = new CharacterType("Character");
-  public final CollectionType collectionType = new CollectionType("Collection");
-  public final ComparableType comparableType = new ComparableType("Comparable");
-  public final IndexedCollectionType indexedCollectionType = new IndexedCollectionType("IndexedCollection");
-  public final IntegerType integerType = new IntegerType("Integer");
-  public final IteratorType iteratorType = new IteratorType("Iterator");
-  public final MapType mapType = new MapType("Map");
-  public final NoneType noneType = new NoneType("None");
-  public final Value<Object> NONE = new Value<>(noneType, null);
-  public final PairType pairType = new PairType("Pair");
-  public final Type<Path> pathType = new Type<>("Path");
-  public final RegisterType registerType = new RegisterType("Register");
-  public final SequenceType sequenceType = new SequenceType("Sequence");
-  public final StringType stringType = new StringType("String");
-  public final SymbolType symbolType = new SymbolType("Symbol");
-  public final TimeType timeType = new TimeType("Time");
-  public final RegisterType variableType = new RegisterType("Variable");
-  public final VectorType vectorType = new VectorType("Vector");
 }

@@ -6,6 +6,9 @@ import java.util.ArrayDeque;
 import java.util.Deque;
 
 public class Input {
+  private final BufferedReader in;
+  private final Deque<Character> buffer = new ArrayDeque<>();
+
   public Input(final java.io.Reader in) {
     this.in = new BufferedReader(in);
   }
@@ -47,8 +50,4 @@ public class Input {
       }
     }
   }
-
-  private final BufferedReader in;
-
-  private final Deque<Character> buffer = new ArrayDeque<>();
 }

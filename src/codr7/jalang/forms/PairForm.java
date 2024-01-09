@@ -6,6 +6,8 @@ import codr7.jalang.Vm;
 import codr7.jalang.operations.MakePair;
 
 public class PairForm extends codr7.jalang.Form {
+  private final codr7.jalang.Form left, right;
+
   public PairForm(final Location location, final codr7.jalang.Form left, final codr7.jalang.Form right) {
     super(location);
     this.left = left;
@@ -31,6 +33,4 @@ public class PairForm extends codr7.jalang.Form {
   public final String toString() {
     return String.format("%s:%s", left.toString(), right.toString());
   }
-
-  private final codr7.jalang.Form left, right;
 }

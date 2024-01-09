@@ -4,6 +4,9 @@ import codr7.jalang.Location;
 import codr7.jalang.Operation;
 
 public class GetIterator extends Operation {
+  public final int rValue, rResult;
+  public final Location location;
+
   public GetIterator(final int rValue, final int rResult, final Location location) {
     super(Code.GetIterator);
     this.rValue = rValue;
@@ -14,7 +17,4 @@ public class GetIterator extends Operation {
   public String toString() {
     return String.format("%s value: %d result: %d location: %s", super.toString(), rValue, rResult, location);
   }
-
-  public final int rValue, rResult;
-  public final Location location;
 }

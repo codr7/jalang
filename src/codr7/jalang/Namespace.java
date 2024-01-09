@@ -6,6 +6,9 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class Namespace {
+  private final Namespace parentNamespace;
+  private final Map<String, Value<?>> bindings = new HashMap<>();
+
   public Namespace(final Namespace parentNamespace) {
     this.parentNamespace = parentNamespace;
   }
@@ -47,7 +50,4 @@ public class Namespace {
   public final void include(final Namespace source) {
     bindings.putAll(source.bindings);
   }
-
-  private final Namespace parentNamespace;
-  private final Map<String, Value<?>> bindings = new HashMap<>();
 }

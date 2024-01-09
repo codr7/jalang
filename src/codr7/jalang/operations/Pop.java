@@ -3,6 +3,8 @@ package codr7.jalang.operations;
 import codr7.jalang.Operation;
 
 public class Pop extends Operation {
+  public final int rResult, rTarget;
+
   public Pop(final int rTarget, final int rResult) {
     super(Code.Pop);
     this.rTarget = rTarget;
@@ -13,7 +15,5 @@ public class Pop extends Operation {
     return String.format("%s target: %d result: %d",
         super.toString(), rTarget, rResult);
   }
-
-  public final int rResult, rTarget;
 }
 
