@@ -14,6 +14,7 @@ import java.time.Duration;
 import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.TreeMap;
 
 public class Vm {
   public static final int DEFAULT_REGISTER = 0;
@@ -86,6 +87,14 @@ public class Vm {
 
           final var elapsedTime = Duration.ofNanos(System.nanoTime() - startTime);
           registers[o.rRegister] = new Value<>(Core.instance.timeType, elapsedTime);
+          break;
+        }
+        case BreakPair: {
+          final var o = (BreakPair) op;
+          final var p = registers[((BreakPair) op).rValue].as(Core.instance.pairType);
+          registers[o.rLeft] = p.left();
+          registers[o.rRight] = p.right();
+          pc++;
           break;
         }
         case CallDirect: {
@@ -204,10 +213,22 @@ public class Vm {
 
           break;
         }
+        case MakeMap: {
+          final var o = (MakeMap) op;
+          registers[o.rResult] = new Value<>(Core.instance.mapType, new TreeMap<>());
+          pc++;
+          break;
+        }
         case MakePair: {
           final var o = (MakePair) op;
           registers[o.rResult] = new Value<>(Core.instance.pairType,
               new Pair(registers[o.rLeft], registers[o.rRight]));
+          pc++;
+          break;
+        }
+        case MakeVector: {
+          final var o = (MakeVector) op;
+          registers[o.rResult] = new Value<>(Core.instance.vectorType, new ArrayList<>());
           pc++;
           break;
         }

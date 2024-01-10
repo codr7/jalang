@@ -12,13 +12,13 @@ public abstract class Operation {
   }
 
   public enum Code {
-    Benchmark,
+    Benchmark, BreakPair,
     CallDirect, CallIndirect, Check,
     Decrement,
     EqualsZero,
     Get, GetIterator, GetKey, Goto,
     If, Increment, Iterate,
-    MakePair,
+    MakeMap, MakePair, MakeVector,
     Nop, NotImplemented,
     Peek, Pop, Push,
     Return,

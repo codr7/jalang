@@ -1,4 +1,8 @@
 * AoC 2-1
+** finish solution
+
+* drop support for argument/result types
+** simplify function macro
 
 * hook up type hierarchy
 ** add type function

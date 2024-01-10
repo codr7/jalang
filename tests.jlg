@@ -22,6 +22,12 @@
 (check F
   (> "ghi" "abc" "def"))
 
+(check 3
+  (max 1 2 3))
+
+(check 3
+  (max 3 2 1))
+
 (check 5
   (+ 3 2))
   
@@ -76,6 +82,9 @@
 (check ["foo" "bar" "baz"]
   (vector (split "foo bar baz" " ")))
 
+(check 'Foo
+  (symbol "Foo"))
+  
 (check "1 2 3"
   (string 1 " " 2 " " 3))
 
@@ -124,6 +133,12 @@
 (check [5 7 9]
   (vector (map + [1 2 3] [4 5 6 7])))
 
+(check [[1 42] [2 42]]
+  (function foo [x]
+     [x 42])
+
+  [(foo 1) (foo 2)])
+
 (check 3
   (length {1 2 3:4}))
 
@@ -135,6 +150,12 @@
 
 (check {'foo:1 'bar:4 'baz:3}
   ({'foo:1 'bar:2 'baz:3} 'bar 4))
+
+(check [{1:42} {2:42}]
+  (function foo [x]
+     {x:42})
+
+  [(foo 1) (foo 2)])
 
 (check [5 7 9]
   (function foo [l:Integer r:Integer]:Integer
@@ -150,6 +171,18 @@
     (for v:['foo 'bar 'baz]
       (push result v))
     result))
+
+(check 1
+  (let [x:_ 1:2:3]
+    x))
+
+(check 2:3
+  (let [_:x 1:2:3]
+    x))
+
+(check 3
+  (let [_:_:x 1:2:3]
+    x))
 
 (check 7
   (function foo [v:Integer result:Integer]:Integer

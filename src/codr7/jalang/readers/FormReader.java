@@ -28,7 +28,9 @@ public class FormReader implements Reader {
         return MapReader.instance.read(in, out, location);
       case '\'':
         return SymbolReader.instance.read(in, out, location);
-      case '"':
+      case '\\':
+        return CharacterReader.instance.read(in, out, location);
+        case '"':
         return StringReader.instance.read(in, out, location);
       default:
         if (Character.isDigit(c)) {

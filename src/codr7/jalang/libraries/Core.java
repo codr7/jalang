@@ -3,10 +3,7 @@ package codr7.jalang.libraries;
 import codr7.jalang.*;
 import codr7.jalang.errors.EmitError;
 import codr7.jalang.errors.EvaluationError;
-import codr7.jalang.forms.IdForm;
-import codr7.jalang.forms.LiteralForm;
-import codr7.jalang.forms.PairForm;
-import codr7.jalang.forms.VectorForm;
+import codr7.jalang.forms.*;
 import codr7.jalang.operations.Set;
 import codr7.jalang.operations.*;
 
@@ -157,8 +154,8 @@ public class Core extends Library {
         (function, vm, location, rParameters, rResult) -> {
           int result = 0;
 
-          for (var i = 0; i < rParameters.length; i++) {
-            result += vm.get(rParameters[i]).as(integerType);
+          for (int rParameter : rParameters) {
+            result += vm.get(rParameter).as(integerType);
           }
 
           vm.set(rResult, new Value<>(integerType, result));
@@ -361,11 +358,9 @@ public class Core extends Library {
         (vm, namespace, location, arguments, rResult) -> {
           final var argsForm = arguments[0];
 
-          if (!(argsForm instanceof PairForm)) {
+          if (!(argsForm instanceof PairForm args)) {
             throw new EmitError(argsForm.location(), "Invalid for arguments: %s.", argsForm);
           }
-
-          final var args = (PairForm) argsForm;
 
           final var varForm = args.left();
 
@@ -402,8 +397,7 @@ public class Core extends Library {
           var psForm = as.removeFirst();
           Type<?> resultType = null;
 
-          if (psForm instanceof PairForm) {
-            var p = (PairForm) psForm;
+          if (psForm instanceof PairForm p) {
             var tnf = p.right();
             var tv = namespace.find(((IdForm) tnf).name());
 
@@ -423,13 +417,11 @@ public class Core extends Library {
             var pn = "";
             Type<?> pt = anyType;
 
-            if (f instanceof PairForm) {
-              final var pf = (PairForm) f;
-              if (!((pf.left() instanceof IdForm) && (pf.right() instanceof IdForm))) {
+            if (f instanceof PairForm pf) {
+              if (!((pf.left() instanceof IdForm tf) && (pf.right() instanceof IdForm))) {
                 throw new EmitError(f.location(), "Invalid parameter: %s.", pf);
               }
 
-              final var tf = ((IdForm) pf.left());
               pn = tf.name();
               final var tv = namespace.find(((IdForm) pf.right()).name());
 
@@ -467,8 +459,7 @@ public class Core extends Library {
 
           final var bodyNamespace = new Namespace(namespace);
 
-          for (var i = 0; i < ps.length; i++) {
-            final var p = ps[i];
+          for (final Parameter p : ps) {
             bodyNamespace.bind(p.name(), new Value<>(registerType, new Register(p.rValue(), p.type())));
           }
 
@@ -521,7 +512,7 @@ public class Core extends Library {
           final var bindingsForm = arguments[0];
 
           if (!(bindingsForm instanceof VectorForm)) {
-            throw new EmitError(bindingsForm.location(), "Invalid let bindings: %s.", bindingsForm);
+            throw new EmitError(bindingsForm.location(), "Invalid bindings: %s.", bindingsForm);
           }
 
           final var bindings = ((VectorForm) bindingsForm).body();
@@ -529,10 +520,6 @@ public class Core extends Library {
 
           for (int i = 0; i < bindings.length; i += 2) {
             final var nameForm = bindings[i];
-
-            if (!(nameForm instanceof IdForm)) {
-              throw new EmitError(nameForm.location(), "Expected identifier: %s.", nameForm);
-            }
 
             if (i == bindings.length - 1) {
               throw new EmitError(bindingsForm.location(), "Missing Value.");
@@ -542,21 +529,45 @@ public class Core extends Library {
             final var valueType = (valueForm instanceof LiteralForm)
                 ? ((LiteralForm) valueForm).value().type()
                 : null;
-            final var name = ((IdForm) nameForm).name();
-            var rValue = -1;
-            final var found = namespace.find(name);
 
-            if (found != null && found.type() == variableType) {
-              rValue = found.as(variableType).index();
-              final var rPreviousValue = vm.allocateRegister();
-              variables.put(rPreviousValue, rValue);
-              vm.emit(new Get(rValue, rPreviousValue));
-            } else {
-              rValue = vm.allocateRegister();
-              namespace.bind(name, new Value<>(registerType, new Register(rValue, valueType)));
+            final java.util.function.BiConsumer<IdForm, Integer> bindId = (f, rValue) -> {
+              final var name = f.name();
+              final var found = namespace.find(name);
+
+              if (found != null && found.type() == variableType) {
+                final var rVar = found.as(variableType).index();
+                final var rPreviousValue = vm.allocateRegister();
+                variables.put(rPreviousValue, rVar);
+                vm.emit(new Get(rVar, rPreviousValue));
+                vm.emit(new Get(rValue, rVar));
+              } else {
+                namespace.bind(name, new Value<>(registerType, new Register(rValue, valueType)));
+              }
+            };
+
+            class Recursive<T> {
+              T function;
             }
 
+            final var recursiveBind = new Recursive<java.util.function.BiConsumer<Form, Integer>>();
+
+            recursiveBind.function = (f, rValue) -> {
+              if (f instanceof PairForm pf) {
+                final var rLeft = vm.allocateRegister();
+                final var rRight = vm.allocateRegister();
+                vm.emit(new BreakPair(rValue, rLeft, rRight));
+                recursiveBind.function.accept(pf.left(), rLeft);
+                recursiveBind.function.accept(pf.right(), rRight);
+              } else if (f instanceof IdForm idf) {
+                bindId.accept(idf, rValue);
+              } else if (!(f instanceof NoneForm)) {
+                throw new EmitError(f.location(), "Invalid binding: %s.", f);
+              }
+            };
+
+            final var rValue = vm.allocateRegister();
             valueForm.emit(vm, namespace, rValue);
+            recursiveBind.function.accept(nameForm, rValue);
           }
 
           for (int i = 1; i < arguments.length; i++) {
@@ -617,6 +628,23 @@ public class Core extends Library {
           vm.emit(new GetIterator(rResult, rResult, location));
         });
 
+    bindFunction("max",
+        new Parameter[]{new Parameter("value1", comparableType, -1)}, 1,
+        comparableType,
+        (function, vm, location, rParameters, rResult) -> {
+          var lv = vm.get(rParameters[0]);
+          final var t = (ComparableTrait)lv.type();
+
+          for (int i = 0; i < rParameters.length; i++) {
+            final var rv = vm.get(rParameters[i]);
+            if (t.compare(lv, rv) == Order.LessThan) {
+              lv = rv;
+            }
+          }
+
+          vm.set(rResult, lv);
+        });
+
     bindFunction("milliseconds",
         new Parameter[]{new Parameter("n", integerType, -1)}, 1,
         timeType,
@@ -628,9 +656,8 @@ public class Core extends Library {
     bindFunction("not",
         new Parameter[]{new Parameter("value", anyType, -1)}, 1,
         bitType,
-        (function, vm, location, rParameters, rResult) -> {
-          vm.set(rResult, new Value<>(bitType, !vm.get(rParameters[0]).isTrue()));
-        });
+        (function, vm, location, rParameters, rResult) ->
+            vm.set(rResult, new Value<>(bitType, !vm.get(rParameters[0]).isTrue())));
 
     bindMacro("or", 2,
         (vm, namespace, location, arguments, rResult) -> {
@@ -668,9 +695,7 @@ public class Core extends Library {
     bindFunction("path",
         new Parameter[]{new Parameter("value", stringType, -1)}, 1,
         pathType,
-        (function, vm, location, rParameters, rResult) -> {
-          vm.set(rResult, new Value<>(pathType, Paths.get(vm.get(rParameters[0]).as(stringType))));
-        });
+        (function, vm, location, rParameters, rResult) -> vm.set(rResult, new Value<>(pathType, Paths.get(vm.get(rParameters[0]).as(stringType)))));
 
     bindMacro("peek", 1,
         (vm, namespace, location, arguments, rResult) -> {
@@ -713,9 +738,7 @@ public class Core extends Library {
     bindFunction("register-count",
         new Parameter[]{}, 0,
         integerType,
-        (function, vm, location, rParameters, rResult) -> {
-          vm.set(rResult, new Value<>(integerType, vm.registerCount()));
-        });
+        (function, vm, location, rParameters, rResult) -> vm.set(rResult, new Value<>(integerType, vm.registerCount())));
 
     bindFunction("say",
         new Parameter[]{new Parameter("value1", anyType, -1)}, 1,
@@ -767,12 +790,19 @@ public class Core extends Library {
         (function, vm, location, rParameters, rResult) -> {
           final var result = new StringBuilder();
 
-          for (var i = 0; i < rParameters.length; i++) {
-            result.append(vm.get(rParameters[i]).say());
+          for (int rParameter : rParameters) {
+            result.append(vm.get(rParameter).say());
           }
 
           vm.set(rResult, new Value<>(stringType, result.toString()));
         });
+
+    bindFunction("symbol",
+        new Parameter[]{new Parameter("value", stringType, -1)}, 1,
+        symbolType,
+        (function, vm, location, rParameters, rResult) ->
+            vm.set(rResult, new Value<>(symbolType, vm.get(rParameters[0]).as(stringType)))
+  );
 
     bindFunction("reverse-string",
         new Parameter[]{new Parameter("input", stringType, -1)}, 1,
@@ -820,9 +850,7 @@ public class Core extends Library {
         });
 
     bindMacro("trace", 0,
-        (vm, namespace, location, rParameters, rResult) -> {
-          vm.toggleTracing();
-        });
+        (vm, namespace, location, rParameters, rResult) -> vm.toggleTracing());
 
     bindFunction("vector",
         new Parameter[]{new Parameter("input", sequenceType, -1)}, 1,
@@ -899,8 +927,16 @@ public class Core extends Library {
       return Order.Equal;
     }
 
+    public String dump(final Character value) {
+      return String.format("\\%c", value);
+    }
+
     public boolean isTrue(final Character value) {
       return value != 0;
+    }
+
+    public String say(final Character value) {
+      return super.dump(value);
     }
   }
 
@@ -993,7 +1029,6 @@ public class Core extends Library {
       return value.hasNext();
     }
 
-    @SuppressWarnings("unchecked")
     public Iterator<Value<?>> iterator(final Value<?> value) {
       return value.as(this);
     }
@@ -1081,7 +1116,6 @@ public class Core extends Library {
       return !value.isEmpty();
     }
 
-    @SuppressWarnings("unchecked")
     public Iterator<Value<?>> iterator(final Value<?> value) {
       final var items = new ArrayList<Value<?>>();
 
@@ -1096,7 +1130,6 @@ public class Core extends Library {
       return items.iterator();
     }
 
-    @SuppressWarnings("unchecked")
     public int length(final Value<?> value) {
       return value.as(this).size();
     }
@@ -1353,12 +1386,10 @@ public class Core extends Library {
       return !value.isEmpty();
     }
 
-    @SuppressWarnings("unchecked")
     public Iterator<Value<?>> iterator(final Value<?> value) {
       return value.as(this).iterator();
     }
 
-    @SuppressWarnings("unchecked")
     public int length(final Value<?> value) {
       return value.as(this).size();
     }

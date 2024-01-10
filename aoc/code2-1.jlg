@@ -1,0 +1,28 @@
+(define red 12)
+(define green 13)
+(define blue 14)
+
+(define games _)
+
+(function decode-color [in out]
+  (let [n:i (parse-integer in)
+        c (symbol (slice in (+ i 1)))
+	found (or (out c) 0)]
+    (out c (max found n))))
+  
+(function decode-game [in out]
+  (for c:(split in ",")
+    (decode-color c out)))
+  
+(function decode-line [in]
+  (let [out {}]
+    (for g:(split (slice in (+ (_:find (function [c] (= c \:)) in) 1)) ";")
+      (decode-game g out))
+    out))
+
+(function count-games [path]
+  (let [games []]
+    (for line:(split (slurp path) "\n")
+      (push games (+ (length games) 1):(decode-line line))))) 
+    
+(say (count-games (path "input2")))
