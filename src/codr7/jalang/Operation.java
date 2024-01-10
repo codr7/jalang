@@ -17,7 +17,6 @@ public abstract class Operation {
     Decrement,
     EqualsZero,
     Get, GetIterator, GetKey, Goto,
-    Head,
     If, Increment, Iterate,
     MakePair,
     Nop, NotImplemented,

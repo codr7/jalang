@@ -33,15 +33,27 @@
   
 (check 4
   (-1 5))
+
+(check 42
+  (push _ 42))
+  
+(check 1:2
+  (push 2 1))
+
+(check 42
+  (peek 42))
+
+(check _
+  (pop 42))
   
 (check 1
-  (head 1:2))
+  (peek 1:2))
   
 (check 2
   (tail 1:2))
 
 (check 1
-  (head 1:2:3))
+  (peek 1:2:3))
 
 (check 2:3
   (tail 1:2:3))

@@ -47,6 +47,18 @@ public record Value<D>(Type<D> type, D data) implements Comparable<Value<?>> {
     return type.isTrue(data);
   }
 
+  public Value<?> peek() {
+    return type.peek(this);
+  }
+
+  public Value<?> pop(final Vm vm, final int rTarget) {
+    return type.pop(vm, this, rTarget);
+  }
+
+  public Value<?> push(final Value<?> value) {
+    return type.push(this, value);
+  }
+
   public String say() {
     return type.say(data);
   }

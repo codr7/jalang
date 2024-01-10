@@ -1,5 +1,6 @@
 package codr7.jalang;
 
+import codr7.jalang.libraries.Core;
 import codr7.jalang.operations.Set;
 
 public class Type<D> {
@@ -18,6 +19,14 @@ public class Type<D> {
   }
 
   public boolean equalValues(final D left, final D right) {
+    if (left == null && right == null) {
+      return true;
+    }
+
+    if (left == null || right == null) {
+      return false;
+    }
+
     return left.equals(right);
   }
 
@@ -27,6 +36,20 @@ public class Type<D> {
 
   public boolean isTrue(final D value) {
     return true;
+  }
+
+  public Value<?> peek(final Value<?> target) {
+    return target;
+  }
+
+  public Value<?> pop(final Vm vm, final Value<?> target, final int rTarget) {
+    final var result = Core.instance.NONE;
+    vm.set(rTarget, result);
+    return result;
+  }
+
+  public Value<?> push(final Value<?> target, final Value<?> value) {
+    return new Value<>(Core.instance.pairType, new Pair(value, target));
   }
 
   public String say(final D value) {

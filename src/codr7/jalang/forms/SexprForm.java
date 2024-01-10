@@ -5,7 +5,7 @@ import codr7.jalang.errors.EmitError;
 import codr7.jalang.errors.EvaluationError;
 import codr7.jalang.libraries.Core;
 import codr7.jalang.operations.CallIndirect;
-import codr7.jalang.operations.Head;
+import codr7.jalang.operations.Peek;
 import codr7.jalang.operations.Tail;
 
 public class SexprForm extends Form {
@@ -18,7 +18,7 @@ public class SexprForm extends Form {
 
   public void emit(final Vm vm, final Namespace namespace, final int rResult) {
     var targetForm = body[0];
-    var head = false;
+    var peek = false;
     var tailCount = 0;
 
     while (targetForm instanceof PairForm) {
@@ -31,7 +31,7 @@ public class SexprForm extends Form {
       }
 
       if (pf.right() instanceof NoneForm) {
-        head = true;
+        peek = true;
         targetForm = pf.left();
         break;
       }
@@ -93,8 +93,8 @@ public class SexprForm extends Form {
       ((Core.CallableTrait) target.type()).emitCall(target, vm, location(), rParameters, rResult);
     }
 
-    if (head) {
-      vm.emit(new Head(rResult, rResult));
+    if (peek) {
+      vm.emit(new Peek(rResult, rResult));
     } else for (; tailCount > 0; tailCount--) {
       vm.emit(new Tail(rResult, rResult));
     }

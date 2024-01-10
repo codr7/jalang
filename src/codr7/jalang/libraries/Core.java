@@ -484,12 +484,6 @@ public class Core extends Library {
           }
         });
 
-    bindMacro("head", 1,
-        (vm, namespace, location, arguments, rResult) -> {
-          arguments[0].emit(vm, namespace, rResult);
-          vm.emit(new Head(rResult, rResult));
-        });
-
     bindMacro("if", 2,
         (vm, namespace, location, arguments, rResult) -> {
           arguments[0].emit(vm, namespace, rResult);
@@ -871,14 +865,6 @@ public class Core extends Library {
     Iterator<T> iterator(final Value<?> value);
   }
 
-  public interface StackTrait {
-    Value<?> peek(final Vm vm, final Value<?> target);
-
-    Value<?> pop(final Vm vm, final Value<?> target, final int rTarget);
-
-    Value<?> push(final Value<?> target, final Value<?> value);
-  }
-
   public static class BitType extends Type<Boolean> {
     public BitType(final String name) {
       super(name);
@@ -1128,9 +1114,13 @@ public class Core extends Library {
     public boolean isTrue(final Object value) {
       return false;
     }
+
+    public Value<?> push(final Value<?> target, final Value<?> value) {
+      return value;
+    }
   }
 
-  public static class PairType extends Type<Pair> implements StackTrait {
+  public static class PairType extends Type<Pair> {
     public PairType(final String name) {
       super(name);
     }
@@ -1143,7 +1133,7 @@ public class Core extends Library {
       return value.left().isTrue();
     }
 
-    public Value<?> peek(final Vm vm, final Value<?> target) {
+    public Value<?> peek(final Value<?> target) {
       return target.as(this).left();
     }
 
@@ -1294,7 +1284,7 @@ public class Core extends Library {
 
   public static class VectorType
       extends Type<ArrayList<Value<?>>>
-      implements CallableTrait, CollectionTrait, SequenceTrait<Value<?>>, StackTrait {
+      implements CallableTrait, CollectionTrait, SequenceTrait<Value<?>> {
     public VectorType(final String name) {
       super(name);
     }
@@ -1373,7 +1363,7 @@ public class Core extends Library {
       return value.as(this).size();
     }
 
-    public Value<?> peek(final Vm vm, final Value<?> target) {
+    public Value<?> peek(final Value<?> target) {
       final var t = target.as(this);
       return t.isEmpty() ? new Value<>(Core.instance.noneType, null) : t.getLast();
     }

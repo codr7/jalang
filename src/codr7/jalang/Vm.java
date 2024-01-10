@@ -171,12 +171,6 @@ public class Vm {
           pc = ((Goto) op).pc;
           break;
         }
-        case Head: {
-          final var o = (Head) op;
-          registers[o.rResult] = registers[o.rValue].as(Core.instance.pairType).left();
-          pc++;
-          break;
-        }
         case If: {
           final var o = (If) op;
 
@@ -227,21 +221,21 @@ public class Vm {
         case Peek: {
           final var o = (Peek) op;
           final var target = registers[o.rTarget];
-          registers[o.rResult] = ((Core.StackTrait) target.type()).peek(this, target);
+          registers[o.rResult] = target.peek();
           pc++;
           break;
         }
         case Pop: {
           final var o = (Pop) op;
           final var target = registers[o.rTarget];
-          registers[o.rResult] = ((Core.StackTrait) target.type()).pop(this, target, o.rTarget);
+          registers[o.rResult] = target.pop(this, o.rTarget);
           pc++;
           break;
         }
         case Push: {
           final var o = (Push) op;
           final var target = registers[o.rTarget];
-          final var result = ((Core.StackTrait) target.type()).push(target, registers[o.rValue]);
+          final var result = target.push(registers[o.rValue]);
           registers[o.rResult] = result;
           pc++;
           break;
