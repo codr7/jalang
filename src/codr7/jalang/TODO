@@ -4,14 +4,10 @@
 * drop support for argument/result types
 ** simplify function macro
 
-* add user macros
-** add Form.quote/unquote
-** change SymbolReader to QupteReader
+* switch for-args to vector
+
+* add Form.quote/unquote
+** change SymbolReader to QuoteReader
 *** add QuoteForm
 
 * add while loop
-
-* add vm arg to operation toString
-** add abstract method to operation
-** lookup values for registers
-*** value: 15 (...)
