@@ -4,29 +4,12 @@
 * drop support for argument/result types
 ** simplify function macro
 
-* hook up type hierarchy
-** add type function
-** add is function
-
-* add or-types
-** Integer|None
-** relaxing requirements should not break callers
-** strengthening promises should not break callers
-** add X? as alias for X|None
-** change find-if resultType Any?
-
 * add user macros
 ** add Form.quote/unquote
 ** change SymbolReader to QupteReader
 *** add QuoteForm
 
-* check function argument types at compile time
-
 * add while loop
-
-* add character literals
-
-\a \b \\n
 
 * add vm arg to operation toString
 ** add abstract method to operation
