@@ -2,8 +2,6 @@
 (define green 13)
 (define blue 14)
 
-(define games _)
-
 (function decode-color [in out]
   (let [n:i (parse-integer in)
         c (symbol (slice in (+ i 1)))]
