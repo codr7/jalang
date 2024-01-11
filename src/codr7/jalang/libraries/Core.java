@@ -335,7 +335,7 @@ public class Core extends Library {
           inputForm.emit(vm, namespace, rIterator);
           vm.emit(new GetIterator(rIterator, rIterator, inputForm.location()));
 
-          vm.emit(new Set(rResult, new Value<>(integerType, -1)));
+          vm.emit(new Set(rResult, new Value<>(noneType, null)));
 
           final var rIndex = vm.allocateRegister();
           vm.emit(new Set(rIndex, new Value<>(integerType, 0)));
@@ -352,6 +352,34 @@ public class Core extends Library {
           vm.emit(new Goto(iteratePc));
           vm.emit(iteratePc, new Iterate(rIterator, rValue, vm.emitPc()));
           vm.emit(exitPc, new Goto(vm.emitPc()));
+        });
+
+    bindMacro("find-all", 2,
+        (vm, namespace, location, arguments, rResult) -> {
+          final var rPredicate = vm.allocateRegister();
+          final var predicateForm = arguments[0];
+          predicateForm.emit(vm, namespace, rPredicate);
+
+          final var rIterator = vm.allocateRegister();
+          final var inputForm = arguments[1];
+          inputForm.emit(vm, namespace, rIterator);
+          vm.emit(new GetIterator(rIterator, rIterator, inputForm.location()));
+          vm.emit(new MakeVector(rResult));
+
+          final var rIndex = vm.allocateRegister();
+          vm.emit(new Set(rIndex, new Value<>(integerType, 0)));
+
+          final var iteratePc = vm.emit();
+          final var rValue = vm.allocateRegister();
+          final var rPredicateResult = vm.allocateRegister();
+          vm.emit(new CallIndirect(location, rPredicate, new int[]{rValue}, rPredicateResult));
+          final var ifPc = vm.emit();
+          vm.emit(new MakePair(rValue, rIndex, rValue));
+          vm.emit(new Push(rResult, rValue, rResult));
+          vm.emit(ifPc, new If(rPredicateResult, vm.emitPc()));
+          vm.emit(new Increment(rIndex, rIndex));
+          vm.emit(new Goto(iteratePc));
+          vm.emit(iteratePc, new Iterate(rIterator, rValue, vm.emitPc()));
         });
 
     bindMacro("for", 1,

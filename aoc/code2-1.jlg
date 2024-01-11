@@ -18,10 +18,24 @@
     (for g:(split (slice in (+ (_:find (function [c] (= c \:)) in) 1)) ";")
       (decode-game g out))
     out))
-
-(function count-games [path]
+	
+(function decode-games [path]
   (let [games []]
     (for line:(split (slurp path) "\n")
-      (push games (+ (length games) 1):(decode-line line))))) 
+      (push games (+ (length games) 1):(decode-line line)))
+    games))
+
+(function possible? [game]
+  (let [g (tail game)]
+    (not (or (> (g 'red) red)
+         (> (g 'green) green)
+         (> (g 'blue) blue)))))
+
+(function possible-games [path]
+  (let [games (decode-games path)]
+    (find-all possible? games)))
+
+(function sum-games [path]
+  (reduce + (map (function [g] (peek (peek g))) (possible-games path)) 0))
     
-(say (count-games (path "input2")))
+(say (sum-games (path "input2")))

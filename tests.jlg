@@ -102,7 +102,10 @@
 
 (check 1
   (_:find digit? "a3b"))
-  
+
+(check [\1:0 \2:3 \3:6]
+  (vector (find-all digit? "1ab2cd3")))
+
 (check 42:3
   (parse-integer " 42foo"))
 
