@@ -403,7 +403,6 @@ public class Core extends Library {
           }
 
           var psForm = as.removeFirst();
-          Type<?> resultType = null;
 
           if (psForm instanceof PairForm p) {
             var tnf = p.right();
@@ -413,7 +412,6 @@ public class Core extends Library {
               throw new EmitError(tnf.location(), "Type not found: %s.", tnf);
             }
 
-            resultType = tv.as(metaType);
             psForm = p.left();
           }
 
@@ -623,8 +621,9 @@ public class Core extends Library {
           var lv = vm.get(rParameters[0]);
           final var t = (ComparableTrait) lv.type();
 
-          for (int i = 0; i < rParameters.length; i++) {
-            final var rv = vm.get(rParameters[i]);
+          for (int rParameter : rParameters) {
+            final var rv = vm.get(rParameter);
+            
             if (t.compare(lv, rv) == Order.LessThan) {
               lv = rv;
             }
