@@ -43,13 +43,13 @@ public class Type<D> {
   }
 
   public Value<?> pop(final Vm vm, final Value<?> target, final int rTarget) {
-    final var result = Core.instance.NONE;
+    final var result = Core.NONE;
     vm.set(rTarget, result);
     return result;
   }
 
   public Value<?> push(final Value<?> target, final Value<?> value) {
-    return new Value<>(Core.instance.pairType, new Pair(value, target));
+    return new Value<>(Core.pairType, new Pair(value, target));
   }
 
   public String say(final D value) {

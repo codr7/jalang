@@ -1,11 +1,11 @@
 package codr7.jalang.forms;
 
-import codr7.jalang.*;
-import codr7.jalang.libraries.Core;
+import codr7.jalang.Form;
+import codr7.jalang.Location;
+import codr7.jalang.Namespace;
+import codr7.jalang.Vm;
 import codr7.jalang.operations.MakeMap;
 import codr7.jalang.operations.SetKey;
-
-import java.util.TreeMap;
 
 public class MapForm extends Form {
   private final Form[] body;
@@ -20,8 +20,7 @@ public class MapForm extends Form {
     final var rValue = vm.allocateRegister();
 
     for (final var f : body) {
-      if (f instanceof PairForm) {
-        final var pf = (PairForm) f;
+      if (f instanceof PairForm pf) {
         final var rKey = vm.allocateRegister();
         pf.left().emit(vm, namespace, rKey);
         pf.right().emit(vm, namespace, rValue);

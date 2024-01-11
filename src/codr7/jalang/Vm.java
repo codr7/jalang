@@ -20,6 +20,9 @@ public class Vm {
   public static final int DEFAULT_REGISTER = 0;
   public static final int REGISTER_COUNT = 10;
   public static final int VERSION = 5;
+
+  public final Core core = new Core();
+
   private final ArrayList<Operation> code = new ArrayList<>();
   private CallFrame callFrame;
   private Path loadPath = Paths.get("");
@@ -73,7 +76,7 @@ public class Vm {
         case Benchmark: {
           final var o = (Benchmark) op;
           final var bodyPc = pc + 1;
-          final var repetitions = registers[o.rRepetitions].as(Core.instance.integerType);
+          final var repetitions = registers[o.rRepetitions].as(Core.integerType);
 
           for (int i = 0; i < repetitions; i++) {
             evaluate(bodyPc);
@@ -86,12 +89,12 @@ public class Vm {
           }
 
           final var elapsedTime = Duration.ofNanos(System.nanoTime() - startTime);
-          registers[o.rRegister] = new Value<>(Core.instance.timeType, elapsedTime);
+          registers[o.rRegister] = new Value<>(Core.timeType, elapsedTime);
           break;
         }
         case BreakPair: {
           final var o = (BreakPair) op;
-          final var p = registers[((BreakPair) op).rValue].as(Core.instance.pairType);
+          final var p = registers[((BreakPair) op).rValue].as(Core.pairType);
           registers[o.rLeft] = p.left();
           registers[o.rRight] = p.right();
           pc++;
@@ -136,7 +139,7 @@ public class Vm {
         case Decrement: {
           final var o = (Decrement) op;
           final var v = registers[o.rValue];
-          final var dv = new Value<>(Core.instance.integerType, v.as(Core.instance.integerType) - 1);
+          final var dv = new Value<>(Core.integerType, v.as(Core.integerType) - 1);
           registers[o.rValue] = dv;
           registers[o.rResult] = dv;
           pc++;
@@ -144,8 +147,8 @@ public class Vm {
         }
         case EqualsZero: {
           final var o = (EqualsZero) op;
-          final var value = registers[o.rValue].as(Core.instance.integerType);
-          registers[o.rResult] = new Value<>(Core.instance.bitType, value == 0);
+          final var value = registers[o.rValue].as(Core.integerType);
+          registers[o.rResult] = new Value<>(Core.bitType, value == 0);
           pc++;
           break;
         }
@@ -164,13 +167,13 @@ public class Vm {
           }
 
           final var i = ((Core.SequenceTrait<Value<?>>) v.type()).iterator(v);
-          registers[o.rResult] = new Value<>(Core.instance.iteratorType, i);
+          registers[o.rResult] = new Value<>(Core.iteratorType, i);
           pc++;
           break;
         }
         case GetKey: {
           final var o = (GetKey) op;
-          final var map = registers[o.rMap].as(Core.instance.mapType);
+          final var map = registers[o.rMap].as(Core.mapType);
           final var key = registers[o.rKey];
           registers[o.rResult] = map.get(key);
           pc++;
@@ -194,7 +197,7 @@ public class Vm {
         case Increment: {
           final var o = (Increment) op;
           final var v = registers[o.rValue];
-          final var iv = new Value<>(Core.instance.integerType, v.as(Core.instance.integerType) + 1);
+          final var iv = new Value<>(Core.integerType, v.as(Core.integerType) + 1);
           registers[o.rValue] = iv;
           registers[o.rResult] = iv;
           pc++;
@@ -202,7 +205,7 @@ public class Vm {
         }
         case Iterate: {
           final var o = (Iterate) op;
-          final var it = registers[o.rIterator].as(Core.instance.iteratorType);
+          final var it = registers[o.rIterator].as(Core.iteratorType);
 
           if (it.hasNext()) {
             registers[o.rResult] = it.next();
@@ -215,20 +218,20 @@ public class Vm {
         }
         case MakeMap: {
           final var o = (MakeMap) op;
-          registers[o.rResult] = new Value<>(Core.instance.mapType, new TreeMap<>());
+          registers[o.rResult] = new Value<>(Core.mapType, new TreeMap<>());
           pc++;
           break;
         }
         case MakePair: {
           final var o = (MakePair) op;
-          registers[o.rResult] = new Value<>(Core.instance.pairType,
+          registers[o.rResult] = new Value<>(Core.pairType,
               new Pair(registers[o.rLeft], registers[o.rRight]));
           pc++;
           break;
         }
         case MakeVector: {
           final var o = (MakeVector) op;
-          registers[o.rResult] = new Value<>(Core.instance.vectorType, new ArrayList<>());
+          registers[o.rResult] = new Value<>(Core.vectorType, new ArrayList<>());
           pc++;
           break;
         }
@@ -278,7 +281,7 @@ public class Vm {
         }
         case SetKey: {
           final var o = (SetKey) op;
-          final var map = registers[o.rMap].as(Core.instance.mapType);
+          final var map = registers[o.rMap].as(Core.mapType);
           map.put(registers[o.rKey], registers[o.rValue]);
           pc++;
           break;
@@ -289,7 +292,7 @@ public class Vm {
         }
         case Tail: {
           final var o = (Tail) op;
-          registers[o.rResult] = registers[o.rValue].as(Core.instance.pairType).right();
+          registers[o.rResult] = registers[o.rValue].as(Core.pairType).right();
           pc++;
           break;
         }

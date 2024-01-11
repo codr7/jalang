@@ -27,7 +27,7 @@ public class IntegerReader implements Reader {
       location.update(c);
     }
 
-    out.addLast(new LiteralForm(formLocation, new Value<>(Core.instance.integerType, v)));
+    out.addLast(new LiteralForm(formLocation, new Value<>(Core.integerType, v)));
     return true;
   }
 }

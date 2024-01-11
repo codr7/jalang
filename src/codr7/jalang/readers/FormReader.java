@@ -30,7 +30,7 @@ public class FormReader implements Reader {
         return SymbolReader.instance.read(in, out, location);
       case '\\':
         return CharacterReader.instance.read(in, out, location);
-        case '"':
+      case '"':
         return StringReader.instance.read(in, out, location);
       default:
         if (Character.isDigit(c)) {

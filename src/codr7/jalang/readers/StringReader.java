@@ -43,7 +43,7 @@ public class StringReader implements Reader {
       data.append(c);
     }
 
-    out.addLast(new LiteralForm(formLocation, new Value<>(Core.instance.stringType, data.toString())));
+    out.addLast(new LiteralForm(formLocation, new Value<>(Core.stringType, data.toString())));
     return true;
   }
 }

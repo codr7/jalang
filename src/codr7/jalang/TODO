@@ -1,7 +1,13 @@
 * switch for-args to vector form
 
+* run aoc in tests
+** load & and checks
+
 * add support for destructuring pair function arguments
 ** use in code2-1/possible?
+
+* add support for function composition
+** use in code2-1/sum-games
 
 * add support for macro call targets
 

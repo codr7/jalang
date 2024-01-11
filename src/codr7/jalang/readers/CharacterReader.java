@@ -23,7 +23,7 @@ public class CharacterReader implements Reader {
     location.update(in.pop());
     c = in.pop();
 
-    out.addLast(new LiteralForm(formLocation, new Value<>(Core.instance.characterType, c)));
+    out.addLast(new LiteralForm(formLocation, new Value<>(Core.characterType, c)));
     return true;
   }
 }

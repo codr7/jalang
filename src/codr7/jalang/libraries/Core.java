@@ -20,29 +20,28 @@ public class Core extends Library {
   public static final Type<Function> functionType = new FunctionType("Function");
   public static final Type<Macro> macroType = new Type<>("Macro");
   public static final Type<Type<?>> metaType = new Type<>("Meta");
-  public static final Core instance = new Core();
-  public final Type<Object> anyType = new Type<>("Any");
-  public final BitType bitType = new BitType("Bit");
-  public final Value<Boolean> T = new Value<>(bitType, true);
-  public final Value<Boolean> F = new Value<>(bitType, false);
-  public final CharacterType characterType = new CharacterType("Character");
-  public final CollectionType collectionType = new CollectionType("Collection");
-  public final ComparableType comparableType = new ComparableType("Comparable");
-  public final IndexedCollectionType indexedCollectionType = new IndexedCollectionType("IndexedCollection");
-  public final IntegerType integerType = new IntegerType("Integer");
-  public final IteratorType iteratorType = new IteratorType("Iterator");
-  public final MapType mapType = new MapType("Map");
-  public final NoneType noneType = new NoneType("None");
-  public final Value<Object> NONE = new Value<>(noneType, null);
-  public final PairType pairType = new PairType("Pair");
-  public final Type<Path> pathType = new Type<>("Path");
-  public final RegisterType registerType = new RegisterType("Register");
-  public final SequenceType sequenceType = new SequenceType("Sequence");
-  public final StringType stringType = new StringType("String");
-  public final SymbolType symbolType = new SymbolType("Symbol");
-  public final TimeType timeType = new TimeType("Time");
-  public final RegisterType variableType = new RegisterType("Variable");
-  public final VectorType vectorType = new VectorType("Vector");
+  public static final Type<Object> anyType = new Type<>("Any");
+  public static final BitType bitType = new BitType("Bit");
+  public static final Value<Boolean> T = new Value<>(bitType, true);
+  public static final Value<Boolean> F = new Value<>(bitType, false);
+  public static final CharacterType characterType = new CharacterType("Character");
+  public static final CollectionType collectionType = new CollectionType("Collection");
+  public static final ComparableType comparableType = new ComparableType("Comparable");
+  public static final IndexedCollectionType indexedCollectionType = new IndexedCollectionType("IndexedCollection");
+  public static final IntegerType integerType = new IntegerType("Integer");
+  public static final IteratorType iteratorType = new IteratorType("Iterator");
+  public static final MapType mapType = new MapType("Map");
+  public static final NoneType noneType = new NoneType("None");
+  public static final Value<Object> NONE = new Value<>(noneType, null);
+  public static final PairType pairType = new PairType("Pair");
+  public static final Type<Path> pathType = new Type<>("Path");
+  public static final RegisterType registerType = new RegisterType("Register");
+  public static final SequenceType sequenceType = new SequenceType("Sequence");
+  public static final StringType stringType = new StringType("String");
+  public static final SymbolType symbolType = new SymbolType("Symbol");
+  public static final TimeType timeType = new TimeType("Time");
+  public static final RegisterType variableType = new RegisterType("Variable");
+  public static final VectorType vectorType = new VectorType("Vector");
 
   public Core() {
     super("core", null);
@@ -600,7 +599,7 @@ public class Core extends Library {
           }
 
           final var rCall = vm.allocateRegister();
-          vm.emit(new Set(rResult, new Value<>(Core.instance.vectorType, new ArrayList<>())));
+          vm.emit(new Set(rResult, new Value<>(Core.vectorType, new ArrayList<>())));
           var iteratePcs = new int[rIterators.length];
 
           for (int i = 0; i < rIterators.length; i++) {
@@ -622,7 +621,7 @@ public class Core extends Library {
         new Parameter[]{new Parameter("value1", -1)}, 1,
         (function, vm, location, rParameters, rResult) -> {
           var lv = vm.get(rParameters[0]);
-          final var t = (ComparableTrait)lv.type();
+          final var t = (ComparableTrait) lv.type();
 
           for (int i = 0; i < rParameters.length; i++) {
             final var rv = vm.get(rParameters[i]);
@@ -782,7 +781,7 @@ public class Core extends Library {
         new Parameter[]{new Parameter("value", -1)}, 1,
         (function, vm, location, rParameters, rResult) ->
             vm.set(rResult, new Value<>(symbolType, vm.get(rParameters[0]).as(stringType)))
-  );
+    );
 
     bindFunction("reverse-string",
         new Parameter[]{new Parameter("input", -1)}, 1,
@@ -989,7 +988,7 @@ public class Core extends Library {
       return Stream
           .iterate(0, x -> x + 1)
           .limit(value.as(this))
-          .map(v -> new Value<>(Core.instance.integerType, v))
+          .map(v -> new Value<>(Core.integerType, v))
           .iterator();
     }
   }
@@ -1028,7 +1027,7 @@ public class Core extends Library {
         case 1: {
           final var key = vm.get(rParameters[0]);
           final var value = map.get(key);
-          vm.set(rResult, (value == null) ? new Value<>(Core.instance.noneType, null) : value);
+          vm.set(rResult, (value == null) ? new Value<>(Core.noneType, null) : value);
           break;
         }
         case 2: {
@@ -1099,7 +1098,7 @@ public class Core extends Library {
         if (e.getKey().equals(e.getValue())) {
           items.add(e.getKey());
         } else {
-          items.add(new Value<>(Core.instance.pairType, new Pair(e.getKey(), e.getValue())));
+          items.add(new Value<>(Core.pairType, new Pair(e.getKey(), e.getValue())));
         }
       }
 
@@ -1225,7 +1224,7 @@ public class Core extends Library {
 
     public Iterator<Value<Character>> iterator(final Value<?> value) {
       return (value.as(this)).codePoints()
-          .mapToObj((c) -> new Value<>(Core.instance.characterType, (char) c))
+          .mapToObj((c) -> new Value<>(Core.characterType, (char) c))
           .iterator();
     }
 
@@ -1238,14 +1237,14 @@ public class Core extends Library {
     }
 
     public Value<?> slice(final Value<?> value, final Value<?> start, final Value<?> end) {
-      final var si = start.as(Core.instance.integerType);
+      final var si = start.as(Core.integerType);
       final var v = value.as(this);
 
       final var result = (end == null)
           ? v.substring(si)
-          : v.substring(si, end.as(Core.instance.integerType));
+          : v.substring(si, end.as(Core.integerType));
 
-      return new Value<>(Core.instance.stringType, result);
+      return new Value<>(Core.stringType, result);
     }
   }
 
@@ -1308,12 +1307,12 @@ public class Core extends Library {
       switch (rParameters.length) {
         case 1: {
           final var key = vm.get(rParameters[0]);
-          final var value = vector.get(key.as(Core.instance.integerType));
+          final var value = vector.get(key.as(Core.integerType));
           vm.set(rResult, value);
           break;
         }
         case 2: {
-          final var key = vm.get(rParameters[0]).as(Core.instance.integerType);
+          final var key = vm.get(rParameters[0]).as(Core.integerType);
           final var value = vm.get(rParameters[1]);
           vector.set(key, value);
           vm.set(rResult, target);
@@ -1372,12 +1371,12 @@ public class Core extends Library {
 
     public Value<?> peek(final Value<?> target) {
       final var t = target.as(this);
-      return t.isEmpty() ? new Value<>(Core.instance.noneType, null) : t.getLast();
+      return t.isEmpty() ? new Value<>(Core.noneType, null) : t.getLast();
     }
 
     public Value<?> pop(final Vm vm, final Value<?> target, final int rTarget) {
       final var t = target.as(this);
-      return t.isEmpty() ? new Value<>(Core.instance.noneType, null) : t.removeLast();
+      return t.isEmpty() ? new Value<>(Core.noneType, null) : t.removeLast();
     }
 
     public Value<?> push(final Value<?> target, final Value<?> value) {

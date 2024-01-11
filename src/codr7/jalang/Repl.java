@@ -37,7 +37,7 @@ public class Repl {
     vm.evaluate(pc);
     var result = vm.get(Vm.DEFAULT_REGISTER);
     out.println((result == null) ? "_" : result.dump());
-    vm.set(Vm.DEFAULT_REGISTER, Core.instance.NONE);
+    vm.set(Vm.DEFAULT_REGISTER, Core.NONE);
   }
 
   public void run() throws IOException {

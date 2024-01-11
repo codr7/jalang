@@ -13,7 +13,7 @@ public class NoneForm extends Form {
   }
 
   public void emit(final Vm vm, final Namespace namespace, final int rResult) {
-    vm.emit(new Set(rResult, Core.instance.NONE));
+    vm.emit(new Set(rResult, Core.NONE));
   }
 
   public String toString() {

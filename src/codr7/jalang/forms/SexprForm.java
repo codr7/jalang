@@ -21,8 +21,7 @@ public class SexprForm extends Form {
     var peek = false;
     var tailCount = 0;
 
-    while (targetForm instanceof PairForm) {
-      var pf = (PairForm) targetForm;
+    while (targetForm instanceof PairForm pf) {
 
       if (pf.left() instanceof NoneForm) {
         targetForm = pf.right();
@@ -67,7 +66,7 @@ public class SexprForm extends Form {
 
     final var arity = body.length - 1;
 
-    if (target.type() == Core.instance.macroType) {
+    if (target.type() == Core.macroType) {
       final var macro = (Macro) target.data();
 
       if (macro.arity() != -1 && arity < macro.arity()) {

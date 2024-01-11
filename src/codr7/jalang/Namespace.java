@@ -29,7 +29,7 @@ public class Namespace {
   }
 
   public final void bindMacro(final String name, final int arity, final Macro.Body body) {
-    bind(name, new Value<>(Core.instance.macroType, new Macro(name, arity, body)));
+    bind(name, new Value<>(Core.macroType, new Macro(name, arity, body)));
   }
 
   public final void bindType(final Type<?> type) {

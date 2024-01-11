@@ -27,7 +27,7 @@ public class SymbolReader implements Reader {
     }
 
     final var name = ((IdForm) out.removeLast()).name();
-    out.addLast(new LiteralForm(formLocation, new Value<>(Core.instance.symbolType, name)));
+    out.addLast(new LiteralForm(formLocation, new Value<>(Core.symbolType, name)));
     return true;
   }
 }
