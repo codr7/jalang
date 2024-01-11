@@ -353,7 +353,7 @@ public class Vm {
     return loadPath;
   }
 
-  public final void pushCall(final Function target,
+  public final void pushCall(final Value<?> target,
                              final Location location,
                              final int pc,
                              final int resultRegister) {

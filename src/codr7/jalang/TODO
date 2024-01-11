@@ -1,3 +1,7 @@
+* add enumerate function
+** take/return iterator
+** use to convert code2-1 to functional style
+
 * add support for macro call targets
 
 * add support for destructuring pair function arguments

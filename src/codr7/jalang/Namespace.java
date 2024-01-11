@@ -22,10 +22,15 @@ public class Namespace {
   }
 
   public final void bindFunction(final String name,
-                                 final Parameter[] parameters,
-                                 final int arity,
+                                 final String[] parameterNames,
                                  final Function.Body body) {
-    bind(name, new Value<>(Core.functionType, new Function(name, parameters, arity, body)));
+    final var parameters = new Function.Parameter[parameterNames.length];
+
+    for (int i = 0; i < parameterNames.length; i++) {
+      parameters[i] = new Function.Parameter(parameterNames[i], -1);
+    }
+
+    bind(name, new Value<>(Core.functionType, new Function(name, parameters, body)));
   }
 
   public final void bindMacro(final String name, final int arity, final Macro.Body body) {

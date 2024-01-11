@@ -72,9 +72,7 @@ public class Core extends Library {
     bind("F", F);
 
     bindFunction("=",
-        new Parameter[]{
-            new Parameter("value1", -1),
-            new Parameter("value2", -1)}, 2,
+        new String[]{"value1", "value2"},
         (function, vm, location, rParameters, rResult) -> {
           final var value1 = vm.get(rParameters[0]);
           var result = true;
@@ -90,9 +88,7 @@ public class Core extends Library {
         });
 
     bindFunction("<",
-        new Parameter[]{
-            new Parameter("value1", -1),
-            new Parameter("value2", -1)}, 2,
+        new String[]{"value1", "value2"},
         (function, vm, location, rParameters, rResult) -> {
           var value1 = vm.get(rParameters[0]);
           var type = (ComparableTrait) value1.type();
@@ -117,9 +113,7 @@ public class Core extends Library {
         });
 
     bindFunction(">",
-        new Parameter[]{
-            new Parameter("value1", -1),
-            new Parameter("value2", -1)}, 2,
+        new String[]{"value1", "value2"},
         (function, vm, location, rParameters, rResult) -> {
           var value1 = vm.get(rParameters[0]);
           var type = (ComparableTrait) value1.type();
@@ -143,9 +137,8 @@ public class Core extends Library {
           vm.set(rResult, new Value<>(bitType, result));
         });
 
-    bindFunction("+", new Parameter[]{
-            new Parameter("value1", -1),
-            new Parameter("value2", -1)}, 2,
+    bindFunction("+",
+        new String[]{"value1", "value2"},
         (function, vm, location, rParameters, rResult) -> {
           int result = 0;
 
@@ -156,9 +149,8 @@ public class Core extends Library {
           vm.set(rResult, new Value<>(integerType, result));
         });
 
-    bindFunction("-", new Parameter[]{
-            new Parameter("value1", -1),
-            new Parameter("value2", -1)}, 2,
+    bindFunction("-",
+        new String[]{"value1", "value2"},
         (function, vm, location, rParameters, rResult) -> {
           int result = vm.get(rParameters[0]).as(integerType);
 
@@ -283,7 +275,7 @@ public class Core extends Library {
         });
 
     bindFunction("digit",
-        new Parameter[]{new Parameter("value", -1)}, 1,
+        new String[]{"value"},
         (function, vm, location, rParameters, rResult) -> {
           final var c = vm.get(rParameters[0]).as(characterType);
           final var result = Character.isDigit(c) ? Character.digit(c, 10) : -1;
@@ -291,7 +283,7 @@ public class Core extends Library {
         });
 
     bindFunction("digit?",
-        new Parameter[]{new Parameter("value", -1)}, 1,
+        new String[]{"value"},
         (function, vm, location, rParameters, rResult) -> {
           final var c = vm.get(rParameters[0]).as(characterType);
           vm.set(rResult, new Value<>(bitType, Character.isDigit(c)));
@@ -428,30 +420,30 @@ public class Core extends Library {
               throw new EmitError(f.location(), "Invalid parameter: %s.", f);
             }
 
-            return new Parameter(pn, vm.allocateRegister());
-          }).toArray(Parameter[]::new);
+            return new Function.Parameter(pn, vm.allocateRegister());
+          }).toArray(Function.Parameter[]::new);
 
           final var skipPc = vm.emit();
           final var startPc = vm.emitPc();
 
-          final var function = new Function(name, ps, ps.length,
+          final var function = new Function(name, ps,
               (_function, _vm, _location, _parameters, _result) -> {
-                _vm.pushCall(_function, _location, startPc, _result);
+                _vm.pushCall(new Value<>(functionType, _function), _location, startPc, _result);
 
                 for (var i = 0; i < _parameters.length; i++) {
                   vm.set(ps[i].rValue(), vm.get(_parameters[i]));
                 }
               });
 
-          final var v = new Value<>(functionType, function);
+          final var value = new Value<>(functionType, function);
 
           if (!name.isEmpty()) {
-            namespace.bind(name, v);
+            namespace.bind(name, new Value<>(functionType, function));
           }
 
           final var bodyNamespace = new Namespace(namespace);
 
-          for (final Parameter p : ps) {
+          for (final Function.Parameter p : ps) {
             bodyNamespace.bind(p.name(), new Value<>(registerType, p.rValue()));
           }
 
@@ -463,7 +455,7 @@ public class Core extends Library {
           vm.emit(skipPc, new Goto(vm.emitPc()));
 
           if (name.isEmpty()) {
-            vm.emit(new Set(rResult, v));
+            vm.emit(new Set(rResult, value));
           }
         });
 
@@ -482,7 +474,7 @@ public class Core extends Library {
         });
 
     bindFunction("iterator",
-        new Parameter[]{new Parameter("sequence", -1)}, 1,
+        new String[]{"sequence"},
         (function, vm, location, rParameters, rResult) -> {
           final var s = vm.get(rParameters[0]);
           @SuppressWarnings("unchecked") final var st = (SequenceTrait<Value<?>>) s.type();
@@ -490,7 +482,7 @@ public class Core extends Library {
         });
 
     bindFunction("length",
-        new Parameter[]{new Parameter("collection", -1)}, 1,
+        new String[]{"collection"},
         (function, vm, location, rParameters, rResult) -> {
           final var c = vm.get(rParameters[0]);
           final var ct = (CollectionTrait) c.type();
@@ -616,14 +608,14 @@ public class Core extends Library {
         });
 
     bindFunction("max",
-        new Parameter[]{new Parameter("value1", -1)}, 1,
+        new String[]{"value1"},
         (function, vm, location, rParameters, rResult) -> {
           var lv = vm.get(rParameters[0]);
           final var t = (ComparableTrait) lv.type();
 
           for (int rParameter : rParameters) {
             final var rv = vm.get(rParameter);
-            
+
             if (t.compare(lv, rv) == Order.LessThan) {
               lv = rv;
             }
@@ -633,14 +625,14 @@ public class Core extends Library {
         });
 
     bindFunction("milliseconds",
-        new Parameter[]{new Parameter("n", -1)}, 1,
+        new String[]{"n"},
         (function, vm, location, rParameters, rResult) -> {
           final var n = vm.get(rParameters[0]).as(integerType);
           vm.set(rResult, new Value<>(timeType, Duration.ofMillis(n)));
         });
 
     bindFunction("not",
-        new Parameter[]{new Parameter("value", -1)}, 1,
+        new String[]{"value"},
         (function, vm, location, rParameters, rResult) ->
             vm.set(rResult, new Value<>(bitType, !vm.get(rParameters[0]).isTrue())));
 
@@ -662,7 +654,7 @@ public class Core extends Library {
         });
 
     bindFunction("parse-integer",
-        new Parameter[]{new Parameter("input", -1)}, 1,
+        new String[]{"input"},
         (function, vm, location, rParameters, rResult) -> {
           final var input = vm.get(rParameters[0]).as(stringType);
           final var match = Pattern.compile("^\\s*(\\d+).*").matcher(input);
@@ -677,8 +669,9 @@ public class Core extends Library {
         });
 
     bindFunction("path",
-        new Parameter[]{new Parameter("value", -1)}, 1,
-        (function, vm, location, rParameters, rResult) -> vm.set(rResult, new Value<>(pathType, Paths.get(vm.get(rParameters[0]).as(stringType)))));
+        new String[]{"value"},
+        (function, vm, location, rParameters, rResult) ->
+            vm.set(rResult, new Value<>(pathType, Paths.get(vm.get(rParameters[0]).as(stringType)))));
 
     bindMacro("peek", 1,
         (vm, namespace, location, arguments, rResult) -> {
@@ -719,12 +712,12 @@ public class Core extends Library {
         });
 
     bindFunction("register-count",
-        new Parameter[]{}, 0,
+        new String[]{},
         (function, vm, location, rParameters, rResult) ->
             vm.set(rResult, new Value<>(integerType, vm.registerCount())));
 
     bindFunction("say",
-        new Parameter[]{new Parameter("value1", -1)}, 1,
+        new String[]{"value1"},
         (function, vm, location, rParameters, rResult) -> {
           final var what = new StringBuilder();
 
@@ -741,7 +734,7 @@ public class Core extends Library {
         });
 
     bindFunction("sleep",
-        new Parameter[]{new Parameter("duration", -1)}, 1,
+        new String[]{"duration"},
         (function, vm, location, rParameters, rResult) -> {
           try {
             Thread.sleep(vm.get(rParameters[0]).as(timeType));
@@ -751,11 +744,7 @@ public class Core extends Library {
         });
 
     bindFunction("slice",
-        new Parameter[]{
-            new Parameter("input", -1),
-            new Parameter("start", -1),
-            new Parameter("end", -1)
-        }, 2,
+        new String[]{"input", "start"},
         (function, vm, location, rParameters, rResult) -> {
           final var i = vm.get(rParameters[0]);
           final var it = (IndexedCollectionTrait) i.type();
@@ -765,7 +754,7 @@ public class Core extends Library {
         });
 
     bindFunction("string",
-        new Parameter[]{new Parameter("value1", -1)}, 1,
+        new String[]{"value1"},
         (function, vm, location, rParameters, rResult) -> {
           final var result = new StringBuilder();
 
@@ -777,20 +766,26 @@ public class Core extends Library {
         });
 
     bindFunction("symbol",
-        new Parameter[]{new Parameter("value", -1)}, 1,
-        (function, vm, location, rParameters, rResult) ->
-            vm.set(rResult, new Value<>(symbolType, vm.get(rParameters[0]).as(stringType)))
-    );
+        new String[]{"value1"},
+        (function, vm, location, rParameters, rResult) -> {
+          final var result = new StringBuilder();
+
+          for (int rParameter : rParameters) {
+            result.append(vm.get(rParameter).say());
+          }
+
+          vm.set(rResult, new Value<>(symbolType, result.toString()));
+        });
 
     bindFunction("reverse-string",
-        new Parameter[]{new Parameter("input", -1)}, 1,
+        new String[]{"input"},
         (function, vm, location, rParameters, rResult) -> {
           final var result = new StringBuilder(vm.get(rParameters[0]).as(stringType)).reverse().toString();
           vm.set(rResult, new Value<>(stringType, result));
         });
 
     bindFunction("slurp",
-        new Parameter[]{new Parameter("path", -1)}, 1,
+        new String[]{"path"},
         (function, vm, location, rParameters, rResult) -> {
           try {
             final var p = vm.loadPath().resolve(vm.get(rParameters[0]).as(pathType));
@@ -802,9 +797,7 @@ public class Core extends Library {
         });
 
     bindFunction("split",
-        new Parameter[]{
-            new Parameter("whole", -1),
-            new Parameter("separator", -1)}, 2,
+        new String[]{"whole", "separator"},
         (function, vm, location, rParameters, rResult) -> {
           final var w = vm.get(rParameters[0]).as(stringType);
           final var s = vm.get(rParameters[1]).as(stringType);
@@ -828,7 +821,7 @@ public class Core extends Library {
         (vm, namespace, location, rParameters, rResult) -> vm.toggleTracing());
 
     bindFunction("vector",
-        new Parameter[]{new Parameter("input", -1)}, 1,
+        new String[]{"input"},
         (function, vm, location, rParameters, rResult) -> {
           final var input = vm.get(rParameters[0]);
 

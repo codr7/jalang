@@ -1,8 +1,8 @@
 package codr7.jalang;
 
-public record Function(String name, Parameter[] parameters, int arity, Body body) {
+public record Function(String name, Parameter[] parameters, Body body) {
   public int arity() {
-    return arity;
+    return parameters.length;
   }
 
   public void call(final Vm vm, final Location location, final int[] rParameters, final int rResult) {
@@ -33,5 +33,11 @@ public record Function(String name, Parameter[] parameters, int arity, Body body
               final Location location,
               final int[] rParameters,
               final int rResult);
+  }
+
+  public static record Parameter(String name, int rValue) {
+    public String toString() {
+      return name;
+    }
   }
 }
