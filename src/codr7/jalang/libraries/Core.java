@@ -366,18 +366,18 @@ public class Core extends Library {
         (vm, namespace, location, arguments, rResult) -> {
           final var argsForm = arguments[0];
 
-          if (!(argsForm instanceof PairForm args)) {
+          if (!(argsForm instanceof VectorForm args)) {
             throw new EmitError(argsForm.location(), "Invalid for arguments: %s.", argsForm);
           }
 
-          final var varForm = args.left();
+          final var varForm = args.body()[0];
 
           if (!(varForm instanceof IdForm)) {
             throw new EmitError(argsForm.location(), "Invalid for variable: %s.", varForm);
           }
 
           final var rIterator = vm.allocateRegister();
-          args.right().emit(vm, namespace, rIterator);
+          args.body()[1].emit(vm, namespace, rIterator);
           vm.emit(new GetIterator(rIterator, rIterator, location));
           final var iteratePc = vm.emit();
           final var rValue = vm.allocateRegister();
@@ -575,7 +575,7 @@ public class Core extends Library {
           vm.set(rResult, null);
 
           try {
-            vm.load(path, namespace, rResult);
+            vm.load(path, namespace);
           } catch (final IOException e) {
             throw new EmitError(location, e.toString());
           }

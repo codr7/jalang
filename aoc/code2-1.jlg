@@ -10,18 +10,19 @@
     (out c (max (or (out c) 0) n))))
   
 (function decode-game [in out]
-  (for c:(split in ",")
+  (for [c (split in ",")]
     (decode-color c out)))
   
 (function decode-line [in]
-  (let [out {}]
-    (for g:(split (slice in (+ (_:find (function [c] (= c \:)) in) 1)) ";")
+  (let [games (split (slice in (+ (_:find (function [c] (= c \:)) in) 1)) ";")
+        out {}]
+    (for [g games]
       (decode-game g out))
     out))
 	
 (function decode-games [path]
   (let [games []]
-    (for line:(split (slurp path) "\n")
+    (for [line (split (slurp path) "\n")]
       (push games (+ (length games) 1):(decode-line line)))
     games))
 
@@ -38,4 +39,5 @@
 (function sum-games [path]
   (reduce + (map (function [g] (peek (peek g))) (possible-games path)) 0))
     
-(say (sum-games (path "input2")))
+(check 2268
+  (sum-games (path "input2")))

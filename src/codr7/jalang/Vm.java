@@ -19,7 +19,7 @@ import java.util.TreeMap;
 public class Vm {
   public static final int DEFAULT_REGISTER = 0;
   public static final int REGISTER_COUNT = 10;
-  public static final int VERSION = 5;
+  public static final int VERSION = 6;
 
   public final Core core = new Core();
 
@@ -121,6 +121,12 @@ public class Vm {
 
           pc++;
           ((Core.CallableTrait) target.type()).call(target, this, o.location, o.rParameters, o.rResult);
+          break;
+        }
+        case ChangeDirectory: {
+          final var o = (ChangeDirectory) op;
+          loadPath = o.path;
+          pc++;
           break;
         }
         case Check: {
@@ -321,30 +327,27 @@ public class Vm {
     return registers[index];
   }
 
-  public final void load(final Path path,
-                         final Namespace namespace,
-                         final int register) throws IOException {
-    final var p = loadPath.resolve(path);
+  public final void load(final Path path, final Namespace namespace) throws IOException {
     final var previousLoadPath = loadPath;
-    loadPath = p.getParent();
+    final var p = loadPath.resolve(path);
+    var newLoadPath = p.getParent();
 
-    try {
-      final String code = Files.readString(path);
-      final var input = new Input(new StringReader(code));
-      final var location = new Location(p.toString());
-      final var forms = new ArrayDeque<Form>();
-      while (FormReader.instance.read(input, forms, location)) ;
-      final var startPc = emitPc();
+    final String code = Files.readString(p);
+    final var input = new Input(new StringReader(code));
+    final var location = new Location(p.toString());
+    final var forms = new ArrayDeque<Form>();
+    while (FormReader.instance.read(input, forms, location)) ;
+    final var startPc = emitPc();
 
-      for (final var f : forms) {
-        f.emit(this, namespace, register);
-      }
-
-      emit(Stop.instance);
-      evaluate(startPc);
-    } finally {
-      loadPath = previousLoadPath;
+    if (newLoadPath != null) {
+      emit(new ChangeDirectory(newLoadPath));
     }
+
+    for (final var f : forms) {
+      f.emit(this, namespace, DEFAULT_REGISTER);
+    }
+
+    emit(new ChangeDirectory(previousLoadPath));
   }
 
   public final Path loadPath() {

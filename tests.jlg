@@ -171,7 +171,7 @@
 
 (check ['foo 'bar 'baz]
   (let [result []]
-    (for v:['foo 'bar 'baz]
+    (for [v ['foo 'bar 'baz]]
       (push result v))
     result))
 
@@ -288,3 +288,6 @@
     (bar 42))
     
   (foo 3))
+
+(load (path "aoc/code1-1.jlg"))
+(load (path "aoc/code2-1.jlg"))

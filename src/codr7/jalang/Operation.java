@@ -13,7 +13,7 @@ public abstract class Operation {
 
   public enum Code {
     Benchmark, BreakPair,
-    CallDirect, CallIndirect, Check,
+    CallDirect, CallIndirect, ChangeDirectory, Check,
     Decrement,
     EqualsZero,
     Get, GetIterator, GetKey, Goto,

@@ -1,6 +1,7 @@
 import codr7.jalang.Namespace;
 import codr7.jalang.Repl;
 import codr7.jalang.Vm;
+import codr7.jalang.operations.Stop;
 
 import java.io.IOException;
 import java.nio.file.Paths;
@@ -13,7 +14,10 @@ public class Main {
 
     if (args.length > 0) {
       for (final var a : args) {
-        vm.load(Paths.get(a), namespace, Vm.DEFAULT_REGISTER);
+        final var startPc = vm.emitPc();
+        vm.load(Paths.get(a), namespace);
+        vm.emit(Stop.instance);
+        vm.evaluate(startPc);
       }
     } else {
       System.out.printf("jalang v%d\n", Vm.VERSION);

@@ -8,4 +8,5 @@
 (function calibrate [input]
   (reduce + (map decode-line (split (slurp input) "\n")) 0))
 
-(say (calibrate (path "input1")))
+(check 55108
+  (calibrate (path "input1")))
