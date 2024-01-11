@@ -18,11 +18,8 @@
       (decode-game g out))
     out))
 	
-(function decode-games [path]
-  (let [games []]
-    (for [line (split (slurp path) "\n")]
-      (push games (+ (length games) 1):(decode-line line)))
-    games))
+(function read-games [path]
+  (enumerate (map decode-line (split (slurp path) "\n")) 1))
 
 (function possible? [game]
   (let [g (tail game)]
@@ -31,7 +28,7 @@
          (> (g 'blue) blue)))))
 
 (function possible-games [path]
-  (let [games (decode-games path)]
+  (let [games (read-games path)]
     (find-all possible? games)))
 
 (function sum-games [path]

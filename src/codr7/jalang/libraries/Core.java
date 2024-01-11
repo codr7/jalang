@@ -296,6 +296,23 @@ public class Core extends Library {
           }
         });
 
+    bindFunction("enumerate",
+        new String[]{"input"},
+        (function, vm, location, rParameters, rResult) -> {
+          final var input = vm.get(rParameters[0]);
+          final var iterator = ((SequenceTrait)input.type()).iterator(input);
+          final var output = new ArrayList<Value<?>>();
+
+          for (int i = (rParameters.length == 1) ? 0 : vm.get(rParameters[1]).as(integerType);
+               iterator.hasNext();
+               i++) {
+            final var v = iterator.next();
+            output.add(new Value<>(pairType, new Pair(new Value<>(integerType, i), (Value<?>)v)));
+          }
+
+          vm.set(rResult, new Value<>(iteratorType, output.iterator()));
+        });
+
     bindMacro("find", 2,
         (vm, namespace, location, arguments, rResult) -> {
           final var rPredicate = vm.allocateRegister();
