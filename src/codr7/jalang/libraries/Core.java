@@ -192,13 +192,7 @@ public class Core extends Library {
               throw new EmitError(location, "Invalid target: %s", v.toString());
             }
 
-            final var r = (Register) v.data();
-
-            if (r.type() != null && r.type() != integerType) {
-              throw new EmitError(location, "Invalid target: %s", r.type());
-            }
-
-            rValue = r.index();
+            rValue = v.as(registerType);
           } else if (a instanceof LiteralForm) {
             rValue = vm.allocateRegister();
             vm.emit(new Set(rValue, ((LiteralForm) a).value()));
@@ -221,13 +215,7 @@ public class Core extends Library {
               throw new EmitError(location, "Invalid target: %s", v.toString());
             }
 
-            final var r = (Register) v.data();
-
-            if (r.type() != null && r.type() != integerType) {
-              throw new EmitError(location, "Invalid target: %s", r.type());
-            }
-
-            rValue = r.index();
+            rValue = v.as(registerType);
           } else if (a instanceof LiteralForm) {
             rValue = vm.allocateRegister();
             vm.emit(new Set(rValue, ((LiteralForm) a).value()));
@@ -292,7 +280,7 @@ public class Core extends Library {
           final var name = ((IdForm) nameForm).name();
           final var rValue = vm.allocateRegister();
           vm.evaluate(arguments[1], namespace, rValue);
-          namespace.bind(name, new Value<>(variableType, new Register(rValue, null)));
+          namespace.bind(name, new Value<>(variableType, rValue));
         });
 
     bindFunction("digit",
@@ -395,7 +383,7 @@ public class Core extends Library {
           final var iteratePc = vm.emit();
           final var rValue = vm.allocateRegister();
           namespace.bind(((IdForm) varForm).name(),
-              new Value<>(registerType, new Register(rValue, null)));
+              new Value<>(registerType, rValue));
 
           for (int i = 1; i < arguments.length; i++) {
             arguments[i].emit(vm, namespace, rResult);
@@ -467,7 +455,7 @@ public class Core extends Library {
           final var bodyNamespace = new Namespace(namespace);
 
           for (final Parameter p : ps) {
-            bodyNamespace.bind(p.name(), new Value<>(registerType, new Register(p.rValue(), null)));
+            bodyNamespace.bind(p.name(), new Value<>(registerType, p.rValue()));
           }
 
           for (final var f : as) {
@@ -531,22 +519,19 @@ public class Core extends Library {
             }
 
             final var valueForm = bindings[i + 1];
-            final var valueType = (valueForm instanceof LiteralForm)
-                ? ((LiteralForm) valueForm).value().type()
-                : null;
 
             final java.util.function.BiConsumer<IdForm, Integer> bindId = (f, rValue) -> {
               final var name = f.name();
               final var found = namespace.find(name);
 
               if (found != null && found.type() == variableType) {
-                final var rVar = found.as(variableType).index();
+                final var rVar = found.as(variableType);
                 final var rPreviousValue = vm.allocateRegister();
                 variables.put(rPreviousValue, rVar);
                 vm.emit(new Get(rVar, rPreviousValue));
                 vm.emit(new Get(rValue, rVar));
               } else {
-                namespace.bind(name, new Value<>(registerType, new Register(rValue, valueType)));
+                namespace.bind(name, new Value<>(registerType, rValue));
               }
             };
 
@@ -1173,7 +1158,7 @@ public class Core extends Library {
     }
   }
 
-  public static class RegisterType extends Type<Register> implements CallableTrait {
+  public static class RegisterType extends Type<Integer> implements CallableTrait {
     public RegisterType(final String name) {
       super(name);
     }
@@ -1183,7 +1168,7 @@ public class Core extends Library {
                      final Location location,
                      final int[] rParameters,
                      final int rResult) {
-      final var t = vm.get(target.as(this).index());
+      final var t = vm.get(target.as(this));
 
       if (!(t.type() instanceof Core.CallableTrait)) {
         throw new EvaluationError(location, "Invalid call target: %s.", t);
@@ -1193,10 +1178,10 @@ public class Core extends Library {
     }
 
     public void emitId(final Value<?> value, final Vm vm, final Namespace namespace, final int rResult) {
-      final var source = value.as(this).index();
+      final var rSource = value.as(this);
 
-      if (source != rResult) {
-        vm.emit(new Get(source, rResult));
+      if (rSource != rResult) {
+        vm.emit(new Get(rSource, rResult));
       }
     }
   }

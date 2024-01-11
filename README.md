@@ -70,17 +70,6 @@ T
 `function` may be used to create new functions.
 
 ```
-  (function add-42 [x:Integer]:Integer
-    (+ x 42))
-
-  (add-42 1)
-
-43
-```
-
-Types are optional.
-
-```
   (function add-42 [x]
     (+ x 42))
 
@@ -95,7 +84,7 @@ Omitting the name creates an anonymous function.
   (function [x]
     (+ x 42))
 
-  (Function [x:Any])
+  (Function [x])
 ```
 
 ## Bindings
@@ -291,9 +280,9 @@ The core interpreter is currently roughly as fast as Python, but there is plenty
 
 ```
 $ java -jar jalang.jar benchmarks.jlg
-PT0.140144791S
-PT0.004633167S
-PT0.057475125S
+PT0.14015925S
+PT0.152264167S
+PT0.058910375S
 ```
 ```
 $ python3 python/fib.py

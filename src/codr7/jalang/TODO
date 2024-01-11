@@ -1,9 +1,3 @@
-* drop support for argument/result types
-** simplify function macro
-** remove argument types
-** remove result type
-** remove function arity
-
 * switch for-args to vector form
 
 * add support for destructuring pair function arguments
