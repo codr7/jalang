@@ -161,7 +161,7 @@
   [(foo 1) (foo 2)])
 
 (check [5 7 9]
-  (function foo [l:Integer r:Integer]:Integer
+  (function foo [l r]
     (+ l r))
   
   (vector (map foo [1 2 3] [4 5 6 7])))
@@ -188,7 +188,7 @@
     x))
 
 (check 7
-  (function foo [v:Integer result:Integer]:Integer
+  (function foo [v result]
     (+ result v))
 
   (reduce foo [1 2 3] 1))
@@ -236,36 +236,36 @@
   (baz):foo)
 
 (check 42
-  (function foo []:Integer 42)
+  (function foo [] 42)
   
   (foo))
 
 (check 43
-  (function foo [x]:Integer
+  (function foo [x]
     (+ x 42))
     
   (foo 1))
 
 (check 45
-  (function foo [x:Integer y:Integer]:Integer
+  (function foo [x y]
     (+ x y 42))
     
   (foo 1 2))
 
 (check 6
-  (function sum [n:Integer]:Integer
+  (function sum [n]
     (if (> n 1) (+ n (sum (- n 1))) n))
     
   (sum 3))
 
 (check 55
-  (function fib[n:Integer]:Integer
+  (function fib[n]
     (if (< n 2) n (+ (fib (-1 n)) (fib (-1 n)))))
     
   (fib 10))
 
 (check 55
-  (function fib [n:Integer lookup:Map]:Integer
+  (function fib [n lookup]
     (or (lookup n)
         (let [result (if (< n 2) n (+ (fib (- n 1) lookup)
                                       (fib (- n 2) lookup)))] 
@@ -275,7 +275,7 @@
   (fib 10 {}))
 				 
 (check 55
-  (function fib[n:Integer a:Integer b:Integer]:Integer
+  (function fib[n a b]
     (if (> n 1) (fib (-1 n) b (+ a b)) (if (=0 n) a b)))
     
   (fib 10 0 1))

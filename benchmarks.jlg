@@ -1,9 +1,9 @@
-(function fib[n:Integer]:Integer
+(function fib[n]
   (if (< n 2) n (+ (fib (-1 n)) (fib (-1 n)))))
 
 (say (benchmark 100 (fib 20)))
 
-(function fib [n:Integer lookup:Map]:Integer
+(function fib [n lookup]
   (or (lookup n)
       (let [result (if (< n 2) n (+ (fib (- n 1) lookup)
                                     (fib (- n 2) lookup)))] 
@@ -12,7 +12,7 @@
 
 (say (benchmark 10000 (fib 70 {})))
 
-(function fib[n:Integer a:Integer b:Integer]:Integer
+(function fib[n a b]
   (if (> n 1) (fib (-1 n) b (+ a b)) (if (=0 n) a b)))
 
 (say (benchmark 10000 (fib 70 0 1)))

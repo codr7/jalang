@@ -1,6 +1,6 @@
 package codr7.jalang;
 
-public record Function(String name, Parameter[] parameters, int arity, Type<?> resultType, Body body) {
+public record Function(String name, Parameter[] parameters, int arity, Body body) {
   public int arity() {
     return arity;
   }
@@ -23,13 +23,7 @@ public record Function(String name, Parameter[] parameters, int arity, Type<?> r
       }
     }
 
-    result.append(']');
-
-    if (resultType != null) {
-      result.append(':').append(resultType);
-    }
-
-    result.append(')');
+    result.append("])");
     return result.toString();
   }
 
