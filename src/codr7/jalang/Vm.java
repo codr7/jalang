@@ -18,7 +18,6 @@ import java.util.TreeMap;
 
 public class Vm {
   public static final int DEFAULT_REGISTER = 0;
-  public static final int REGISTER_COUNT = 10;
   public static final int VERSION = 6;
 
   public final Core core = new Core();
@@ -27,8 +26,8 @@ public class Vm {
   private CallFrame callFrame;
   private Path loadPath = Paths.get("");
   private int pc = -1;
-  private Value<?>[] registers = new Value<?>[REGISTER_COUNT];
-  private int registerCount = REGISTER_COUNT;
+  private Value<?>[] registers = new Value<?>[1];
+  private int registerCount = registers.length;
   private boolean tracingEnabled = false;
 
   public final int allocateRegister() {
