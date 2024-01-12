@@ -23,7 +23,7 @@ public class IdReader implements Reader {
 
       if (c == 0 ||
           Character.isWhitespace(c) ||
-          c == '(' || c == ')' || c == '[' || c == ']' || c == ':') {
+          c == '(' || c == ')' || c == '[' || c == ']' || c == '{' || c == '}' || c == ':') {
         break;
       }
 

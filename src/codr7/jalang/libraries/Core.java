@@ -234,7 +234,24 @@ public class Core extends Library {
           }
         });
 
-    bindMacro("benchmark", 1,
+    bindFunction("append",
+        new String[]{"input1"},
+        (function, vm, location, rParameters, rResult) -> {
+          final var result = new ArrayList<Value<?>>();
+
+          for (final var p: rParameters) {
+            final var input = vm.get(p);
+            final var iterator = ((SequenceTrait<Value<?>>)input.type()).iterator(input);
+
+            while (iterator.hasNext()) {
+              result.add(iterator.next());
+            }
+          }
+
+          vm.set(rResult, new Value<>(iteratorType, result.iterator()));
+        });
+
+          bindMacro("benchmark", 1,
         (vm, namespace, location, arguments, rResult) -> {
           final var rRepetitions = vm.allocateRegister();
           arguments[0].emit(vm, namespace, rRepetitions);

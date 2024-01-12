@@ -190,6 +190,9 @@
 (check [1 2 3]
   (Vector (map peek [1:'foo 2:'bar 3:'baz])))
 
+(check [1 2 3 'bar 'baz 'foo \a \b \c]
+  (Vector (append [1 2 3] {'foo 'bar 'baz} "abc")))
+
 (check 1
   (let [x:_ 1:2:3]
     x))
