@@ -35,7 +35,7 @@ public record Function(String name, Parameter[] parameters, Body body) {
               final int rResult);
   }
 
-  public static record Parameter(String name, int rValue) {
+  public record Parameter(String name, int rValue) {
     public String toString() {
       return name;
     }

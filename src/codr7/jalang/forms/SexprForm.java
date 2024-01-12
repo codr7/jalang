@@ -75,7 +75,7 @@ public class SexprForm extends Form {
 
       final Form[] arguments = new Form[arity];
       System.arraycopy(body, 1, arguments, 0, arity);
-      macro.call(vm, namespace, location(), arguments, rResult);
+      macro.emit(vm, namespace, location(), arguments, rResult);
     } else {
       if (!(target.type() instanceof Core.CallableTrait)) {
         throw new EvaluationError(location(), "Invalid call target: %s.", target);

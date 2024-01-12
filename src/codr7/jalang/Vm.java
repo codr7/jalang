@@ -61,11 +61,8 @@ public class Vm {
     tracingEnabled = !tracingEnabled;
   }
 
-  public final void evaluate(final int startPc) {
-    if (registers.length != registerCount) {
-      registers = Arrays.copyOf(registers, registerCount);
-    }
-
+  public final void evaluate(final int startPc, final Namespace namespace) {
+    reallocateRegisters();
     pc = startPc;
 
     for (; ; ) {
@@ -78,13 +75,13 @@ public class Vm {
           final var repetitions = registers[o.rRepetitions].as(Core.integerType);
 
           for (int i = 0; i < repetitions; i++) {
-            evaluate(bodyPc);
+            evaluate(bodyPc, namespace);
           }
 
           final var startTime = System.nanoTime();
 
           for (int i = 0; i < repetitions; i++) {
-            evaluate(bodyPc);
+            evaluate(bodyPc, namespace);
           }
 
           final var elapsedTime = Duration.ofNanos(System.nanoTime() - startTime);
@@ -107,7 +104,7 @@ public class Vm {
             throw new EvaluationError(o.location, "Invalid call target: %s.", o.target);
           }
 
-          ((Core.CallableTrait) o.target.type()).call(o.target, this, o.location, o.rParameters, o.rResult);
+          ((Core.CallableTrait) o.target.type()).call(o.target, this, namespace, o.location, o.rParameters, o.rResult);
           break;
         }
         case CallIndirect: {
@@ -119,7 +116,7 @@ public class Vm {
           }
 
           pc++;
-          ((Core.CallableTrait) target.type()).call(target, this, o.location, o.rParameters, o.rResult);
+          ((Core.CallableTrait) target.type()).call(target, this, namespace, o.location, o.rParameters, o.rResult);
           break;
         }
         case ChangeDirectory: {
@@ -131,7 +128,7 @@ public class Vm {
         case Check: {
           final var o = (Check) op;
           final var expected = registers[o.rExpected];
-          evaluate(pc + 1);
+          evaluate(pc + 1, namespace);
           final var actual = registers[o.rActual];
 
           if (!actual.equals(expected)) {
@@ -319,7 +316,7 @@ public class Vm {
     form.emit(this, namespace, register);
     emit(Stop.instance);
     emit(skipPc, new Goto(emitPc()));
-    evaluate(startPc);
+    evaluate(startPc, namespace);
   }
 
   public final Value<?> get(final int index) {
@@ -366,6 +363,12 @@ public class Vm {
         resultRegister);
 
     this.pc = pc;
+  }
+
+  public void reallocateRegisters() {
+    if (registers.length != registerCount) {
+      registers = Arrays.copyOf(registers, registerCount);
+    }
   }
 
   public final int registerCount() {

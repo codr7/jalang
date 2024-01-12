@@ -181,6 +181,9 @@
 (check [1:'foo 2:'bar]
   (vector (enumerate ['foo 'bar] 1)))
 
+(check [1 2 3]
+  (vector (map peek [1:'foo 2:'bar 3:'baz])))
+
 (check 1
   (let [x:_ 1:2:3]
     x))

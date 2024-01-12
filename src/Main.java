@@ -17,7 +17,7 @@ public class Main {
         final var startPc = vm.emitPc();
         vm.load(Paths.get(a), namespace);
         vm.emit(Stop.instance);
-        vm.evaluate(startPc);
+        vm.evaluate(startPc, namespace);
       }
     } else {
       System.out.printf("jalang v%d\n", Vm.VERSION);

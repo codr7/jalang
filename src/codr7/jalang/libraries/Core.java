@@ -17,9 +17,6 @@ import java.util.regex.Pattern;
 import java.util.stream.Stream;
 
 public class Core extends Library {
-  public static final Type<Function> functionType = new FunctionType("Function");
-  public static final Type<Macro> macroType = new Type<>("Macro");
-  public static final Type<Type<?>> metaType = new Type<>("Meta");
   public static final Type<Object> anyType = new Type<>("Any");
   public static final BitType bitType = new BitType("Bit");
   public static final Value<Boolean> T = new Value<>(bitType, true);
@@ -27,10 +24,14 @@ public class Core extends Library {
   public static final CharacterType characterType = new CharacterType("Character");
   public static final CollectionType collectionType = new CollectionType("Collection");
   public static final ComparableType comparableType = new ComparableType("Comparable");
+  public static final Type<Function> functionType = new FunctionType("Function");
   public static final IndexedCollectionType indexedCollectionType = new IndexedCollectionType("IndexedCollection");
   public static final IntegerType integerType = new IntegerType("Integer");
   public static final IteratorType iteratorType = new IteratorType("Iterator");
+  public static final MacroType macroType = new MacroType("Macro");
+  public static final Type<MacroReference> macroReferenceType = new Type<>("MacroReference");
   public static final MapType mapType = new MapType("Map");
+  public static final Type<Type<?>> metaType = new Type<>("Meta");
   public static final NoneType noneType = new NoneType("None");
   public static final Value<Object> NONE = new Value<>(noneType, null);
   public static final PairType pairType = new PairType("Pair");
@@ -55,6 +56,7 @@ public class Core extends Library {
     bindType(integerType);
     bindType(iteratorType);
     bindType(macroType);
+    bindType(macroReferenceType);
     bindType(mapType);
     bindType(metaType);
     bindType(noneType);
@@ -300,14 +302,14 @@ public class Core extends Library {
         new String[]{"input"},
         (function, vm, location, rParameters, rResult) -> {
           final var input = vm.get(rParameters[0]);
-          final var iterator = ((SequenceTrait)input.type()).iterator(input);
+          final var iterator = ((SequenceTrait) input.type()).iterator(input);
           final var output = new ArrayList<Value<?>>();
 
           for (int i = (rParameters.length == 1) ? 0 : vm.get(rParameters[1]).as(integerType);
                iterator.hasNext();
                i++) {
             final var v = iterator.next();
-            output.add(new Value<>(pairType, new Pair(new Value<>(integerType, i), (Value<?>)v)));
+            output.add(new Value<>(pairType, new Pair(new Value<>(integerType, i), (Value<?>) v)));
           }
 
           vm.set(rResult, new Value<>(iteratorType, output.iterator()));
@@ -854,9 +856,13 @@ public class Core extends Library {
   }
 
   public interface CallableTrait {
-    void call(Value<?> target, Vm vm, Location location, int[] rParameters, int rResult);
+    void call(Value<?> target, Vm vm, Namespace namespace, Location location, int[] rParameters, int rResult);
 
-    default void emitCall(Value<?> target, Vm vm, Location location, int[] rParameters, int rResult) {
+    default void emitCall(final Value<?> target,
+                          final Vm vm,
+                          final Location location,
+                          final int[] rParameters,
+                          final int rResult) {
       vm.emit(new CallDirect(location, target, rParameters, rResult));
     }
   }
@@ -949,13 +955,18 @@ public class Core extends Library {
 
     public void call(final Value<?> target,
                      final Vm vm,
+                     final Namespace namespace,
                      final Location location,
                      final int[] rParameters,
                      final int rResult) {
       target.as(this).call(vm, location, rParameters, rResult);
     }
 
-    public void emitCall(Value<?> target, Vm vm, Location location, int[] rParameters, int rResult) {
+    public void emitCall(final Value<?> target,
+                         final Vm vm,
+                         final Location location,
+                         final int[] rParameters,
+                         final int rResult) {
       final var function = target.as(this);
 
       if (function.arity() != -1 && rParameters.length < function.arity()) {
@@ -964,7 +975,6 @@ public class Core extends Library {
 
       CallableTrait.super.emitCall(target, vm, location, rParameters, rResult);
     }
-
   }
 
   public static class IntegerType
@@ -1018,6 +1028,21 @@ public class Core extends Library {
     }
   }
 
+  public static class MacroType extends Type<Macro> implements CallableTrait {
+    public MacroType(final String name) {
+      super(name);
+    }
+
+    public void call(final Value<?> target,
+                     final Vm vm,
+                     final Namespace namespace,
+                     final Location location,
+                     final int[] rParameters,
+                     final int rResult) {
+      target.as(this).call(vm, namespace, location, rParameters, rResult);
+    }
+  }
+
   public static class MapType
       extends Type<Map<Value<?>, Value<?>>>
       implements CallableTrait, CollectionTrait, SequenceTrait<Value<?>> {
@@ -1027,6 +1052,7 @@ public class Core extends Library {
 
     public void call(final Value<?> target,
                      final Vm vm,
+                     final Namespace namespace,
                      final Location location,
                      final int[] rParameters,
                      final int rResult) {
@@ -1173,6 +1199,7 @@ public class Core extends Library {
 
     public void call(final Value<?> target,
                      final Vm vm,
+                     final Namespace namespace,
                      final Location location,
                      final int[] rParameters,
                      final int rResult) {
@@ -1182,7 +1209,7 @@ public class Core extends Library {
         throw new EvaluationError(location, "Invalid call target: %s.", t);
       }
 
-      ((Core.CallableTrait) t.type()).call(t, vm, location, rParameters, rResult);
+      ((Core.CallableTrait) t.type()).call(t, vm, namespace, location, rParameters, rResult);
     }
 
     public void emitId(final Value<?> value, final Vm vm, final Namespace namespace, final int rResult) {
@@ -1308,6 +1335,7 @@ public class Core extends Library {
 
     public void call(final Value<?> target,
                      final Vm vm,
+                     final Namespace namespace,
                      final Location location,
                      final int[] rParameters,
                      final int rResult) {

@@ -34,7 +34,7 @@ public class Repl {
     }
 
     vm.emit(Stop.instance);
-    vm.evaluate(pc);
+    vm.evaluate(pc, namespace);
     var result = vm.get(Vm.DEFAULT_REGISTER);
     out.println((result == null) ? "_" : result.dump());
     vm.set(Vm.DEFAULT_REGISTER, Core.NONE);

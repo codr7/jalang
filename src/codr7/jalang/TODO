@@ -1,11 +1,9 @@
-* add support for macro call targets
-
 * add support for destructuring pair function arguments
 ** use in code2-1/possible?
 
 * add support for function composition
-** x~y
-** use in code2-1/sum-games
+** x.y
+** use in code2-1/sum-games/possible?
 
 * add list function to create list from iterator
 
