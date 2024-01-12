@@ -1,10 +1,5 @@
-* fix unzip
-** add IteratorType2
-
 * add interleave function
-
 * add apply
-
 * code 2-1
 
 * add support for destructuring pair function arguments

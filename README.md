@@ -250,6 +250,30 @@ Calling a map returns the value for the specified key (`_` if not found) or upda
 6
 ```
 
+`append` may be used to join multiple iterators.
+
+```
+  (Vector (append [1 2 3] {'foo 'bar 'baz} "abc"))
+
+[1 2 3 'bar 'baz 'foo \a \b \c]
+```
+
+`zip` may be used to create pairs/lists from an arbitrary number of iterators.
+
+```
+  (Vector (zip 1:2:3 "abc" 'foo:'bar:'baz))
+
+[1:\a:'foo 2:\b:'bar 3:\c:'baz]
+```
+
+`unzip` may be used to break up pairs/lists.
+
+```
+  (Vector (map Vector (unzip [1:\a:'foo 2:\b:'bar 3:\c:'baz])))
+
+[[1 2 3] [\a \b \c] ['foo 'bar 'baz]]
+```
+
 ## Loops
 `for` evaluates its body with the specified variable bound to successive values of its input.
 

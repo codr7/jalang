@@ -28,6 +28,7 @@ public class Core extends Library {
   public static final IndexedCollectionType indexedCollectionType = new IndexedCollectionType("IndexedCollection");
   public static final IntegerType integerType = new IntegerType("Integer");
   public static final IteratorType iteratorType = new IteratorType("Iterator");
+  public static final Iterator2Type iterator2Type = new Iterator2Type("Iterator2");
   public static final ListType listType = new ListType("List");
   public static final MacroType macroType = new MacroType("Macro");
   public static final Type<MacroReference> macroReferenceType = new Type<>("MacroReference");
@@ -57,6 +58,7 @@ public class Core extends Library {
     bindType(indexedCollectionType);
     bindType(integerType);
     bindType(iteratorType);
+    bindType(iterator2Type);
     bindType(listType);
     bindType(macroType);
     bindType(macroReferenceType);
@@ -847,21 +849,26 @@ public class Core extends Library {
             var v = iterator.next();
             var i = 0;
 
-            while (v.type() == pairType) {
-              final var p = v.as(pairType);
-
+            for (;;) {
               if (results.size() <= i) {
                 results.add(new ArrayList<>());
               }
 
-              results.get(i).add(p.left());
-              v = p.right();
+              if (v.type() == pairType) {
+                final var p = v.as(pairType);
+                results.get(i).add(p.left());
+                v = p.right();
+              } else {
+                results.get(i).add(v);
+                break;
+              }
+
               i++;
             }
           }
 
-          final var result = results.stream().map((r) -> (Value<?>)new Value<>(iteratorType, r.iterator())).iterator();
-          vm.set(rResult, new Value<>(iteratorType, result));
+          final var result = results.stream().map((r) -> new Value<>(iteratorType, r.iterator())).iterator();
+          vm.set(rResult, new Value<>(iterator2Type, result));
         });
 
     bindFunction("zip",
@@ -1061,11 +1068,19 @@ public class Core extends Library {
       super(name);
     }
 
-    public boolean isTrue(final Iterator<Value<?>> value) {
-      return value.hasNext();
+    public Iterator<Value<?>> iterator(final Value<?> value) {
+      return value.as(this);
+    }
+  }
+
+  public static class Iterator2Type
+      extends Type<Iterator<Value<Iterator<Value<?>>>>>
+      implements SequenceTrait<Value<Iterator<Value<?>>>> {
+    public Iterator2Type(final String name) {
+      super(name);
     }
 
-    public Iterator<Value<?>> iterator(final Value<?> value) {
+    public Iterator<Value<Iterator<Value<?>>>> iterator(final Value<?> value) {
       return value.as(this);
     }
   }
@@ -1220,9 +1235,13 @@ public class Core extends Library {
     }
   }
 
-  public static class MetaType extends Type<Type<?>> {
+  public static class MetaType extends Type<Type<?>> implements CallableTrait {
     public MetaType(final String name) {
       super(name);
+    }
+
+    public void call(Value<?> target, Vm vm, Namespace namespace, Location location, int[] rParameters, int rResult) {
+      makeMake(target).call(vm, location, rParameters, rResult);
     }
 
     public void emitCall(final Value<?> target,
@@ -1230,12 +1249,14 @@ public class Core extends Library {
                          final Location location,
                          final int[] rParameters,
                          final int rResult ){
-      final var make = new Function(String.format("%s.make", name()),
+      vm.emit(new CallDirect(location, new Value<>(functionType, makeMake(target)), rParameters, rResult));
+    }
+
+    private Function makeMake(final Value<?> target) {
+      return new Function(String.format("%s.make", name()),
           new Function.Parameter[]{},
           (function, _vm, _location, _rParameters, _rResult) ->
               target.as(this).makeValue(_vm, _location, _rParameters, _rResult));
-
-      vm.emit(new CallDirect(location, new Value<>(functionType, make), rParameters, rResult));
     }
   }
 
