@@ -39,6 +39,7 @@ public class Core extends Library {
   public static final Type<Path> pathType = new Type<>("Path");
   public static final RegisterType registerType = new RegisterType("Register");
   public static final SequenceType sequenceType = new SequenceType("Sequence");
+  public static final SetType setType = new SetType("Set");
   public static final StringType stringType = new StringType("String");
   public static final SymbolType symbolType = new SymbolType("Symbol");
   public static final TimeType timeType = new TimeType("Time");
@@ -66,6 +67,7 @@ public class Core extends Library {
     bindType(pathType);
     bindType(registerType);
     bindType(sequenceType);
+    bindType(setType);
     bindType(stringType);
     bindType(symbolType);
     bindType(timeType);
@@ -1113,6 +1115,39 @@ public class Core extends Library {
 
     public int length(final Value<?> value) {
       return value.as(this).size();
+    }
+
+    public void makeValue(final Vm vm, final Location location, final int[] rParameters, final int rResult) {
+      if (rParameters.length % 2 != 0) {
+        throw new EvaluationError(location, "Map.make requires an even number of parameters.");
+      }
+
+      final var result = new TreeMap<Value<?>, Value<?>>();
+
+      for (int i = 0; i < rParameters.length; i += 2) {
+        final var k = vm.get(rParameters[i]);
+        final var v = vm.get(rParameters[i + 1]);
+        result.put(k, v);
+      }
+
+      vm.set(rResult, new Value<>(this, result));
+    }
+  }
+
+  public static class SetType extends MapType {
+    public SetType(final String name) {
+      super(name);
+    }
+
+    public void makeValue(final Vm vm, final Location location, final int[] rParameters, final int rResult) {
+      final var result = new TreeMap<Value<?>, Value<?>>();
+
+      for (int i = 0; i < rParameters.length; i++) {
+        final var v = vm.get(rParameters[i]);
+        result.put(v, v);
+      }
+
+      vm.set(rResult, new Value<>(mapType, result));
     }
   }
 

@@ -1,6 +1,3 @@
-* add make support to MapType
-** alternate keys/values
-
 * add zip/unzip functions
 ** arbitrary number of arguments
 
