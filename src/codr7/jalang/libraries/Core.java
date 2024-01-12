@@ -31,7 +31,7 @@ public class Core extends Library {
   public static final MacroType macroType = new MacroType("Macro");
   public static final Type<MacroReference> macroReferenceType = new Type<>("MacroReference");
   public static final MapType mapType = new MapType("Map");
-  public static final Type<Type<?>> metaType = new Type<>("Meta");
+  public static final MetaType metaType = new MetaType("Meta");
   public static final NoneType noneType = new NoneType("None");
   public static final Value<Object> NONE = new Value<>(noneType, null);
   public static final PairType pairType = new PairType("Pair");
@@ -302,7 +302,7 @@ public class Core extends Library {
         new String[]{"input"},
         (function, vm, location, rParameters, rResult) -> {
           final var input = vm.get(rParameters[0]);
-          final var iterator = ((SequenceTrait) input.type()).iterator(input);
+          final var iterator = ((SequenceTrait<?>) input.type()).iterator(input);
           final var output = new ArrayList<Value<?>>();
 
           for (int i = (rParameters.length == 1) ? 0 : vm.get(rParameters[1]).as(integerType);
@@ -325,7 +325,6 @@ public class Core extends Library {
           final var inputForm = arguments[1];
           inputForm.emit(vm, namespace, rIterator);
           vm.emit(new GetIterator(rIterator, rIterator, inputForm.location()));
-
           vm.emit(new Set(rResult, new Value<>(noneType, null)));
 
           final var rIndex = vm.allocateRegister();
@@ -838,33 +837,10 @@ public class Core extends Library {
 
     bindMacro("trace", 0,
         (vm, namespace, location, rParameters, rResult) -> vm.toggleTracing());
-
-    bindFunction("vector",
-        new String[]{"input"},
-        (function, vm, location, rParameters, rResult) -> {
-          final var input = vm.get(rParameters[0]);
-
-          @SuppressWarnings("unchecked") final var iterator = ((SequenceTrait<Value<?>>) input.type()).iterator(input);
-          final var result = new ArrayList<Value<?>>();
-
-          while (iterator.hasNext()) {
-            result.add(iterator.next());
-          }
-
-          vm.set(rResult, new Value<>(vectorType, result));
-        });
   }
 
   public interface CallableTrait {
     void call(Value<?> target, Vm vm, Namespace namespace, Location location, int[] rParameters, int rResult);
-
-    default void emitCall(final Value<?> target,
-                          final Vm vm,
-                          final Location location,
-                          final int[] rParameters,
-                          final int rResult) {
-      vm.emit(new CallDirect(location, target, rParameters, rResult));
-    }
   }
 
   public interface CollectionTrait {
@@ -973,7 +949,7 @@ public class Core extends Library {
         throw new EmitError(location, "Not enough arguments.");
       }
 
-      CallableTrait.super.emitCall(target, vm, location, rParameters, rResult);
+      super.emitCall(target, vm, location, rParameters, rResult);
     }
   }
 
@@ -1142,6 +1118,26 @@ public class Core extends Library {
 
     public int length(final Value<?> value) {
       return value.as(this).size();
+    }
+  }
+
+  public static class MetaType extends Type<Type<?>> {
+    public MetaType(final String name) {
+      super(name);
+    }
+
+    public void emitCall(final Value<?> target,
+                         final Vm vm,
+                         final Location location,
+                         final int[] rParameters,
+                         final int rResult ){
+      final var make = new Function(String.format("%s.make", name()),
+          new Function.Parameter[]{},
+          (function, _vm, _location, _rParameters, _rResult) -> {
+            target.as(this).makeValue(_vm, _location, _rParameters, _rResult);
+          });
+
+      vm.emit(new CallDirect(location, new Value<>(functionType, make), rParameters, rResult));
     }
   }
 
@@ -1406,6 +1402,20 @@ public class Core extends Library {
       return value.as(this).size();
     }
 
+    public void makeValue(final Vm vm, final Location location, final int[]rParameters, final int rResult) {
+      final var input = vm.get(rParameters[0]);
+
+      @SuppressWarnings("unchecked")
+      final var iterator = ((SequenceTrait<Value<?>>) input.type()).iterator(input);
+      final var result = new ArrayList<Value<?>>();
+
+      while (iterator.hasNext()) {
+        result.add(iterator.next());
+      }
+
+      vm.set(rResult, new Value<>(vectorType, result));
+    }
+
     public Value<?> peek(final Value<?> target) {
       final var t = target.as(this);
       return t.isEmpty() ? new Value<>(Core.noneType, null) : t.getLast();
@@ -1420,5 +1430,20 @@ public class Core extends Library {
       target.as(this).add(value);
       return target;
     }
+
+    private Function make = new Function("Vector.make",
+        new Function.Parameter[]{new Function.Parameter("input", -1)},
+        (function, vm, location, rParameters, rResult) -> {
+          final var input = vm.get(rParameters[0]);
+
+          @SuppressWarnings("unchecked") final var iterator = ((SequenceTrait<Value<?>>) input.type()).iterator(input);
+          final var result = new ArrayList<Value<?>>();
+
+          while (iterator.hasNext()) {
+            result.add(iterator.next());
+          }
+
+          vm.set(rResult, new Value<>(vectorType, result));
+        });
   }
 }

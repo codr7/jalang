@@ -1,11 +1,14 @@
+* convert string/symbol functions to makeValue
+** update tests/aoc/benchmarks/readme
+
+* add make support to ListType
+
 * add support for destructuring pair function arguments
 ** use in code2-1/possible?
 
 * add support for function composition
 ** x.y
 ** use in code2-1/sum-games/possible?
-
-* add list function to create list from iterator
 
 * hook up type hierarchy
 

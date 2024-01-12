@@ -77,10 +77,6 @@ public class SexprForm extends Form {
       System.arraycopy(body, 1, arguments, 0, arity);
       macro.emit(vm, namespace, location(), arguments, rResult);
     } else {
-      if (!(target.type() instanceof Core.CallableTrait)) {
-        throw new EvaluationError(location(), "Invalid call target: %s.", target);
-      }
-
       final var rParameters = new int[body.length - 1];
 
       for (int i = 1; i < body.length; i++) {
@@ -89,7 +85,7 @@ public class SexprForm extends Form {
         body[i].emit(vm, namespace, rParameter);
       }
 
-      ((Core.CallableTrait) target.type()).emitCall(target, vm, location(), rParameters, rResult);
+      target.emitCall(vm, location(), rParameters, rResult);
     }
 
     if (peek) {

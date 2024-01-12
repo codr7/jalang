@@ -80,7 +80,7 @@
   (tail:_ 1:2:3))
 
 (check ["foo" "bar" "baz"]
-  (vector (split "foo bar baz" " ")))
+  (Vector (split "foo bar baz" " ")))
 
 (check 'Foo
   (symbol "Foo"))
@@ -104,7 +104,7 @@
   (_:find digit? "a3b"))
 
 (check [\1:0 \2:3 \3:6]
-  (vector (find-all digit? "1ab2cd3")))
+  (Vector (find-all digit? "1ab2cd3")))
 
 (check 42:3
   (parse-integer " 42foo"))
@@ -116,7 +116,7 @@
   (length [1 2 3]))
 
 (check [0 1 2]
-  (vector 3))
+  (Vector 3))
 
 (check [1 2 3]
   (push [1 2] 3))
@@ -134,7 +134,7 @@
   (['foo 'bar 'baz] 1 'qux))
 
 (check [5 7 9]
-  (vector (map + [1 2 3] [4 5 6 7])))
+  (Vector (map + [1 2 3] [4 5 6 7])))
 
 (check [[1 42] [2 42]]
   (function foo [x]
@@ -164,7 +164,7 @@
   (function foo [l r]
     (+ l r))
   
-  (vector (map foo [1 2 3] [4 5 6 7])))
+  (Vector (map foo [1 2 3] [4 5 6 7])))
 
 (check 6
   (reduce + [2 3] 1))
@@ -176,13 +176,13 @@
     result))
 
 (check [0:'foo 1:'bar]
-  (vector (enumerate ['foo 'bar])))
+  (Vector (enumerate ['foo 'bar])))
 
 (check [1:'foo 2:'bar]
-  (vector (enumerate ['foo 'bar] 1)))
+  (Vector (enumerate ['foo 'bar] 1)))
 
 (check [1 2 3]
-  (vector (map peek [1:'foo 2:'bar 3:'baz])))
+  (Vector (map peek [1:'foo 2:'bar 3:'baz])))
 
 (check 1
   (let [x:_ 1:2:3]

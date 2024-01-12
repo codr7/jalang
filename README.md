@@ -237,7 +237,7 @@ Calling a map returns the value for the specified key (`_` if not found) or upda
 `map` may be used to map a function over any number of iterable values, it returns an iterator that may be further processed or drained into an aggregate.
 
 ```
-  (vector (map + [1 2 3] [4 5 6 7]))
+  (Vector (map + [1 2 3] [4 5 6 7]))
 
 [5 7 9]
 ```
