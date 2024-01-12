@@ -1,13 +1,13 @@
+* add append function
+** take n iterators, temp store in array list and return total
+** change code2-1 to collect pairs and reduce to map
+
 * convert string/symbol functions to makeValue
 ** update tests/aoc/benchmarks/readme
 
 * add make support to ListType
 
 * add make support to MapType
-
-* add append function
-** take n iterators, temp store in array list and return total
-** change code2-1 to collect pairs and reduce to map
 
 * add support for destructuring pair function arguments
 ** use in code2-1/possible?

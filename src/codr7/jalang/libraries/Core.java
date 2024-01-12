@@ -1159,9 +1159,25 @@ public class Core extends Library {
     }
   }
 
-  public static class PairType extends Type<Pair> {
+  public static class PairType extends Type<Pair> implements ComparableTrait {
     public PairType(final String name) {
       super(name);
+    }
+
+    public Order compare(final Value<?> left, final Value<?> right) {
+      final var lv = left.as(this).left();
+      final var rv = right.as(this).left();
+      final var result = lv.compareTo(rv);
+
+      if (result < 0) {
+        return Order.LessThan;
+      }
+
+      if (result > 0) {
+        return Order.GreaterThan;
+      }
+
+      return Order.Equal;
     }
 
     public String dump(final Pair value) {

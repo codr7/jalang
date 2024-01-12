@@ -160,6 +160,12 @@
 
   [(foo 1) (foo 2)])
 
+(check 'foo
+  (let [m {}]
+    (m 1:2 'foo)
+    (m 2:3 'bar)
+    (m 1:2)))
+
 (check [5 7 9]
   (function foo [l r]
     (+ l r))
