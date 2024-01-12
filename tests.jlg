@@ -82,6 +82,9 @@
 (check 1:2:3
   (List 1 2 3))
 
+(check [1:\a:'foo 2:\b:'bar 3:\c:'baz]
+  (Vector (zip 1:2:3 "abc" 'foo:'bar:'baz)))
+
 (check ["foo" "bar" "baz"]
   (Vector (split "foo bar baz" " ")))
 

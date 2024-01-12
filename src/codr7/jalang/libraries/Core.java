@@ -834,6 +834,75 @@ public class Core extends Library {
 
     bindMacro("trace", 0,
         (vm, namespace, location, rParameters, rResult) -> vm.toggleTracing());
+
+    bindFunction("unzip",
+        new String[]{"input"},
+        (function, vm, location, rParameters, rResult) -> {
+          final var results = new ArrayList<ArrayList<Value<?>>>();
+
+          final var input = vm.get(rParameters[0]);
+          final var iterator = ((SequenceTrait<Value<?>>)input.type()).iterator(input);
+
+          while (iterator.hasNext()) {
+            var v = iterator.next();
+            var i = 0;
+
+            while (v.type() == pairType) {
+              final var p = v.as(pairType);
+
+              if (results.size() <= i) {
+                results.add(new ArrayList<>());
+              }
+
+              results.get(i).add(p.left());
+              v = p.right();
+              i++;
+            }
+          }
+
+          final var result = results.stream().map((r) -> (Value<?>)new Value<>(iteratorType, r.iterator())).iterator();
+          vm.set(rResult, new Value<>(iteratorType, result));
+        });
+
+    bindFunction("zip",
+        new String[]{"input1"},
+        (function, vm, location, rParameters, rResult) -> {
+          final var iterators = new ArrayList<Iterator<Value<?>>>();
+
+          for (final var p: rParameters) {
+            final var input = vm.get(p);
+            final var iterator = ((SequenceTrait<Value<?>>)input.type()).iterator(input);
+            iterators.add(iterator);
+          }
+
+          final var result = new ArrayList<Value<?>>();
+          var done = false;
+
+          while (!done) {
+            Value<?> value = null;
+
+            for (int i = iterators.size() - 1; i >= 0; i--) {
+              final var iterator = iterators.get(i);
+
+              if (!iterator.hasNext()) {
+                done = true;
+                break;
+              }
+
+              if (value == null) {
+                value = iterator.next();
+              } else {
+                value = new Value<>(pairType, new Pair(iterator.next(), value));
+              }
+            }
+
+            if (!done) {
+              result.add(value);
+            }
+          }
+
+          vm.set(rResult, new Value<>(iteratorType, result.iterator()));
+        });
   }
 
   public interface CallableTrait {
@@ -1188,7 +1257,9 @@ public class Core extends Library {
     }
   }
 
-  public static class PairType extends Type<Pair> implements ComparableTrait {
+  public static class PairType
+      extends Type<Pair>
+      implements ComparableTrait, SequenceTrait<Value<?>> {
     public PairType(final String name) {
       super(name);
     }
@@ -1230,6 +1301,19 @@ public class Core extends Library {
 
     public boolean isTrue(final Pair value) {
       return value.left().isTrue();
+    }
+
+    public Iterator<Value<?>> iterator(Value<?> value) {
+      final var result = new ArrayList<Value<?>>();
+
+      while (value.type() == this) {
+        final var p = value.as(this);
+        result.add(p.left());
+        value = p.right();
+      }
+
+      result.add(value);
+      return result.iterator();
     }
 
     public Value<?> peek(final Value<?> target) {
