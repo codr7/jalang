@@ -79,6 +79,9 @@
 (check 2
   (tail:_ 1:2:3))
 
+(check 1:2:3
+  (List 1 2 3))
+
 (check ["foo" "bar" "baz"]
   (Vector (split "foo bar baz" " ")))
 

@@ -28,6 +28,7 @@ public class Core extends Library {
   public static final IndexedCollectionType indexedCollectionType = new IndexedCollectionType("IndexedCollection");
   public static final IntegerType integerType = new IntegerType("Integer");
   public static final IteratorType iteratorType = new IteratorType("Iterator");
+  public static final ListType listType = new ListType("List");
   public static final MacroType macroType = new MacroType("Macro");
   public static final Type<MacroReference> macroReferenceType = new Type<>("MacroReference");
   public static final MapType mapType = new MapType("Map");
@@ -55,6 +56,7 @@ public class Core extends Library {
     bindType(indexedCollectionType);
     bindType(integerType);
     bindType(iteratorType);
+    bindType(listType);
     bindType(macroType);
     bindType(macroReferenceType);
     bindType(mapType);
@@ -1176,6 +1178,21 @@ public class Core extends Library {
       return String.format("%s:%s", value.left().toString(), value.right().toString());
     }
 
+    public boolean equalValues(Pair left, Pair right) {
+      for (; ; ) {
+        if (!left.left().equals(right.left())) {
+          return false;
+        }
+
+        if (left.right().type() == pairType) {
+          left = left.right().as(this);
+          right = right.right().as(this);
+        } else {
+          return left.right().equals(right.right());
+        }
+      }
+    }
+
     public boolean isTrue(final Pair value) {
       return value.left().isTrue();
     }
@@ -1193,6 +1210,24 @@ public class Core extends Library {
 
     public Value<?> push(final Value<?> target, final Value<?> value) {
       return new Value<>(this, new Pair(value, target));
+    }
+  }
+
+  public static class ListType extends PairType {
+    public ListType(final String name) {
+      super(name);
+    }
+
+    public void makeValue(final Vm vm, final Location location, final int[] rParameters, final int rResult) {
+      vm.set(rResult, make(vm, vm.get(rParameters[0]), rParameters, 1));
+    }
+
+    private Value<?> make(final Vm vm, final Value<?> value, final int[] rParameters, final int i) {
+      if (i == rParameters.length) {
+        return value;
+      }
+
+      return new Value<>(pairType, new Pair(value, make(vm, vm.get(rParameters[i]), rParameters, i + 1)));
     }
   }
 
