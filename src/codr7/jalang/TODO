@@ -3,6 +3,8 @@
 
 * add make support to ListType
 
+* add make support to MapType
+
 * add support for destructuring pair function arguments
 ** use in code2-1/possible?
 
