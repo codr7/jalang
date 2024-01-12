@@ -1133,9 +1133,8 @@ public class Core extends Library {
                          final int rResult ){
       final var make = new Function(String.format("%s.make", name()),
           new Function.Parameter[]{},
-          (function, _vm, _location, _rParameters, _rResult) -> {
-            target.as(this).makeValue(_vm, _location, _rParameters, _rResult);
-          });
+          (function, _vm, _location, _rParameters, _rResult) ->
+              target.as(this).makeValue(_vm, _location, _rParameters, _rResult));
 
       vm.emit(new CallDirect(location, new Value<>(functionType, make), rParameters, rResult));
     }
@@ -1446,20 +1445,5 @@ public class Core extends Library {
       target.as(this).add(value);
       return target;
     }
-
-    private Function make = new Function("Vector.make",
-        new Function.Parameter[]{new Function.Parameter("input", -1)},
-        (function, vm, location, rParameters, rResult) -> {
-          final var input = vm.get(rParameters[0]);
-
-          @SuppressWarnings("unchecked") final var iterator = ((SequenceTrait<Value<?>>) input.type()).iterator(input);
-          final var result = new ArrayList<Value<?>>();
-
-          while (iterator.hasNext()) {
-            result.add(iterator.next());
-          }
-
-          vm.set(rResult, new Value<>(vectorType, result));
-        });
   }
 }
