@@ -788,30 +788,6 @@ public class Core extends Library {
           vm.set(rResult, it.slice(i, start, end));
         });
 
-    bindFunction("string",
-        new String[]{"value1"},
-        (function, vm, location, rParameters, rResult) -> {
-          final var result = new StringBuilder();
-
-          for (int rParameter : rParameters) {
-            result.append(vm.get(rParameter).say());
-          }
-
-          vm.set(rResult, new Value<>(stringType, result.toString()));
-        });
-
-    bindFunction("symbol",
-        new String[]{"value1"},
-        (function, vm, location, rParameters, rResult) -> {
-          final var result = new StringBuilder();
-
-          for (int rParameter : rParameters) {
-            result.append(vm.get(rParameter).say());
-          }
-
-          vm.set(rResult, new Value<>(symbolType, result.toString()));
-        });
-
     bindFunction("reverse-string",
         new String[]{"input"},
         (function, vm, location, rParameters, rResult) -> {
@@ -1296,6 +1272,17 @@ public class Core extends Library {
       return value.as(this).length();
     }
 
+
+    public void makeValue(final Vm vm, final Location location, final int[]rParameters, final int rResult) {
+      final var result = new StringBuilder();
+
+      for (int rParameter : rParameters) {
+        result.append(vm.get(rParameter).say());
+      }
+
+      vm.set(rResult, new Value<>(stringType, result.toString()));
+    }
+
     public String say(final String value) {
       return value;
     }
@@ -1324,6 +1311,16 @@ public class Core extends Library {
     public boolean isTrue(String value) {
       return true;
     }
+
+    public void makeValue(final Vm vm, final Location location, final int[]rParameters, final int rResult) {
+      final var result = new StringBuilder();
+
+      for (int rParameter : rParameters) {
+        result.append(vm.get(rParameter).say());
+      }
+
+      vm.set(rResult, new Value<>(symbolType, result.toString()));
+    };
   }
 
   public static class TimeType

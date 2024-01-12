@@ -2,7 +2,7 @@
   (digit (find:_ digit? line)))
 
 (function decode-line [line]
-  (parse-integer:_ (string (find-digit line)
+  (parse-integer:_ (String (find-digit line)
   		           (find-digit (reverse-string line)))))
 
 (function calibrate [input]

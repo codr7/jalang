@@ -82,11 +82,11 @@
 (check ["foo" "bar" "baz"]
   (Vector (split "foo bar baz" " ")))
 
-(check 'Foo
-  (symbol "Foo"))
+(check 'FooBar
+  (Symbol "Foo" 'Bar))
   
 (check "1 2 3"
-  (string 1 " " 2 " " 3))
+  (String 1 " " 2 " " 3))
 
 (check "oof"
   (reverse-string "foo"))

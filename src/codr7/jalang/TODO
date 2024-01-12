@@ -1,11 +1,10 @@
-* use append to change code2-1 to collect pairs and reduce to map
-
-* convert string/symbol functions to makeValue
-** update tests/aoc/benchmarks/readme
-
 * add make support to ListType
 
 * add make support to MapType
+** alternate keys/values
+
+* add zip/unzip functions
+** arbitrary number of arguments
 
 * add support for destructuring pair function arguments
 ** use in code2-1/possible?

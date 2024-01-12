@@ -4,7 +4,7 @@
 
 (function decode-color [in out]
   (let [n:i (parse-integer in)
-        c (symbol (slice in (+ i 1)))]
+        c (Symbol (slice in (+ i 1)))]
     (out c (max (or (out c) 0) n))))
   
 (function decode-game [in out]
