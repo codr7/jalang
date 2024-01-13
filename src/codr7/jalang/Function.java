@@ -5,8 +5,8 @@ public record Function(String name, Parameter[] parameters, Body body) {
     return parameters.length;
   }
 
-  public void call(final Vm vm, final Location location, final int[] rParameters, final int rResult) {
-    body.call(this, vm, location, rParameters, rResult);
+  public void call(final Vm vm, final Location location, final Namespace namespace, final int[] rParameters, final int rResult) {
+    body.call(this, vm, location, namespace, rParameters, rResult);
   }
 
   public String toString() {
@@ -31,6 +31,7 @@ public record Function(String name, Parameter[] parameters, Body body) {
     void call(final Function function,
               final Vm vm,
               final Location location,
+              final Namespace namespace,
               final int[] rParameters,
               final int rResult);
   }

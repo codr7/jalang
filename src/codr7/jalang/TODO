@@ -1,6 +1,6 @@
-* add apply
-** simplify aoc/code2-1
+* simplify aoc/code2-1
 
+* add call
 * add support for destructuring pair function arguments
 ** use in code2-1/possible?
 
