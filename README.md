@@ -12,7 +12,7 @@ $ rlwrap java -jar jalang.jar
 jalang v7
 May the source be with you!
 
-  (say "hello world")
+  (say "hello" "world")
 
 hello world
 _
