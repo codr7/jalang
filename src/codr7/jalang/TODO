@@ -1,12 +1,9 @@
-* simplify aoc/code2-1
+* add call function
 
-* add call
 * add support for destructuring pair function arguments
-** use in code2-1/possible?
 
 * add support for function composition
 ** x.y
-** use in code2-1/sum-games/possible?
 
 * hook up type hierarchy
 
