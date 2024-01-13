@@ -18,7 +18,7 @@ import java.util.TreeMap;
 
 public class Vm {
   public static final int DEFAULT_REGISTER = 0;
-  public static final int VERSION = 6;
+  public static final int VERSION = 7;
 
   public final Core core = new Core();
 

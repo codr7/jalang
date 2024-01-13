@@ -9,7 +9,7 @@ $ git clone https://github.com/codr7/jalang.git
 $ cd jalang
 $ rlwrap java -jar jalang.jar
 
-jalang v5
+jalang v7
 May the source be with you!
 
   (say "hello world")
@@ -144,12 +144,20 @@ Pairs may be created using `:`.
 ```
 
 ### Lists
-A list is simply a pair with another pair in tail position.
+A list is a pair with another pair in tail position.
 
 ```
   (tail 1:2:3)
 
 2:3
+```
+
+Besides the literal syntax, lists may be created using the `List` constructor.
+
+```
+  (List 1 2 3)
+
+1:2:3
 ```
 
 Lists support stack semantics.
@@ -171,13 +179,21 @@ Lists support stack semantics.
 ```
 
 ### Vectors
-New vectors may be created using `[...]`.
+New vectors may be created using `[...]`,
 
 
 ```
-  (length [1 2 3:4])
+  [1 2 3]
 
-3
+[1 2 3]
+```
+
+or by calling the `Vector` constructor.
+
+```
+  (Vector 1 2 3)
+
+[1 2 3]
 ```
 
 Vectors support stack semantics.
@@ -212,12 +228,20 @@ Calling a vector returns the value at the specified index (`_` if the index is o
 ```
 
 ### Maps
-Maps may be created using `{...}`.
+Ordered maps may be created using `{...}`,
 
 ```
-  (length {1 2 3:4})
+  {3:4 1:2}
 
-3
+{1:2 3:4}
+```
+
+or by calling the `Map` constructor with alternating keys and values.
+
+```
+  (Map 1 2 3 4)
+
+{1:2 3:4}
 ```
 
 Calling a map returns the value for the specified key (`_` if not found) or updates it depending on the number of arguments.
@@ -231,6 +255,23 @@ Calling a map returns the value for the specified key (`_` if not found) or upda
   ({'foo:1 'bar:2 'baz:3} 'bar 4)
 
 {'foo:1 'bar:4 'baz:3}
+```
+
+### Sets
+Ordered sets may be created using `{...}`,
+
+```
+  {4 3 2 1}
+
+{1 2 3 4}
+```
+
+or by calling the `Set` constructor.
+
+```
+  (Set 4 3 2 1)
+
+{1 2 3 4}
 ```
 
 ## Iterators
@@ -250,7 +291,7 @@ Calling a map returns the value for the specified key (`_` if not found) or upda
 6
 ```
 
-`append` may be used to join multiple iterators.
+`append` may be used to join multiple iterables.
 
 ```
   (Vector (append [1 2 3] {'foo 'bar 'baz} "abc"))
@@ -258,7 +299,15 @@ Calling a map returns the value for the specified key (`_` if not found) or upda
 [1 2 3 'bar 'baz 'foo \a \b \c]
 ```
 
-`zip` may be used to create pairs/lists from an arbitrary number of iterators.
+`interleave` may be used to braid multiple iterables into a single sequence.
+
+```
+  (Vector (interleave 1:2 {'foo 'bar 'baz} "abc"))
+
+[1 'bar \a 2 'baz \b 'foo \c]
+```
+
+`zip` may be used to create pairs/lists from an arbitrary number of iterables.
 
 ```
   (Vector (zip 1:2:3 "abc" 'foo:'bar:'baz))

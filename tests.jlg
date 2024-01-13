@@ -208,6 +208,9 @@
 (check [1 2 3 'bar 'baz 'foo \a \b \c]
   (Vector (append [1 2 3] {'foo 'bar 'baz} "abc")))
 
+(check [1 'bar \a 2 'baz \b 'foo \c]
+  (Vector (interleave 1:2 {'foo 'bar 'baz} "abc")))
+
 (check 1
   (let [x:_ 1:2:3]
     x))

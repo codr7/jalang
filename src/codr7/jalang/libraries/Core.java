@@ -245,9 +245,9 @@ public class Core extends Library {
         (function, vm, location, rParameters, rResult) -> {
           final var result = new ArrayList<Value<?>>();
 
-          for (final var p: rParameters) {
+          for (final var p : rParameters) {
             final var input = vm.get(p);
-            final var iterator = ((SequenceTrait<Value<?>>)input.type()).iterator(input);
+            final var iterator = ((SequenceTrait<Value<?>>) input.type()).iterator(input);
 
             while (iterator.hasNext()) {
               result.add(iterator.next());
@@ -257,7 +257,7 @@ public class Core extends Library {
           vm.set(rResult, new Value<>(iteratorType, result.iterator()));
         });
 
-          bindMacro("benchmark", 1,
+    bindMacro("benchmark", 1,
         (vm, namespace, location, arguments, rResult) -> {
           final var rRepetitions = vm.allocateRegister();
           arguments[0].emit(vm, namespace, rRepetitions);
@@ -512,6 +512,36 @@ public class Core extends Library {
             arguments[2].emit(vm, namespace, rResult);
             vm.emit(skipPc, new Goto(vm.emitPc()));
           }
+        });
+
+    bindFunction("interleave",
+        new String[]{"input1"},
+        (function, vm, location, rParameters, rResult) -> {
+          final var iterators = new ArrayList<Iterator<Value<?>>>();
+
+          for (final var p : rParameters) {
+            final var input = vm.get(p);
+            final var iterator = ((SequenceTrait<Value<?>>) input.type()).iterator(input);
+            iterators.add(iterator);
+          }
+
+          final var result = new ArrayList<Value<?>>();
+          var done = false;
+
+          while (!done) {
+            done = true;
+
+            for (final var iterator : iterators) {
+              if (!iterator.hasNext()) {
+                continue;
+              }
+
+              result.add(iterator.next());
+              done = false;
+            }
+          }
+
+          vm.set(rResult, new Value<>(iteratorType, result.iterator()));
         });
 
     bindFunction("iterator",
@@ -843,13 +873,13 @@ public class Core extends Library {
           final var results = new ArrayList<ArrayList<Value<?>>>();
 
           final var input = vm.get(rParameters[0]);
-          final var iterator = ((SequenceTrait<Value<?>>)input.type()).iterator(input);
+          final var iterator = ((SequenceTrait<Value<?>>) input.type()).iterator(input);
 
           while (iterator.hasNext()) {
             var v = iterator.next();
             var i = 0;
 
-            for (;;) {
+            for (; ; ) {
               if (results.size() <= i) {
                 results.add(new ArrayList<>());
               }
@@ -876,9 +906,9 @@ public class Core extends Library {
         (function, vm, location, rParameters, rResult) -> {
           final var iterators = new ArrayList<Iterator<Value<?>>>();
 
-          for (final var p: rParameters) {
+          for (final var p : rParameters) {
             final var input = vm.get(p);
-            final var iterator = ((SequenceTrait<Value<?>>)input.type()).iterator(input);
+            final var iterator = ((SequenceTrait<Value<?>>) input.type()).iterator(input);
             iterators.add(iterator);
           }
 
@@ -1248,7 +1278,7 @@ public class Core extends Library {
                          final Vm vm,
                          final Location location,
                          final int[] rParameters,
-                         final int rResult ){
+                         final int rResult) {
       vm.emit(new CallDirect(location, new Value<>(functionType, makeMake(target)), rParameters, rResult));
     }
 
@@ -1448,7 +1478,7 @@ public class Core extends Library {
     }
 
 
-    public void makeValue(final Vm vm, final Location location, final int[]rParameters, final int rResult) {
+    public void makeValue(final Vm vm, final Location location, final int[] rParameters, final int rResult) {
       final var result = new StringBuilder();
 
       for (int rParameter : rParameters) {
@@ -1487,7 +1517,7 @@ public class Core extends Library {
       return true;
     }
 
-    public void makeValue(final Vm vm, final Location location, final int[]rParameters, final int rResult) {
+    public void makeValue(final Vm vm, final Location location, final int[] rParameters, final int rResult) {
       final var result = new StringBuilder();
 
       for (int rParameter : rParameters) {
@@ -1495,7 +1525,8 @@ public class Core extends Library {
       }
 
       vm.set(rResult, new Value<>(symbolType, result.toString()));
-    };
+    }
+
   }
 
   public static class TimeType
@@ -1606,11 +1637,10 @@ public class Core extends Library {
       return value.as(this).size();
     }
 
-    public void makeValue(final Vm vm, final Location location, final int[]rParameters, final int rResult) {
+    public void makeValue(final Vm vm, final Location location, final int[] rParameters, final int rResult) {
       final var input = vm.get(rParameters[0]);
 
-      @SuppressWarnings("unchecked")
-      final var iterator = ((SequenceTrait<Value<?>>) input.type()).iterator(input);
+      @SuppressWarnings("unchecked") final var iterator = ((SequenceTrait<Value<?>>) input.type()).iterator(input);
       final var result = new ArrayList<Value<?>>();
 
       while (iterator.hasNext()) {

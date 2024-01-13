@@ -17,12 +17,13 @@ public class Type<D> {
   }
 
   public void emitCall(final Value<?> target,
-                        final Vm vm,
-                        final Location location,
-                        final int[] rParameters,
-                        final int rResult) {
+                       final Vm vm,
+                       final Location location,
+                       final int[] rParameters,
+                       final int rResult) {
     vm.emit(new CallDirect(location, target, rParameters, rResult));
   }
+
   public void emitId(final Value<?> value, final Vm vm, final Namespace namespace, final int rResult) {
     vm.emit(new Set(rResult, value));
   }
@@ -39,7 +40,7 @@ public class Type<D> {
     return left.equals(right);
   }
 
-  public void makeValue(final Vm vm, final Location location, final int[]rParameters, final int rResult) {
+  public void makeValue(final Vm vm, final Location location, final int[] rParameters, final int rResult) {
     throw new EvaluationError(location, "Make not supported for type %s", this);
   }
 
