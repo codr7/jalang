@@ -1,9 +1,9 @@
-* add call function
-
 * add support for destructuring pair function arguments
 
 * add support for function composition
 ** x.y
+
+* AoC 3-1
 
 * hook up type hierarchy
 

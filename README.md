@@ -87,6 +87,22 @@ Omitting the name creates an anonymous function.
   (Function [x])
 ```
 
+`call` may be used to call functions by reference.
+
+```
+  (call + 1 2 3)
+
+6
+```
+
+`apply` is similar to `call`, but expects an iterable final parameter.
+
+```
+  (apply + 1 [2 3])
+
+6
+```
+
 ## Bindings
 `define` may be used to introduce compile time bindings.
 

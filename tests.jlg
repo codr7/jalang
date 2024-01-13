@@ -326,6 +326,9 @@
   (foo 3))
 
 (check 6
+  (call + 1 2 3))
+
+(check 6
   (apply + 1 [2 3]))
 
 (load (path "aoc/code1-1.jlg"))

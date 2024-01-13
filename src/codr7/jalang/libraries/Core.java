@@ -269,7 +269,7 @@ public class Core extends Library {
           final var lp = vm.get(rParameters[rParameters.length-1]);
 
           if (!(lp.type() instanceof SequenceTrait<?>)) {
-            throw new EvaluationError(location, "Last parameter should be a sequence: %s.", lp);
+            throw new EvaluationError(location, "Final parameter should be a sequence: %s.", lp);
           }
 
           final var lpi = ((SequenceTrait<Value<?>>)lp.type()).iterator(lp);
@@ -311,6 +311,24 @@ public class Core extends Library {
           }
 
           vm.emit(Stop.instance);
+        });
+
+    bindFunction("call",
+        new String[]{"target"},
+        (function, vm, location, namespace, rParameters, rResult) -> {
+          final var target = vm.get(rParameters[0]);
+
+          if (!(target.type() instanceof CallableTrait)) {
+            throw new EvaluationError(location, "Target is not callable: %s.", target);
+          }
+
+          final var rps = new int[rParameters.length - 1];
+
+          for (int i = 0; i < rps.length; i++) {
+            rps[i] = rParameters[i + 1];
+          }
+
+          ((CallableTrait)target.type()).call(target, vm, namespace, location, rps, rResult);
         });
 
     bindMacro("check", 2,
