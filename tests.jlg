@@ -331,5 +331,11 @@
 (check 6
   (apply + 1 [2 3]))
 
+(check (- 3)
+  (+.- 1 2))
+
+(check [(- 5) (- 7) (- 9)]
+  (Vector (map +.- [1 2 3] [4 5 6])))
+
 (load (path "aoc/code1-1.jlg"))
 (load (path "aoc/code2-1.jlg"))

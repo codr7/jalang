@@ -1,7 +1,6 @@
-* add support for destructuring pair function arguments
+* figure out how to compose macros
 
-* add support for function composition
-** x.y
+* add support for destructuring pair function arguments
 
 * AoC 3-1
 

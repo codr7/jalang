@@ -218,6 +218,13 @@ public class Vm {
 
           break;
         }
+        case MakeDot: {
+          final var o = (MakeDot) op;
+          registers[o.rResult] = new Value<>(Core.dotType,
+              new Pair(registers[o.rLeft], registers[o.rRight]));
+          pc++;
+          break;
+        }
         case MakeMap: {
           final var o = (MakeMap) op;
           registers[o.rResult] = new Value<>(Core.mapType, new TreeMap<>());

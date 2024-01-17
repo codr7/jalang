@@ -18,7 +18,7 @@ public abstract class Operation {
     EqualsZero,
     Get, GetIterator, GetKey, Goto,
     If, Increment, Iterate,
-    MakeMap, MakePair, MakeVector,
+    MakeDot, MakeMap, MakePair, MakeVector,
     Nop, NotImplemented,
     Peek, Pop, Push,
     Return,

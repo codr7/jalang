@@ -49,17 +49,7 @@ public class SexprForm extends Form {
     } else if (targetForm instanceof LiteralForm) {
       target = ((LiteralForm) targetForm).value();
     } else {
-      final var rTarget = vm.allocateRegister();
-      targetForm.emit(vm, namespace, rTarget);
-      final var parameters = new int[body.length - 1];
-
-      for (int i = 1; i < body.length; i++) {
-        final var rParameter = vm.allocateRegister();
-        parameters[i - 1] = rParameter;
-        body[i].emit(vm, namespace, rParameter);
-      }
-
-      vm.emit(new CallIndirect(location(), rTarget, parameters, rResult));
+      targetForm.emitCall(vm, namespace, body, rResult);
       return;
     }
 

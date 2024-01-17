@@ -24,6 +24,7 @@ public class Core extends Library {
   public static final CharacterType characterType = new CharacterType("Character");
   public static final CollectionType collectionType = new CollectionType("Collection");
   public static final ComparableType comparableType = new ComparableType("Comparable");
+  public static final DotType dotType = new DotType("Dot");
   public static final Type<Function> functionType = new FunctionType("Function");
   public static final IndexedCollectionType indexedCollectionType = new IndexedCollectionType("IndexedCollection");
   public static final IntegerType integerType = new IntegerType("Integer");
@@ -54,6 +55,7 @@ public class Core extends Library {
     bindType(characterType);
     bindType(collectionType);
     bindType(comparableType);
+    bindType(dotType);
     bindType(functionType);
     bindType(indexedCollectionType);
     bindType(integerType);
@@ -158,7 +160,7 @@ public class Core extends Library {
         });
 
     bindFunction("-",
-        new String[]{"value1", "value2"},
+        new String[]{"value1"},
         (function, vm, location, namespace, rParameters, rResult) -> {
           int result = vm.get(rParameters[0]).as(integerType);
 
@@ -1082,6 +1084,44 @@ public class Core extends Library {
     }
   }
 
+  public static class DotType
+      extends Type<Pair>
+   implements CallableTrait {
+
+    public DotType(final String name) {
+      super(name);
+    }
+
+    public void call(final Value<?> target,
+                     final Vm vm,
+                     final Namespace namespace,
+                     final Location location,
+                     final int[] rParameters,
+                     final int rResult) {
+      final var p = target.as(this);
+
+      final var l = p.left();
+      ((CallableTrait)l.type()).call(l, vm, namespace, location, rParameters, rResult);
+
+      final var r = p.right();
+      ((CallableTrait)r.type()).call(r, vm, namespace, location, new int[]{rResult}, rResult);
+    }
+
+    public String dump(final Pair value) {
+      return String.format("%s.%s", value.left().toString(), value.right().toString());
+    }
+
+    public void emitCall(final Value<?> target,
+                         final Vm vm,
+                         final Location location,
+                         final int[] rParameters,
+                         final int rResult) {
+      final var p = target.as(this);
+      vm.emit(new CallDirect(location, p.left(), rParameters, rResult));
+      vm.emit(new CallDirect(location, p.right(), new int[]{rResult}, rResult));
+    }
+  }
+
   public static class IndexedCollectionType extends Type<Object> {
     public IndexedCollectionType(final String name) {
       super(name);
@@ -1110,7 +1150,7 @@ public class Core extends Library {
       final var function = target.as(this);
 
       if (function.arity() != -1 && rParameters.length < function.arity()) {
-        throw new EmitError(location, "Not enough arguments.");
+        throw new EmitError(location, "Not enough arguments: %s.", function);
       }
 
       super.emitCall(target, vm, location, rParameters, rResult);
