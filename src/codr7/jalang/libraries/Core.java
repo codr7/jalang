@@ -1098,27 +1098,62 @@ public class Core extends Library {
                      final Location location,
                      final int[] rParameters,
                      final int rResult) {
-      final var p = target.as(this);
-
-      final var l = p.left();
-      ((CallableTrait)l.type()).call(l, vm, namespace, location, rParameters, rResult);
-
-      final var r = p.right();
-      ((CallableTrait)r.type()).call(r, vm, namespace, location, new int[]{rResult}, rResult);
+        getReference(target.as(this), vm, namespace, location, rParameters, rResult).
+            as(macroReferenceType).
+            call(vm, location, rParameters, rResult);
     }
 
     public String dump(final Pair value) {
       return String.format("%s.%s", value.left().toString(), value.right().toString());
     }
 
-    public void emitCall(final Value<?> target,
-                         final Vm vm,
-                         final Location location,
-                         final int[] rParameters,
-                         final int rResult) {
-      final var p = target.as(this);
-      vm.emit(new CallDirect(location, p.left(), rParameters, rResult));
-      vm.emit(new CallDirect(location, p.right(), new int[]{rResult}, rResult));
+    public MacroReference makeReference(final Value<?> left,
+                                        final Value<?> right,
+                                        final Vm vm,
+                                        final Namespace namespace,
+                                        final Location location,
+                                        final int[] rParameters,
+                                        final int rResult) {
+      final var arguments = new Form[rParameters.length + 1];
+      arguments[0] = left.newCallTarget(location);
+
+      for (int i = 0; i < rParameters.length; i++) {
+        arguments[i + 1] = new RegisterForm(location, rParameters[i]);
+      }
+
+      final var startPc = vm.emitPc();
+      final var f = new SexprForm(location, right.newCallTarget(location), new SexprForm(location, arguments));
+      f.emit(vm, namespace, rResult);
+      vm.emit(new Return(rResult));
+      return new MacroReference(
+          String.format("%s-%s-%d", left, right, rParameters.length),
+          startPc, rParameters);
+    }
+
+    public Form newCallTarget(final Pair value, final Location location) {
+      return new DotForm(location, value.left().newCallTarget(location), value.right().newCallTarget(location));
+    }
+
+    public Value<?> getReference(final Pair target,
+                                 final Vm vm,
+                                 final Namespace namespace,
+                                 final Location location,
+                                 final int[] rParameters,
+                                 final int rResult) {
+      final var referenceName = String.format("%s-%s-%d", target.left(), target.right(),  rParameters.length);
+      var v = namespace.find(referenceName);
+
+      if (v == null) {
+        v = new Value<>(Core.macroReferenceType,
+            makeReference(target.left(), target.right(), vm, namespace, location, rParameters, rResult));
+        namespace.bind(referenceName, v);
+
+        if (rParameters.length > 0) {
+          vm.reallocateRegisters();
+        }
+      }
+
+      return v;
     }
   }
 
@@ -1144,6 +1179,7 @@ public class Core extends Library {
 
     public void emitCall(final Value<?> target,
                          final Vm vm,
+                         final Namespace namespace,
                          final Location location,
                          final int[] rParameters,
                          final int rResult) {
@@ -1153,7 +1189,11 @@ public class Core extends Library {
         throw new EmitError(location, "Not enough arguments: %s.", function);
       }
 
-      super.emitCall(target, vm, location, rParameters, rResult);
+      super.emitCall(target, vm, namespace, location, rParameters, rResult);
+    }
+
+    public Form newCallTarget(final Function value, final Location location) {
+      return new IdForm(location, value.name());
     }
   }
 
@@ -1228,6 +1268,10 @@ public class Core extends Library {
                      final int[] rParameters,
                      final int rResult) {
       target.as(this).call(vm, namespace, location, rParameters, rResult);
+    }
+
+    public Form newCallTarget(final Macro value, final Location location) {
+      return new IdForm(location, value.name());
     }
   }
 
@@ -1377,6 +1421,7 @@ public class Core extends Library {
 
     public void emitCall(final Value<?> target,
                          final Vm vm,
+                         final Namespace namespace,
                          final Location location,
                          final int[] rParameters,
                          final int rResult) {

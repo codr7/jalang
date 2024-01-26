@@ -32,10 +32,11 @@ public record Value<D>(Type<D> type, D data) implements Comparable<Value<?>> {
   }
 
   public void emitCall(final Vm vm,
+                       final Namespace namespace,
                        final Location location,
                        final int[] rParameters,
                        final int rResult) {
-    type.emitCall(this, vm, location, rParameters, rResult);
+    type.emitCall(this, vm, namespace, location, rParameters, rResult);
   }
 
   public void emitId(final Vm vm, final Namespace namespace, final int rResult) {
@@ -52,6 +53,10 @@ public record Value<D>(Type<D> type, D data) implements Comparable<Value<?>> {
 
   public boolean isTrue() {
     return type.isTrue(data);
+  }
+
+  public Form newCallTarget(final Location location) {
+    return type.newCallTarget(data, location);
   }
 
   public Value<?> peek() {

@@ -27,12 +27,8 @@
          (> (g 'green) green)
          (> (g 'blue) blue)))))
 
-(function possible-games [path]
-  (let [games (read-games path)]
-    (find-all possible? games)))
-
 (function sum-games [path]
-  (reduce + (map (function [g] (peek (peek g))) (possible-games path)) 0))
+  (reduce + (map peek.peek (find-all possible? (read-games path))) 0))
     
 (check 2268
   (sum-games (path "input2")))

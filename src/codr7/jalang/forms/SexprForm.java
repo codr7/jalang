@@ -74,7 +74,7 @@ public class SexprForm extends Form {
         body[i].emit(vm, namespace, rParameter);
       }
 
-      target.emitCall(vm, location(), rParameters, rResult);
+      target.emitCall(vm, namespace, location(), rParameters, rResult);
     }
 
     if (peek) {

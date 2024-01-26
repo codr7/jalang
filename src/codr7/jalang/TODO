@@ -1,6 +1,8 @@
-* figure out how to compose macros
+* simplify pair reader
 
 * add support for destructuring pair function arguments
+
+* simplify code2-1
 
 * AoC 3-1
 

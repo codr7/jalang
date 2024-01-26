@@ -1,5 +1,6 @@
 package codr7.jalang;
 
+import codr7.jalang.errors.EmitError;
 import codr7.jalang.errors.EvaluationError;
 import codr7.jalang.libraries.Core;
 import codr7.jalang.operations.CallDirect;
@@ -18,6 +19,7 @@ public class Type<D> {
 
   public void emitCall(final Value<?> target,
                        final Vm vm,
+                       final Namespace namespace,
                        final Location location,
                        final int[] rParameters,
                        final int rResult) {
@@ -46,6 +48,10 @@ public class Type<D> {
 
   public final String name() {
     return name;
+  }
+
+  public Form newCallTarget(final D value, final Location location) {
+    throw new EmitError(location, "Invalid call target: %s/%s", value, this);
   }
 
   public boolean isTrue(final D value) {
