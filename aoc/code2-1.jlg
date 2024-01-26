@@ -1,7 +1,3 @@
-(define red 12)
-(define green 13)
-(define blue 14)
-
 (function decode-color [in out]
   (let [n:i (parse-integer in)
         c (Symbol (slice in (+ i 1)))]
@@ -22,9 +18,9 @@
   (enumerate (map decode-line (split (slurp path) "\n")) 1))
 
 (function possible? [game]
-  (not (or (> (game 'red) red)
-           (> (game 'green) green)
-           (> (game 'blue) blue))))
+  (not (or (> (game 'red) 12)
+           (> (game 'green) 13)
+           (> (game 'blue) 14))))
 
 (function sum-games [path]
   (reduce + (map peek.peek (find-all tail.possible? (read-games path))) 0))
