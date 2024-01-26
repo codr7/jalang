@@ -22,13 +22,12 @@
   (enumerate (map decode-line (split (slurp path) "\n")) 1))
 
 (function possible? [game]
-  (let [g (tail game)]
-    (not (or (> (g 'red) red)
-         (> (g 'green) green)
-         (> (g 'blue) blue)))))
+  (not (or (> (game 'red) red)
+           (> (game 'green) green)
+           (> (game 'blue) blue))))
 
 (function sum-games [path]
-  (reduce + (map peek.peek (find-all possible? (read-games path))) 0))
+  (reduce + (map peek.peek (find-all tail.possible? (read-games path))) 0))
     
 (check 2268
   (sum-games (path "input2")))
