@@ -22,8 +22,8 @@ public class PairReader implements Reader {
     }
 
     location.update(in.pop());
-    SkipReader.instance.read(in, out, location);
     final var left = out.removeLast();
+    SkipReader.instance.read(in, out, location);
 
     if (!FormReader.instance.read(in, out, location)) {
       throw new ReadError(location, "Invalid pair.");
