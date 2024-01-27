@@ -146,7 +146,7 @@
   (Vector (map + [1 2 3] [4 5 6 7])))
 
 (check [[1 42] [2 42]]
-  (f foo [x]
+  (^ foo [x]
      [x 42])
 
   [(foo 1) (foo 2)])
@@ -164,7 +164,7 @@
   ({'foo:1 'bar:2 'baz:3} 'bar 4))
 
 (check [{1:42} {2:42}]
-  (f foo [x]
+  (^ foo [x]
      {x:42})
 
   [(foo 1) (foo 2)])
@@ -182,7 +182,7 @@
   (Map 1 2 3 4))
 
 (check [5 7 9]
-  (f foo [l r]
+  (^ foo [l r]
     (+ l r))
   
   (Vector (map foo [1 2 3] [4 5 6 7])))
@@ -224,7 +224,7 @@
     x))
 
 (check 7
-  (f foo [v result]
+  (^ foo [v result]
     (+ result v))
 
   (reduce foo [1 2 3] 1))
@@ -262,46 +262,46 @@
 (check 42:_
   (define foo _)
 
-  (f bar []
+  (^ bar []
     foo)
 
-  (f baz []
+  (^ baz []
     (let [foo 42]
       (bar)))
 
   (baz):foo)
 
 (check 42
-  (f foo [] 42)
+  (^ foo [] 42)
   
   (foo))
 
 (check 43
-  (f foo [x]
+  (^ foo [x]
     (+ x 42))
     
   (foo 1))
 
 (check 45
-  (f foo [x y]
+  (^ foo [x y]
     (+ x y 42))
     
   (foo 1 2))
 
 (check 6
-  (f sum [n]
+  (^ sum [n]
     (if (> n 1) (+ n (sum (- n 1))) n))
     
   (sum 3))
 
 (check 55
-  (f fib[n]
+  (^ fib[n]
     (if (< n 2) n (+ (fib (-1 n)) (fib (-1 n)))))
     
   (fib 10))
 
 (check 55
-  (f fib [n lookup]
+  (^ fib [n lookup]
     (or (lookup n)
         (let [result (if (< n 2) n (+ (fib (- n 1) lookup)
                                       (fib (- n 2) lookup)))] 
@@ -311,14 +311,14 @@
   (fib 10 {}))
 				 
 (check 55
-  (f fib[n a b]
+  (^ fib[n a b]
     (if (> n 1) (fib (-1 n) b (+ a b)) (if (=0 n) a b)))
     
   (fib 10 0 1))
 
 (check 45
-  (f foo[x]
-    (f bar[y]
+  (^ foo[x]
+    (^ bar[y]
       (+ x y))
       
     (bar 42))

@@ -67,10 +67,10 @@ T
 ```
 
 ### f
-`f` may be used to create new functions.
+`^` may be used to create new functions.
 
 ```
-  (f add-42 [x]
+  (^ add-42 [x]
     (+ x 42))
 
   (add-42 1)
@@ -81,7 +81,7 @@ T
 Omitting the name creates an anonymous function.
 
 ```
-  (f [x]
+  (^ [x]
     (+ x 42))
 
   (Function [x])
@@ -128,10 +128,10 @@ Defined names are dynamically scoped.
 ```
   (define foo _)
 
-  (f bar []
+  (^ bar []
     foo)
 
-  (f baz []
+  (^ baz []
     (let [foo 42]
       (bar)))
 

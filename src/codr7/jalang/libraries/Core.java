@@ -399,81 +399,6 @@ public class Core extends Library {
           vm.set(rResult, new Value<>(iteratorType, output.iterator()));
         });
 
-    bindMacro("f", 1,
-        (vm, namespace, location, arguments, rResult) -> {
-          final var as = new ArrayDeque<Form>();
-          Collections.addAll(as, arguments);
-          var name = "";
-
-          if (arguments[0] instanceof IdForm) {
-            name = ((IdForm) as.removeFirst()).name();
-          }
-
-          var psForm = as.removeFirst();
-
-          if (psForm instanceof PairForm p) {
-            var tnf = p.right();
-            var tv = namespace.find(((IdForm) tnf).name());
-
-            if (tv == null) {
-              throw new EmitError(tnf.location(), "Type not found: %s.", tnf);
-            }
-
-            psForm = p.left();
-          }
-
-          if (!(psForm instanceof VectorForm)) {
-            throw new EmitError(psForm.location(), "Invalid parameter specification: %s.", psForm);
-          }
-
-          final var ps = Arrays.stream(((VectorForm) psForm).body()).map((f) -> {
-            var pn = "";
-
-            if (f instanceof IdForm) {
-              pn = ((IdForm) f).name();
-            } else {
-              throw new EmitError(f.location(), "Invalid parameter: %s.", f);
-            }
-
-            return new Function.Parameter(pn, vm.allocateRegister());
-          }).toArray(Function.Parameter[]::new);
-
-          final var skipPc = vm.emit();
-          final var startPc = vm.emitPc();
-
-          final var function = new Function(name, ps,
-              (_function, _vm, _location, _namespace, _parameters, _result) -> {
-                _vm.pushCall(new Value<>(functionType, _function), _location, startPc, _result);
-
-                for (var i = 0; i < _parameters.length; i++) {
-                  vm.set(ps[i].rValue(), vm.get(_parameters[i]));
-                }
-              });
-
-          final var value = new Value<>(functionType, function);
-
-          if (!name.isEmpty()) {
-            namespace.bind(name, new Value<>(functionType, function));
-          }
-
-          final var bodyNamespace = new Namespace(namespace);
-
-          for (final Function.Parameter p : ps) {
-            bodyNamespace.bind(p.name(), new Value<>(registerType, p.rValue()));
-          }
-
-          for (final var f : as) {
-            f.emit(vm, bodyNamespace, rResult);
-          }
-
-          vm.emit(new Return(rResult));
-          vm.emit(skipPc, new Goto(vm.emitPc()));
-
-          if (name.isEmpty()) {
-            vm.emit(new Set(rResult, value));
-          }
-        });
-
     bindMacro("find", 2,
         (vm, namespace, location, arguments, rResult) -> {
           final var rPredicate = vm.allocateRegister();
@@ -560,6 +485,83 @@ public class Core extends Library {
           vm.emit(new Goto(iteratePc));
           vm.emit(iteratePc, new Iterate(rIterator, rValue, vm.emitPc()));
         });
+
+    bindMacro("function", 1,
+        (vm, namespace, location, arguments, rResult) -> {
+          final var as = new ArrayDeque<Form>();
+          Collections.addAll(as, arguments);
+          var name = "";
+
+          if (arguments[0] instanceof IdForm) {
+            name = ((IdForm) as.removeFirst()).name();
+          }
+
+          var psForm = as.removeFirst();
+
+          if (psForm instanceof PairForm p) {
+            var tnf = p.right();
+            var tv = namespace.find(((IdForm) tnf).name());
+
+            if (tv == null) {
+              throw new EmitError(tnf.location(), "Type not found: %s.", tnf);
+            }
+
+            psForm = p.left();
+          }
+
+          if (!(psForm instanceof VectorForm)) {
+            throw new EmitError(psForm.location(), "Invalid parameter specification: %s.", psForm);
+          }
+
+          final var ps = Arrays.stream(((VectorForm) psForm).body()).map((f) -> {
+            var pn = "";
+
+            if (f instanceof IdForm) {
+              pn = ((IdForm) f).name();
+            } else {
+              throw new EmitError(f.location(), "Invalid parameter: %s.", f);
+            }
+
+            return new Function.Parameter(pn, vm.allocateRegister());
+          }).toArray(Function.Parameter[]::new);
+
+          final var skipPc = vm.emit();
+          final var startPc = vm.emitPc();
+
+          final var function = new Function(name, ps,
+              (_function, _vm, _location, _namespace, _parameters, _result) -> {
+                _vm.pushCall(new Value<>(functionType, _function), _location, startPc, _result);
+
+                for (var i = 0; i < _parameters.length; i++) {
+                  vm.set(ps[i].rValue(), vm.get(_parameters[i]));
+                }
+              });
+
+          final var value = new Value<>(functionType, function);
+
+          if (!name.isEmpty()) {
+            namespace.bind(name, new Value<>(functionType, function));
+          }
+
+          final var bodyNamespace = new Namespace(namespace);
+
+          for (final Function.Parameter p : ps) {
+            bodyNamespace.bind(p.name(), new Value<>(registerType, p.rValue()));
+          }
+
+          for (final var f : as) {
+            f.emit(vm, bodyNamespace, rResult);
+          }
+
+          vm.emit(new Return(rResult));
+          vm.emit(skipPc, new Goto(vm.emitPc()));
+
+          if (name.isEmpty()) {
+            vm.emit(new Set(rResult, value));
+          }
+        });
+
+    alias("^", "function");
 
     bindMacro("if", 2,
         (vm, namespace, location, arguments, rResult) -> {

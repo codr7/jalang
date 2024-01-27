@@ -1,11 +1,11 @@
-(f find-digit [line]
+(^ find-digit [line]
   (digit (find:_ digit? line)))
 
-(f decode-line [line]
+(^ decode-line [line]
   (parse-integer:_ (String (find-digit line)
   		           (find-digit (reverse-string line)))))
 
-(f calibrate [input]
+(^ calibrate [input]
   (reduce + (map decode-line (split (slurp input) "\n")) 0))
 
 (check 55108
