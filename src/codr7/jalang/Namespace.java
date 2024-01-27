@@ -17,6 +17,10 @@ public class Namespace {
     this(null);
   }
 
+  public final void alias(final String targetKey, final String sourceKey) {
+    bind(targetKey, find(sourceKey));
+  }
+
   public final void bind(final String key, final Value<?> value) {
     bindings.put(key, value);
   }

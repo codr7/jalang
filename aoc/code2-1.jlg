@@ -1,28 +1,28 @@
-(function decode-color [in out]
+(f decode-color [in out]
   (let [n:i (parse-integer in)
         c (Symbol (slice in (+ i 1)))]
     (out c (max (or (out c) 0) n))))
   
-(function decode-game [in out]
+(f decode-game [in out]
   (for [c (split in ",")]
     (decode-color c out)))
   
-(function decode-line [in]
-  (let [games (split (slice in (+ (_:find (function [c] (= c \:)) in) 1)) ";")
+(f decode-line [in]
+  (let [games (split (slice in (+ (_:find (f [c] (= c \:)) in) 1)) ";")
         out {}]
     (for [g games]
       (decode-game g out))
     out))
 	
-(function read-games [path]
+(f read-games [path]
   (enumerate (map decode-line (split (slurp path) "\n")) 1))
 
-(function possible? [game]
+(f possible? [game]
   (not (or (> (game 'red) 12)
            (> (game 'green) 13)
            (> (game 'blue) 14))))
 
-(function sum-games [path]
+(f sum-games [path]
   (reduce + (map peek.peek (find-all tail.possible? (read-games path))) 0))
     
 (check 2268

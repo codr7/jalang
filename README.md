@@ -1,4 +1,4 @@
-## Introduction
+# Introduction
 This project aims to implement an embedded custom Lisp interpreter in Java.
 
 ## Setup
@@ -67,10 +67,10 @@ T
 ```
 
 ### function
-`function` may be used to create new functions.
+`f` may be used to create new functions.
 
 ```
-  (function add-42 [x]
+  (f add-42 [x]
     (+ x 42))
 
   (add-42 1)
@@ -81,7 +81,7 @@ T
 Omitting the name creates an anonymous function.
 
 ```
-  (function [x]
+  (f [x]
     (+ x 42))
 
   (Function [x])
@@ -128,10 +128,10 @@ Defined names are dynamically scoped.
 ```
   (define foo _)
 
-  (function bar []
+  (f bar []
     foo)
 
-  (function baz []
+  (f baz []
     (let [foo 42]
       (bar)))
 
