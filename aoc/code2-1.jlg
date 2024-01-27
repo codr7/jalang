@@ -8,11 +8,8 @@
     (decode-color c out)))
   
 (f decode-line [in]
-  (let [games (split (slice in (+ (_:find (f [c] (= c \:)) in) 1)) ";")
-        out {}]
-    (for [g games]
-      (decode-game g out))
-    out))
+  (let [games (split (slice in (+ (_:find (f [c] (= c \:)) in) 1)) ";")]
+    (reduce decode-game games {})))
 	
 (f read-games [path]
   (enumerate (map decode-line (split (slurp path) "\n")) 1))
