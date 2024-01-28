@@ -428,7 +428,7 @@ public class Core extends Library {
           vm.emit(exitPc, new Goto(vm.emitPc()));
         });
 
-    bindMacro("find-all", 2,
+    bindMacro("filter", 2,
         (vm, namespace, location, arguments, rResult) -> {
           final var rPredicate = vm.allocateRegister();
           final var predicateForm = arguments[0];
@@ -790,7 +790,8 @@ public class Core extends Library {
     bindFunction("parse-integer",
         new String[]{"input"},
         (function, vm, location, namespace, rParameters, rResult) -> {
-          final var input = vm.get(rParameters[0]).as(stringType);
+          final var start = (rParameters.length == 2) ? vm.get(rParameters[1]).as(integerType) : 0;
+          final var input = vm.get(rParameters[0]).as(stringType).substring(start);
           final var match = Pattern.compile("^\\s*(\\d+).*").matcher(input);
 
           if (!match.find()) {
@@ -799,7 +800,7 @@ public class Core extends Library {
 
           vm.set(rResult, new Value<>(pairType, new Pair(
               new Value<>(integerType, Integer.valueOf(match.group(1))),
-              new Value<>(integerType, match.end(1)))));
+              new Value<>(integerType, match.end(1) + start))));
         });
 
     bindFunction("path",
@@ -850,6 +851,12 @@ public class Core extends Library {
         (function, vm, location, namespace, rParameters, rResult) ->
             vm.set(rResult, new Value<>(integerType, vm.registerCount())));
 
+    bindMacro("return", 1,
+        (vm, namespace, location, arguments, rResult) -> {
+          arguments[0].emit(vm, namespace, rResult);
+          vm.emit(new Return(rResult));
+        });
+
     bindFunction("say",
         new String[]{"value1"},
         (function, vm, location, namespace, rParameters, rResult) -> {
@@ -865,6 +872,32 @@ public class Core extends Library {
 
           System.out.println(what);
           System.out.flush();
+        });
+
+    bindMacro("set", 2,
+        (vm, namespace, location, arguments, rResult) -> {
+          final var targetForm = arguments[0];
+
+          if (targetForm instanceof IdForm idf) {
+            final var found = namespace.find(idf.name());
+
+            if (found == null) {
+              throw new EmitError(location, "Unknown identifier: %s.", idf);
+            }
+
+            if (found.type() == registerType) {
+              final var r = found.as(registerType);
+              arguments[1].emit(vm, namespace, r);
+
+              if (rResult != r) {
+                vm.emit(new Get(r, rResult));
+              }
+            } else {
+              throw new EmitError(location, "Invalid target type: %s.", found.type());
+            }
+          } else {
+            throw new EmitError(location, "Invalid target: %s.", targetForm);
+          }
         });
 
     bindFunction("sleep",
@@ -1462,15 +1495,27 @@ public class Core extends Library {
     }
 
     public Order compare(final Value<?> left, final Value<?> right) {
-      final var lv = left.as(this).left();
-      final var rv = right.as(this).left();
-      final var result = lv.compareTo(rv);
+      final var ll = left.as(this).left();
+      final var rl = right.as(this).left();
+      final var r1 = ll.compareTo(rl);
 
-      if (result < 0) {
+      if (r1 < 0) {
         return Order.LessThan;
       }
 
-      if (result > 0) {
+      if (r1 > 0) {
+        return Order.GreaterThan;
+      }
+
+      final var lr = left.as(this).right();
+      final var rr = right.as(this).right();
+      final var r2 = lr.compareTo(rr);
+
+      if (r2 < 0) {
+        return Order.LessThan;
+      }
+
+      if (r2 > 0) {
         return Order.GreaterThan;
       }
 
@@ -1584,9 +1629,20 @@ public class Core extends Library {
 
   public static class StringType
       extends Type<String>
-      implements CollectionTrait, ComparableTrait, IndexedCollectionTrait, SequenceTrait<Value<Character>> {
+      implements CallableTrait, CollectionTrait, ComparableTrait, IndexedCollectionTrait,
+      SequenceTrait<Value<Character>> {
     public StringType(final String name) {
       super(name);
+    }
+
+    public void call(final Value<?> target,
+                     final Vm vm,
+                     final Namespace namespace,
+                     final Location location,
+                     final int[] rParameters,
+                     final int rResult) {
+      final var i = vm.get(rParameters[0]).as(integerType);
+      vm.set(rResult, new Value<>(characterType, target.as(this).charAt(i)));
     }
 
     public Order compare(final Value<?> left, final Value<?> right) {

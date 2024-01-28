@@ -10,6 +10,9 @@
 (check F
   (= 'foo 'bar))
   
+(check \b
+  ("abc" 1))
+
 (check T
   (< "abc" "def" "ghi"))
 
@@ -113,10 +116,10 @@
   (_:find digit? "a3b"))
 
 (check [\1:0 \2:3 \3:6]
-  (Vector (find-all digit? "1ab2cd3")))
+  (Vector (filter digit? "1ab2cd3")))
 
-(check 42:3
-  (parse-integer " 42foo"))
+(check 42:6
+  (parse-integer "foo 42bar" 3))
 
 (check 3
   (length "foo"))
@@ -174,6 +177,15 @@
     (m 1:2 'foo)
     (m 2:3 'bar)
     (m 1:2)))
+
+(check 'baz
+  (let [foo 'bar]
+    (set foo 'baz)
+    foo))
+
+(check 'baz
+  (let [foo 'bar]
+    (set foo 'baz)))
 
 (check {1 2 3}
   (Set 1 2 3))
@@ -342,3 +354,4 @@
 
 (load (path "aoc/code1-1.jlg"))
 (load (path "aoc/code2-1.jlg"))
+(load (path "aoc/code3-1.jlg"))

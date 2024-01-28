@@ -1,0 +1,40 @@
+(define numbers _)
+(define symbols _)
+
+(^ decode-line [in row]
+  (^ rec [col]
+    (if (< col (length in))
+      (let [c (in col)]
+        (if (digit? c)
+          (let [n:i (parse-integer in col)]
+            (push numbers n:row:col:(- i col))
+            (rec i))
+          (do
+           (if (not (= c \.)) (symbols row:col c))
+           (rec (+ col 1)))))))
+  (rec 0))
+	
+(^ read-parts [path]
+  (let [lines (Vector (split (slurp path) "\n"))]
+    (for [row (length lines)]
+      (decode-line (lines row) row))
+    numbers))
+
+(^ sum-parts [path]
+  (let [numbers []
+        symbols {}]
+    (read-parts path)
+
+    (reduce + (map peek.peek
+                   (filter (^ [rec]
+                             (let [n:r:c:len rec]
+                               (for [ri 3]
+          		         (for [ci (+ len 2)]
+	    		           (if (symbols (- (+ r ri) 1):(- (+ c ci) 1))
+			             (return T))))
+                               F))
+                      numbers))
+              0)))
+
+(check 537832
+  (sum-parts (path "input3")))
