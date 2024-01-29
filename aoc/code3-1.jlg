@@ -16,7 +16,7 @@
 	
 (^ read-parts [path]
   (let [lines (Vector (split (slurp path) "\n"))]
-    (for [row (length lines)]
+    (for row (length lines)
       (decode-line (lines row) row))
     numbers))
 
@@ -28,8 +28,8 @@
     (reduce + (map peek.peek
                    (filter (^ [rec]
                              (let [n:r:c:len rec]
-                               (for [ri 3]
-          		         (for [ci (+ len 2)]
+                               (for ri 3
+          		         (for ci (+ len 2)
 	    		           (if (symbols (- (+ r ri) 1):(- (+ c ci) 1))
 			             (return T))))
                                F))

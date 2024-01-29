@@ -204,7 +204,7 @@
 
 (check ['foo 'bar 'baz]
   (let [result []]
-    (for [v ['foo 'bar 'baz]]
+    (for v ['foo 'bar 'baz]
       (push result v))
     result))
 

@@ -343,7 +343,7 @@ or by calling the `Set` constructor.
 `for` evaluates its body with the specified variable bound to successive values of its input.
 
 ```
-(for [v ['foo 'bar 'baz]]
+(for v ['foo 'bar 'baz]
   (say v))
 
 foo

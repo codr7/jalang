@@ -4,7 +4,7 @@
     (out c (max (or (out c) 0) n))))
   
 (^ decode-game [in out]
-  (for [c (split in ",")]
+  (for c (split in ",")
     (decode-color c out)))
   
 (^ decode-line [in]
