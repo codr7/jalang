@@ -440,6 +440,15 @@ public class Core extends Library {
           vm.emit(exitPc, new Goto(vm.emitPc()));
         });
 
+    bindFunction("find-character",
+        new String[]{"needle", "stack"},
+        (function, vm, location, namespace, rParameters, rResult) -> {
+          final var c = vm.get(rParameters[0]).as(characterType);
+          final var s = vm.get(rParameters[1]).as(stringType);
+          final var i = s.indexOf(c);
+          vm.set(rResult, (i == -1) ? new Value<>(noneType, null) : new Value<>(integerType, i));
+        });
+
     bindMacro("filter", 2,
         (vm, namespace, location, arguments, rResult) -> {
           final var rPredicate = vm.allocateRegister();

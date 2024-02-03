@@ -2,8 +2,8 @@
   (apply Set (map parse-integer.peek (filter this (split in " ")))))
    
 (^ read-card [in]
-  (let [i (_:find (^ [c] (= c \:)) in)
-        j (_:find (^ [c] (= c \|)) in)]
+  (let [i (find-character \: in)
+        j (find-character \| in)]
     (read-numbers (slice in (+ i 1) j)):(read-numbers (slice in (+ j 1)))))
 
 (^ read-cards [path]

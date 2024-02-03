@@ -1,6 +1,3 @@
-* add find-character
-** test + use in aoc
-
 * switch Vector to take values like Map/List
 ** update code to use apply
 
@@ -11,7 +8,6 @@
 * add while loop
 
 * add splat support
-** (+ @[1 2 3])
 
 * add support for destructuring pair/list function arguments
 ** same as let

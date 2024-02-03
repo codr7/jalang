@@ -40,17 +40,19 @@ _
 
 ### if
 `if` allows branching on a condition.<br/>
+
+```
+  (if F "true" "false")
+
+"false"
+```
+
 The else expression is optional.
 
 ```
   (if T "true")
 
 "true"
-```
-```
-  (if F "true" "false")
-
-"false"
 ```
 
 ### do

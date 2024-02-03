@@ -16,6 +16,12 @@
 (check \b
   ("abc" 1))
 
+(check 1
+  (find-character \b "abc"))
+
+(check _
+  (find-character \z "abc"))
+
 (check T
   (< "abc" "def" "ghi"))
 

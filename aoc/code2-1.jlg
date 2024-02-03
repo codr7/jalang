@@ -8,7 +8,7 @@
     (decode-color c out)))
   
 (^ decode-line [in]
-  (let [games (split (slice in (+ (_:find (^[c] (= c \:)) in) 1)) ";")]
+  (let [games (split (slice in (+ (find-character \: in) 1)) ";")]
     (reduce decode-game games {})))
 	
 (^ read-games [path]
