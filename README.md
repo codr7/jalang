@@ -9,7 +9,7 @@ $ git clone https://github.com/codr7/jalang.git
 $ cd jalang
 $ rlwrap java -jar jalang.jar
 
-jalang v7
+jalang v8
 May the source be with you!
 
   (say "hello" "world")

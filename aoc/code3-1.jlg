@@ -25,7 +25,7 @@
         symbols {}]
     (read-parts path)
 
-    (reduce + (map peek.peek
+    (reduce + (map peek
                    (filter (^ [rec]
                              (let [n:r:c:len rec]
                                (for ri 3

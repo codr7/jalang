@@ -175,6 +175,18 @@ public class Core extends Library {
           vm.set(rResult, new Value<>(integerType, result));
         });
 
+    bindFunction("*",
+        new String[]{"value1"},
+        (function, vm, location, namespace, rParameters, rResult) -> {
+          var result = vm.get(rParameters[0]).as(integerType);
+
+          for (var i = 1; i < rParameters.length; i++) {
+            result *= vm.get(rParameters[i]).as(integerType);
+          }
+
+          vm.set(rResult, new Value<>(integerType, result));
+        });
+
     bindMacro("=0", 1,
         (vm, namespace, location, arguments, rResult) -> {
           arguments[0].emit(vm, namespace, rResult);
@@ -440,18 +452,13 @@ public class Core extends Library {
           vm.emit(new GetIterator(rIterator, rIterator, inputForm.location()));
           vm.emit(new MakeVector(rResult));
 
-          final var rIndex = vm.allocateRegister();
-          vm.emit(new Set(rIndex, new Value<>(integerType, 0)));
-
           final var iteratePc = vm.emit();
           final var rValue = vm.allocateRegister();
           final var rPredicateResult = vm.allocateRegister();
           vm.emit(new CallIndirect(location, rPredicate, new int[]{rValue}, rPredicateResult));
           final var ifPc = vm.emit();
-          vm.emit(new MakePair(rValue, rIndex, rValue));
           vm.emit(new Push(rResult, rValue, rResult));
           vm.emit(ifPc, new If(rPredicateResult, vm.emitPc()));
-          vm.emit(new Increment(rIndex, rIndex));
           vm.emit(new Goto(iteratePc));
           vm.emit(iteratePc, new Iterate(rIterator, rValue, vm.emitPc()));
         });
@@ -601,6 +608,25 @@ public class Core extends Library {
           vm.set(rResult, new Value<>(iteratorType, result.iterator()));
         });
 
+    bindFunction("intersection",
+        new String[]{"map1"},
+        (function, vm, location, namespace, rParameters, rResult) -> {
+          var m1 = vm.get(rParameters[0]).as(mapType);
+          var ks = new HashSet<>(m1.keySet());
+
+          for (int i = 1; i < rParameters.length; i++) {
+            ks.retainAll(vm.get(rParameters[i]).as(mapType).keySet());
+          }
+
+          for (final var k: new HashSet<>(m1.keySet())) {
+            if (!ks.contains(k)) {
+              m1.remove(k);
+            }
+          }
+
+          vm.set(rResult, new Value<>(mapType, m1));
+        });
+
     bindFunction("iterator",
         new String[]{"sequence"},
         (function, vm, location, namespace, rParameters, rResult) -> {
@@ -727,12 +753,11 @@ public class Core extends Library {
           vm.emit(new CallIndirect(location, rFunction, rValues, rCall));
           vm.emit(new Push(rResult, rCall, rResult));
           vm.emit(new Goto(iteratePcs[0]));
+          final var endPc = vm.emit(new GetIterator(rResult, rResult, location));
 
           for (int i = 0; i < iteratePcs.length; i++) {
-            vm.emit(iteratePcs[i], new Iterate(rIterators[i], rValues[i], vm.emitPc()));
+            vm.emit(iteratePcs[i], new Iterate(rIterators[i], rValues[i], endPc));
           }
-
-          vm.emit(new GetIterator(rResult, rResult, location));
         });
 
     bindFunction("max",
@@ -954,6 +979,12 @@ public class Core extends Library {
           vm.emit(new Tail(rResult, rResult));
         });
 
+    bindFunction("this",
+        new String[]{"value"},
+        (function, vm, location, namespace, rParameters, rResult) -> {
+          vm.set(rResult, vm.get(rParameters[0]));
+        });
+
     bindMacro("trace", 0,
         (vm, namespace, location, rParameters, rResult) -> vm.toggleTracing());
 
@@ -1152,6 +1183,7 @@ public class Core extends Library {
       final var f = new SexprForm(location, right.newCallTarget(location), new SexprForm(location, arguments));
       f.emit(vm, namespace, rResult);
       vm.emit(new Return(rResult));
+
       return new MacroReference(
           String.format("%s-%s-%d", left, right, rParameters.length),
           startPc, rParameters);
@@ -1174,12 +1206,9 @@ public class Core extends Library {
         v = new Value<>(Core.macroReferenceType,
             makeReference(target.left(), target.right(), vm, namespace, location, rParameters, rResult));
         namespace.bind(referenceName, v);
-
-        if (rParameters.length > 0) {
-          vm.reallocateRegisters();
-        }
       }
 
+      vm.reallocateRegisters();
       return v;
     }
   }
@@ -1334,6 +1363,10 @@ public class Core extends Library {
         default:
           throw new EvaluationError(location, "Invalid map call.");
       }
+    }
+
+    public Map<Value<?>, Value<?>> clone(final Map<Value<?>, Value<?>> value) {
+      return new TreeMap<>(value);
     }
 
     public String dump(final Map<Value<?>, Value<?>> value) {
@@ -1785,6 +1818,10 @@ public class Core extends Library {
         default:
           throw new EvaluationError(location, "Invalid vector call.");
       }
+    }
+
+    public ArrayList<Value<?>> clone(final ArrayList<Value<?>> value) {
+      return new ArrayList<>(value);
     }
 
     public String dump(final ArrayList<Value<?>> value) {

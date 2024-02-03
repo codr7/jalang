@@ -13,6 +13,10 @@ public class Type<D> {
     this.name = name;
   }
 
+  public D clone(final D value) {
+    return value;
+  }
+
   public String dump(final D value) {
     return value.toString();
   }

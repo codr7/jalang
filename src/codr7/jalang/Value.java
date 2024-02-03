@@ -11,6 +11,10 @@ public record Value<D>(Type<D> type, D data) implements Comparable<Value<?>> {
     return (D) data;
   }
 
+  public Value<D> clone() {
+    return new Value<D>(type, type.clone(data));
+  }
+
   public int compareTo(final Value<?> other) {
     if (other.type != type) {
       throw new RuntimeException(String.format("Type mismatch: %s/%s.", type, other.type));

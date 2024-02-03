@@ -18,7 +18,7 @@ import java.util.TreeMap;
 
 public class Vm {
   public static final int DEFAULT_REGISTER = 0;
-  public static final int VERSION = 7;
+  public static final int VERSION = 8;
 
   public final Core core = new Core();
 
@@ -267,9 +267,7 @@ public class Vm {
         }
         case Push: {
           final var o = (Push) op;
-          final var target = registers[o.rTarget];
-          final var result = target.push(registers[o.rValue]);
-          registers[o.rResult] = result;
+          registers[o.rResult] = registers[o.rTarget].push(registers[o.rValue]);;
           pc++;
           break;
         }
@@ -284,7 +282,7 @@ public class Vm {
         }
         case Set: {
           final var o = (Set) op;
-          registers[o.rResult] = o.value;
+          registers[o.rResult] = o.value.clone();
           pc++;
           break;
         }

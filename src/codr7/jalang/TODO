@@ -1,4 +1,8 @@
-* debug AoC 4-1
+* add find-character
+** test + use in aoc
+
+* switch Vector to take values like Map/List
+** update code to use apply
 
 * add Form.quote/unquote
 ** change SymbolReader to QuoteReader
@@ -13,3 +17,32 @@
 ** same as let
 
 * hook up type hierarchy
+
+var dropPrefix = 0;
+          var dropSuffix = 0;
+
+          for (var v = registers[o.rTarget];;) {
+            if (v.type() == Core.pairType) {
+              final var p = v.as(Core.pairType);
+
+              if (p.left().type() == Core.noneType) {
+                if (target == null) {
+                  dropPrefix++;
+                } else {
+                  dropSuffix++;
+                }
+              } else {
+                target = p.left();
+              }
+
+              v = p.right();
+            } else {
+              if (v.type() == Core.noneType) {
+                dropSuffix++;
+              } else {
+                target = v;
+              }
+
+              break;
+            }
+          }

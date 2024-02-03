@@ -18,9 +18,7 @@ public record Macro(String name, int arity, Body body) {
           makeReference(vm, namespace, location, rParameters, rResult));
       namespace.bind(referenceName, referenceValue);
 
-      if (rParameters.length > 0) {
-        vm.reallocateRegisters();
-      }
+      vm.reallocateRegisters();
     }
 
     referenceValue.as(Core.macroReferenceType).call(vm, location, rParameters, rResult);

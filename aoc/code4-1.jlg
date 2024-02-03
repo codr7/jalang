@@ -1,0 +1,21 @@
+(^ read-numbers [in]
+  (apply Set (map parse-integer.peek (filter this (split in " ")))))
+   
+(^ read-card [in]
+  (let [i (_:find (^ [c] (= c \:)) in)
+        j (_:find (^ [c] (= c \|)) in)]
+    (read-numbers (slice in (+ i 1) j)):(read-numbers (slice in (+ j 1)))))
+
+(^ read-cards [path]
+  (map read-card (split (slurp path) "\n")))
+
+(^ score-card [card]
+  (reduce (^ [n result] (if result (* result 2) 1))
+          (intersection (peek card) (tail card))
+          0))
+
+(^ sum-scores [path]
+  (reduce + (map score-card (read-cards path)) 0))
+
+(check 23235
+  (sum-scores (path "input4")))

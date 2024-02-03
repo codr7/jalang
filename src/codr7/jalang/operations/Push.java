@@ -13,7 +13,7 @@ public class Push extends Operation {
   }
 
   public String toString() {
-    return String.format("%s vector: %d value: %d result: %d",
+    return String.format("%s target: %d value: %d result: %d",
         super.toString(), rTarget, rValue, rResult);
   }
 }
