@@ -299,7 +299,8 @@ public class Vm {
         }
         case Tail: {
           final var o = (Tail) op;
-          registers[o.rResult] = registers[o.rValue].as(Core.pairType).right();
+          final var v = registers[o.rValue];
+          registers[o.rResult] = (v.type() == Core.pairType) ? v.as(Core.pairType).right() : Core.NONE;
           pc++;
           break;
         }

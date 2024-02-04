@@ -421,7 +421,7 @@ public class Core extends Library {
           final var inputForm = arguments[1];
           inputForm.emit(vm, namespace, rIterator);
           vm.emit(new GetIterator(rIterator, rIterator, inputForm.location()));
-          vm.emit(new Set(rResult, new Value<>(noneType, null)));
+          vm.emit(new Set(rResult, NONE));
 
           final var rIndex = vm.allocateRegister();
           vm.emit(new Set(rIndex, new Value<>(integerType, 0)));
@@ -446,7 +446,7 @@ public class Core extends Library {
           final var c = vm.get(rParameters[0]).as(characterType);
           final var s = vm.get(rParameters[1]).as(stringType);
           final var i = s.indexOf(c);
-          vm.set(rResult, (i == -1) ? new Value<>(noneType, null) : new Value<>(integerType, i));
+          vm.set(rResult, (i == -1) ? Core.NONE : new Value<>(integerType, i));
         });
 
     bindMacro("filter", 2,

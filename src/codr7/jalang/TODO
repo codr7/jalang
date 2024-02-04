@@ -1,5 +1,19 @@
+* finish aoc 5
+
+
+* add ability to split string on chars
+** update aocs
+
+* add support for destructuring Vectors
+** use Pop instead of BreakPair
+** update aoc5
+
 * switch Vector to take values like Map/List
 ** update code to use apply
+
+* raise error on vector access out of bounds
+** (vect 42)
+** update readme
 
 * add Form.quote/unquote
 ** change SymbolReader to QuoteReader
