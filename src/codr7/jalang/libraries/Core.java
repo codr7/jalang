@@ -147,10 +147,35 @@ public class Core extends Library {
           vm.set(rResult, new Value<>(bitType, result));
         });
 
+    bindFunction(">=",
+        new String[]{"value1", "value2"},
+        (function, vm, location, namespace, rParameters, rResult) -> {
+          var value1 = vm.get(rParameters[0]);
+          var type = (ComparableTrait) value1.type();
+          var result = true;
+
+          for (var i = 1; i < rParameters.length; i++) {
+            final var v = vm.get(rParameters[i]);
+
+            if (v.type() != value1.type()) {
+              throw new EvaluationError(location, "Type mismatch: %s/%s.", value1.type(), v.type());
+            }
+
+            if (type.compare(value1, v) == Order.LessThan) {
+              result = false;
+              break;
+            }
+
+            value1 = v;
+          }
+
+          vm.set(rResult, new Value<>(bitType, result));
+        });
+
     bindFunction("+",
         new String[]{"value1", "value2"},
         (function, vm, location, namespace, rParameters, rResult) -> {
-          int result = 0;
+          long result = 0;
 
           for (int rParameter : rParameters) {
             result += vm.get(rParameter).as(integerType);
@@ -162,7 +187,7 @@ public class Core extends Library {
     bindFunction("-",
         new String[]{"value1"},
         (function, vm, location, namespace, rParameters, rResult) -> {
-          int result = vm.get(rParameters[0]).as(integerType);
+          long result = vm.get(rParameters[0]).as(integerType);
 
           if (rParameters.length == 1) {
             result = -result;
@@ -377,7 +402,7 @@ public class Core extends Library {
         (function, vm, location, namespace, rParameters, rResult) -> {
           final var c = vm.get(rParameters[0]).as(characterType);
           final var result = Character.isDigit(c) ? Character.digit(c, 10) : -1;
-          vm.set(rResult, new Value<>(integerType, result));
+          vm.set(rResult, new Value<>(integerType, (long)result));
         });
 
     bindFunction("digit?",
@@ -401,7 +426,7 @@ public class Core extends Library {
           final var iterator = ((SequenceTrait<?>) input.type()).iterator(input);
           final var output = new ArrayList<Value<?>>();
 
-          for (int i = (rParameters.length == 1) ? 0 : vm.get(rParameters[1]).as(integerType);
+          for (long i = (rParameters.length == 1) ? 0 : vm.get(rParameters[1]).as(integerType);
                iterator.hasNext();
                i++) {
             final var v = iterator.next();
@@ -424,7 +449,7 @@ public class Core extends Library {
           vm.emit(new Set(rResult, NONE));
 
           final var rIndex = vm.allocateRegister();
-          vm.emit(new Set(rIndex, new Value<>(integerType, 0)));
+          vm.emit(new Set(rIndex, new Value<>(integerType, 0L)));
 
           final var iteratePc = vm.emit();
           final var rValue = vm.allocateRegister();
@@ -446,7 +471,7 @@ public class Core extends Library {
           final var c = vm.get(rParameters[0]).as(characterType);
           final var s = vm.get(rParameters[1]).as(stringType);
           final var i = s.indexOf(c);
-          vm.set(rResult, (i == -1) ? Core.NONE : new Value<>(integerType, i));
+          vm.set(rResult, (i == -1) ? Core.NONE : new Value<>(integerType, (long)i));
         });
 
     bindMacro("filter", 2,
@@ -649,7 +674,7 @@ public class Core extends Library {
         (function, vm, location, namespace, rParameters, rResult) -> {
           final var c = vm.get(rParameters[0]);
           final var ct = (CollectionTrait) c.type();
-          vm.set(rResult, new Value<>(integerType, ct.length(c)));
+          vm.set(rResult, new Value<>(integerType, (long)ct.length(c)));
         });
 
     bindMacro("let", 2,
@@ -818,7 +843,7 @@ public class Core extends Library {
     bindFunction("parse-integer",
         new String[]{"input"},
         (function, vm, location, namespace, rParameters, rResult) -> {
-          final var start = (rParameters.length == 2) ? vm.get(rParameters[1]).as(integerType) : 0;
+          final int start = (rParameters.length == 2) ? vm.get(rParameters[1]).as(integerType).intValue() : 0;
           final var input = vm.get(rParameters[0]).as(stringType).substring(start);
           final var match = Pattern.compile("^\\s*(\\d+).*").matcher(input);
 
@@ -827,8 +852,8 @@ public class Core extends Library {
           }
 
           vm.set(rResult, new Value<>(pairType, new Pair(
-              new Value<>(integerType, Integer.valueOf(match.group(1))),
-              new Value<>(integerType, match.end(1) + start))));
+              new Value<>(integerType, Long.valueOf(match.group(1))),
+              new Value<>(integerType, (long)match.end(1) + start))));
         });
 
     bindFunction("path",
@@ -877,7 +902,7 @@ public class Core extends Library {
     bindFunction("register-count",
         new String[]{},
         (function, vm, location, namespace, rParameters, rResult) ->
-            vm.set(rResult, new Value<>(integerType, vm.registerCount())));
+            vm.set(rResult, new Value<>(integerType, (long)vm.registerCount())));
 
     bindMacro("return", 1,
         (vm, namespace, location, arguments, rResult) -> {
@@ -1263,15 +1288,15 @@ public class Core extends Library {
   }
 
   public static class IntegerType
-      extends Type<Integer>
-      implements ComparableTrait, SequenceTrait<Value<Integer>> {
+      extends Type<Long>
+      implements ComparableTrait, SequenceTrait<Value<Long>> {
     public IntegerType(final String name) {
       super(name);
     }
 
     public Order compare(final Value<?> left, final Value<?> right) {
-      final int l = left.as(this);
-      final int r = right.as(this);
+      final var l = left.as(this);
+      final var r = right.as(this);
 
       if (l < r) {
         return Order.LessThan;
@@ -1284,15 +1309,15 @@ public class Core extends Library {
       return Order.Equal;
     }
 
-    public boolean isTrue(final Integer value) {
+    public boolean isTrue(final Long value) {
       return value != 0;
     }
 
-    public Iterator<Value<Integer>> iterator(final Value<?> value) {
+    public Iterator<Value<Long>> iterator(final Value<?> value) {
       return Stream
           .iterate(0, x -> x + 1)
           .limit(value.as(this))
-          .map(v -> new Value<>(Core.integerType, v))
+          .map(v -> new Value<>(Core.integerType, (long)v))
           .iterator();
     }
   }
@@ -1677,7 +1702,7 @@ public class Core extends Library {
                      final Location location,
                      final int[] rParameters,
                      final int rResult) {
-      final var i = vm.get(rParameters[0]).as(integerType);
+      final var i = vm.get(rParameters[0]).as(integerType).intValue();
       vm.set(rResult, new Value<>(characterType, target.as(this).charAt(i)));
     }
 
@@ -1731,12 +1756,12 @@ public class Core extends Library {
     }
 
     public Value<?> slice(final Value<?> value, final Value<?> start, final Value<?> end) {
-      final var si = start.as(Core.integerType);
+      final var si = start.as(Core.integerType).intValue();
       final var v = value.as(this);
 
       final var result = (end == null)
           ? v.substring(si)
-          : v.substring(si, end.as(Core.integerType));
+          : v.substring(si, end.as(Core.integerType).intValue());
 
       return new Value<>(Core.stringType, result);
     }
@@ -1813,12 +1838,12 @@ public class Core extends Library {
       switch (rParameters.length) {
         case 1: {
           final var key = vm.get(rParameters[0]);
-          final var value = vector.get(key.as(Core.integerType));
+          final var value = vector.get(key.as(Core.integerType).intValue());
           vm.set(rResult, value);
           break;
         }
         case 2: {
-          final var key = vm.get(rParameters[0]).as(Core.integerType);
+          final var key = vm.get(rParameters[0]).as(Core.integerType).intValue();
           final var value = vm.get(rParameters[1]);
           vector.set(key, value);
           vm.set(rResult, target);

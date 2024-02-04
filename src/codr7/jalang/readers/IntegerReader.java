@@ -13,7 +13,7 @@ public class IntegerReader implements Reader {
   public boolean read(final Input in, final Deque<Form> out, final Location location)
       throws IOException {
     final var formLocation = location.clone();
-    int v = 0;
+    long v = 0;
 
     for (; ; ) {
       var c = in.peek();

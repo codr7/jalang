@@ -4,32 +4,35 @@
 
 (^ decode-range [in out]
   (let [dst:src:len (apply List (map parse-integer.peek (split in " ")))]
-    (for i len
-      (out (+ src i) (+ dst i)))))
+    (push out src:dst:len)))
 
 (^ decode-lines [in maps]
   (let [line (peek in)]
     (if (= line "")
-      (do
-	(let [m {}]
-	  (push maps m)
-	  (decode-lines (tail (tail in)) maps)))
+      (let [m []]
+        (push maps m) 
+        (decode-lines (tail (tail in)) maps))
       (if line
         (do 
 	  (decode-range line (peek maps))
 	  (decode-lines (tail in) maps))))))
 
-(^ map-value [value map]
-   (or (map value) value))
+(^ map-value [ranges value]
+  (for r ranges
+    (let [src:dst:len r]
+      (if (and (>= value src) (< value (+ src len)))
+        (return (+ dst (- value src)))
+        value))))
 
 (^ get-location [path]
   (let [lines (apply List (split (slurp path) "\n"))
         seeds (Vector (decode-seeds (peek lines)))
         maps []]
     (decode-lines (tail lines) maps)
-    (let [locations (map (^ [s] (reduce (^ [m v] (or (m v) v)) maps s)) seeds)
+    (let [locations (map (^ [s] (reduce (^ [m v] (map-value m v)) maps s)) seeds)
           sorted (apply Set (zip locations seeds))]
       (peek.peek (apply List sorted)))))
 
-(say (get-location (path "input5")))
+(check 199602917
+  (get-location (path "input5")))
     

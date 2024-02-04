@@ -34,6 +34,15 @@
 (check F
   (> "ghi" "abc" "def"))
 
+(check T
+  (>= 1 1 1))
+
+(check T
+  (>= 3 2 1))
+
+(check F
+  (>= 3 1 2))
+
 (check 3
   (max 1 2 3))
 
@@ -371,3 +380,4 @@
 (load (path "aoc/code2-1.jlg"))
 (load (path "aoc/code3-1.jlg"))
 (load (path "aoc/code4-1.jlg"))
+(load (path "aoc/code5-1.jlg"))
