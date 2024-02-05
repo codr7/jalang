@@ -1905,13 +1905,10 @@ public class Core extends Library {
     }
 
     public void makeValue(final Vm vm, final Location location, final int[] rParameters, final int rResult) {
-      final var input = vm.get(rParameters[0]);
+        final var result = new ArrayList<Value<?>>();
 
-      @SuppressWarnings("unchecked") final var iterator = ((SequenceTrait<Value<?>>) input.type()).iterator(input);
-      final var result = new ArrayList<Value<?>>();
-
-      while (iterator.hasNext()) {
-        result.add(iterator.next());
+      for (final var r: rParameters) {
+        result.add(vm.get(r));
       }
 
       vm.set(rResult, new Value<>(vectorType, result));

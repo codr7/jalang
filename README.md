@@ -296,7 +296,7 @@ or by calling the `Set` constructor.
 `map` may be used to map a function over any number of iterable values, it returns an iterator that may be further processed or drained into an aggregate.
 
 ```
-  (Vector (map + [1 2 3] [4 5 6 7]))
+  (apply Vector (map + [1 2 3] [4 5 6 7]))
 
 [5 7 9]
 ```
@@ -312,7 +312,7 @@ or by calling the `Set` constructor.
 `append` may be used to join multiple iterables.
 
 ```
-  (Vector (append [1 2 3] {'foo 'bar 'baz} "abc"))
+  (apply Vector (append [1 2 3] {'foo 'bar 'baz} "abc"))
 
 [1 2 3 'bar 'baz 'foo \a \b \c]
 ```
@@ -320,7 +320,7 @@ or by calling the `Set` constructor.
 `interleave` may be used to braid multiple iterables into a single sequence.
 
 ```
-  (Vector (interleave 1:2 {'foo 'bar 'baz} "abc"))
+  (apply Vector (interleave 1:2 {'foo 'bar 'baz} "abc"))
 
 [1 'bar \a 2 'baz \b 'foo \c]
 ```
@@ -328,7 +328,7 @@ or by calling the `Set` constructor.
 `zip` may be used to create pairs/lists from an arbitrary number of iterables.
 
 ```
-  (Vector (zip 1:2:3 "abc" 'foo:'bar:'baz))
+  (apply Vector (zip 1:2:3 "abc" 'foo:'bar:'baz))
 
 [1:\a:'foo 2:\b:'bar 3:\c:'baz]
 ```
@@ -336,7 +336,9 @@ or by calling the `Set` constructor.
 `unzip` may be used to break up pairs/lists.
 
 ```
-  (Vector (map Vector (unzip [1:\a:'foo 2:\b:'bar 3:\c:'baz])))
+  (apply Vector 
+         (map (^ [i] (apply Vector i)) 
+              (unzip [1:\a:'foo 2:\b:'bar 3:\c:'baz])))
 
 [[1 2 3] [\a \b \c] ['foo 'bar 'baz]]
 ```

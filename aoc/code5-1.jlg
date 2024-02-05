@@ -26,7 +26,7 @@
 
 (^ get-location [path]
   (let [lines (apply List (split (slurp path) "\n"))
-        seeds (Vector (decode-seeds (peek lines)))
+        seeds (apply Vector (decode-seeds (peek lines)))
         maps []]
     (decode-lines (tail lines) maps)
     (let [locations (map (^ [s] (reduce (^ [m v] (map-value m v)) maps s)) seeds)
