@@ -232,7 +232,7 @@ Vectors support stack semantics.
 3
 ```
 
-Calling a vector returns the value at the specified index (`_` if the index is out of bounds), or updates it depending on the number of arguments.
+Calling a vector returns the value at the specified index.
 
 ```
   (['foo 'bar 'baz] 1)

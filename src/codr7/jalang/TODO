@@ -1,7 +1,3 @@
-* raise error on vector access out of bounds
-** (vect 42)
-** update readme
-
 * switch Vector to take values like Map/List
 ** update code to use apply
 
