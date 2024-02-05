@@ -113,6 +113,9 @@
   (apply Vector (map (^ [i] (apply Vector i)) (unzip [1:\a:'foo 2:\b:'bar 3:\c:'baz]))))
 
 (check ["foo" "bar" "baz"]
+  (apply Vector (split "foo bar baz" \\s)))
+
+(check ["foo" "bar" "baz"]
   (apply Vector (split "foo bar baz" " ")))
 
 (check 'FooBar

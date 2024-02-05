@@ -1,5 +1,5 @@
 (^ read-numbers [in]
-  (apply Set (map parse-integer.peek (filter this (split in " ")))))
+  (apply Set (map parse-integer.peek (filter this (split in \\s)))))
    
 (^ read-card [in]
   (let [i (find-character \: in)
@@ -7,7 +7,7 @@
     (read-numbers (slice in (+ i 1) j)):(read-numbers (slice in (+ j 1)))))
 
 (^ read-cards [path]
-  (map read-card (split (slurp path) "\n")))
+  (map read-card (split (slurp path) \\n)))
 
 (^ score-card [card]
   (reduce (^ [n result] (if result (* result 2) 1))

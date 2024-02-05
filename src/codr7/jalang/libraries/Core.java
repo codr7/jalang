@@ -996,7 +996,17 @@ public class Core extends Library {
         new String[]{"whole", "separator"},
         (function, vm, location, namespace, rParameters, rResult) -> {
           final var w = vm.get(rParameters[0]).as(stringType);
-          final var s = vm.get(rParameters[1]).as(stringType);
+          final var sv = vm.get(rParameters[1]);
+          String s;
+
+          if (sv.type() == characterType) {
+            s = String.valueOf(sv.as(characterType));
+          } else if (sv.type() == stringType) {
+            s = sv.as(stringType);
+          } else {
+            throw new EvaluationError(location, "Invalid separator: %s.", sv);
+          }
+
           final String[] parts = w.split(Pattern.quote(s));
           final var result = new ArrayList<Value<?>>();
 

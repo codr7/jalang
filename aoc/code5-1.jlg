@@ -1,9 +1,9 @@
 (^ decode-seeds [in]
   (let [i (find-character \: in)]
-    (map parse-integer.peek (split (slice in (+ i 2)) " "))))
+    (map parse-integer.peek (split (slice in (+ i 2)) \\s))))
 
 (^ decode-range [in out]
-  (let [dst:src:len (apply List (map parse-integer.peek (split in " ")))]
+  (let [dst:src:len (apply List (map parse-integer.peek (split in \\s)))]
     (push out src:dst:len)))
 
 (^ decode-lines [in maps]
@@ -25,7 +25,7 @@
         value))))
 
 (^ get-location [path]
-  (let [lines (apply List (split (slurp path) "\n"))
+  (let [lines (apply List (split (slurp path) \\n))
         seeds (apply Vector (decode-seeds (peek lines)))
         maps []]
     (decode-lines (tail lines) maps)

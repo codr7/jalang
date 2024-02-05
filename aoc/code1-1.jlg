@@ -6,7 +6,7 @@
   		           (find-digit (reverse-string line)))))
 
 (^ calibrate [input]
-  (reduce + (map decode-line (split (slurp input) "\n")) 0))
+  (reduce + (map decode-line (split (slurp input) \\n)) 0))
 
 (check 55108
   (calibrate (path "input1")))
