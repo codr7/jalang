@@ -48,7 +48,7 @@ public class Core extends Library {
   public static final RegisterType variableType = new RegisterType("Variable");
   public static final VectorType vectorType = new VectorType("Vector");
 
-  public Core() {
+  public Core(final Vm vm) {
     super("core", null);
     bindType(anyType);
     bindType(bitType);
@@ -83,7 +83,7 @@ public class Core extends Library {
 
     bindFunction("=",
         new String[]{"value1", "value2"},
-        (function, vm, location, namespace, rParameters, rResult) -> {
+        (function, location, namespace, rParameters, rResult) -> {
           final var value1 = vm.get(rParameters[0]);
           var result = true;
 
@@ -99,7 +99,7 @@ public class Core extends Library {
 
     bindFunction("<",
         new String[]{"value1", "value2"},
-        (function, vm, location, namespace, rParameters, rResult) -> {
+        (function, location, namespace, rParameters, rResult) -> {
           var value1 = vm.get(rParameters[0]);
           var type = (ComparableTrait) value1.type();
           var result = true;
@@ -124,7 +124,7 @@ public class Core extends Library {
 
     bindFunction(">",
         new String[]{"value1", "value2"},
-        (function, vm, location, namespace, rParameters, rResult) -> {
+        (function, location, namespace, rParameters, rResult) -> {
           var value1 = vm.get(rParameters[0]);
           var type = (ComparableTrait) value1.type();
           var result = true;
@@ -147,34 +147,9 @@ public class Core extends Library {
           vm.set(rResult, new Value<>(bitType, result));
         });
 
-    bindFunction(">=",
-        new String[]{"value1", "value2"},
-        (function, vm, location, namespace, rParameters, rResult) -> {
-          var value1 = vm.get(rParameters[0]);
-          var type = (ComparableTrait) value1.type();
-          var result = true;
-
-          for (var i = 1; i < rParameters.length; i++) {
-            final var v = vm.get(rParameters[i]);
-
-            if (v.type() != value1.type()) {
-              throw new EvaluationError(location, "Type mismatch: %s/%s.", value1.type(), v.type());
-            }
-
-            if (type.compare(value1, v) == Order.LessThan) {
-              result = false;
-              break;
-            }
-
-            value1 = v;
-          }
-
-          vm.set(rResult, new Value<>(bitType, result));
-        });
-
     bindFunction("+",
         new String[]{"value1", "value2"},
-        (function, vm, location, namespace, rParameters, rResult) -> {
+        (function, location, namespace, rParameters, rResult) -> {
           long result = 0;
 
           for (int rParameter : rParameters) {
@@ -186,7 +161,7 @@ public class Core extends Library {
 
     bindFunction("-",
         new String[]{"value1"},
-        (function, vm, location, namespace, rParameters, rResult) -> {
+        (function, location, namespace, rParameters, rResult) -> {
           long result = vm.get(rParameters[0]).as(integerType);
 
           if (rParameters.length == 1) {
@@ -202,7 +177,7 @@ public class Core extends Library {
 
     bindFunction("*",
         new String[]{"value1"},
-        (function, vm, location, namespace, rParameters, rResult) -> {
+        (function, location, namespace, rParameters, rResult) -> {
           var result = vm.get(rParameters[0]).as(integerType);
 
           for (var i = 1; i < rParameters.length; i++) {
@@ -213,13 +188,13 @@ public class Core extends Library {
         });
 
     bindMacro("=0", 1,
-        (vm, namespace, location, arguments, rResult) -> {
+        (namespace, location, arguments, rResult) -> {
           arguments[0].emit(vm, namespace, rResult);
           vm.emit(new EqualsZero(rResult, rResult));
         });
 
     bindMacro("+1", 1,
-        (vm, namespace, location, arguments, rResult) -> {
+        (namespace, location, arguments, rResult) -> {
           final var a = arguments[0];
           int rValue;
 
@@ -242,7 +217,7 @@ public class Core extends Library {
         });
 
     bindMacro("-1", 1,
-        (vm, namespace, location, arguments, rResult) -> {
+        (namespace, location, arguments, rResult) -> {
           final var a = arguments[0];
           int rValue;
 
@@ -265,7 +240,7 @@ public class Core extends Library {
         });
 
     bindMacro("and", 2,
-        (vm, namespace, location, arguments, rResult) -> {
+        (namespace, location, arguments, rResult) -> {
           arguments[0].emit(vm, namespace, rResult);
           final var andPcs = new ArrayList<Integer>();
 
@@ -281,7 +256,7 @@ public class Core extends Library {
 
     bindFunction("append",
         new String[]{"input1"},
-        (function, vm, location, namespace, rParameters, rResult) -> {
+        (function, location, namespace, rParameters, rResult) -> {
           final var result = new ArrayList<Value<?>>();
 
           for (final var p : rParameters) {
@@ -298,7 +273,7 @@ public class Core extends Library {
 
     bindFunction("apply",
         new String[]{"target"},
-        (function, vm, location, namespace, rParameters, rResult) -> {
+        (function, location, namespace, rParameters, rResult) -> {
           final var target = vm.get(rParameters[0]);
 
           if (!(target.type() instanceof CallableTrait)) {
@@ -340,7 +315,7 @@ public class Core extends Library {
         });
 
     bindMacro("benchmark", 1,
-        (vm, namespace, location, arguments, rResult) -> {
+        (namespace, location, arguments, rResult) -> {
           final var rRepetitions = vm.allocateRegister();
           arguments[0].emit(vm, namespace, rRepetitions);
           vm.emit(new Benchmark(rRepetitions, rResult));
@@ -354,7 +329,7 @@ public class Core extends Library {
 
     bindFunction("call",
         new String[]{"target"},
-        (function, vm, location, namespace, rParameters, rResult) -> {
+        (function, location, namespace, rParameters, rResult) -> {
           final var target = vm.get(rParameters[0]);
 
           if (!(target.type() instanceof CallableTrait)) {
@@ -369,7 +344,7 @@ public class Core extends Library {
         });
 
     bindMacro("check", 2,
-        (vm, namespace, location, arguments, rResult) -> {
+        (namespace, location, arguments, rResult) -> {
           final var rExpected = vm.allocateRegister();
           arguments[0].emit(vm, namespace, rExpected);
           final var rActual = vm.allocateRegister();
@@ -384,7 +359,7 @@ public class Core extends Library {
         });
 
     bindMacro("define", 2,
-        (vm, namespace, location, arguments, rResult) -> {
+        (namespace, location, arguments, rResult) -> {
           final var nameForm = arguments[0];
 
           if (!(nameForm instanceof IdForm)) {
@@ -399,21 +374,21 @@ public class Core extends Library {
 
     bindFunction("digit",
         new String[]{"value"},
-        (function, vm, location, namespace, rParameters, rResult) -> {
+        (function, location, namespace, rParameters, rResult) -> {
           final var c = vm.get(rParameters[0]).as(characterType);
           final var result = Character.isDigit(c) ? Character.digit(c, 10) : -1;
-          vm.set(rResult, new Value<>(integerType, (long)result));
+          vm.set(rResult, new Value<>(integerType, (long) result));
         });
 
     bindFunction("digit?",
         new String[]{"value"},
-        (function, vm, location, namespace, rParameters, rResult) -> {
+        (function, location, namespace, rParameters, rResult) -> {
           final var c = vm.get(rParameters[0]).as(characterType);
           vm.set(rResult, new Value<>(bitType, Character.isDigit(c)));
         });
 
     bindMacro("do", 0,
-        (vm, namespace, location, arguments, rResult) -> {
+        (namespace, location, arguments, rResult) -> {
           for (final var a : arguments) {
             a.emit(vm, namespace, rResult);
           }
@@ -421,7 +396,7 @@ public class Core extends Library {
 
     bindFunction("enumerate",
         new String[]{"input"},
-        (function, vm, location, namespace, rParameters, rResult) -> {
+        (function, location, namespace, rParameters, rResult) -> {
           final var input = vm.get(rParameters[0]);
           final var iterator = ((SequenceTrait<?>) input.type()).iterator(input);
           final var output = new ArrayList<Value<?>>();
@@ -437,7 +412,7 @@ public class Core extends Library {
         });
 
     bindMacro("find", 2,
-        (vm, namespace, location, arguments, rResult) -> {
+        (namespace, location, arguments, rResult) -> {
           final var rPredicate = vm.allocateRegister();
           final var predicateForm = arguments[0];
           predicateForm.emit(vm, namespace, rPredicate);
@@ -467,15 +442,15 @@ public class Core extends Library {
 
     bindFunction("find-character",
         new String[]{"needle", "stack"},
-        (function, vm, location, namespace, rParameters, rResult) -> {
+        (function, location, namespace, rParameters, rResult) -> {
           final var c = vm.get(rParameters[0]).as(characterType);
           final var s = vm.get(rParameters[1]).as(stringType);
           final var i = s.indexOf(c);
-          vm.set(rResult, (i == -1) ? Core.NONE : new Value<>(integerType, (long)i));
+          vm.set(rResult, (i == -1) ? Core.NONE : new Value<>(integerType, (long) i));
         });
 
     bindMacro("filter", 2,
-        (vm, namespace, location, arguments, rResult) -> {
+        (namespace, location, arguments, rResult) -> {
           final var rPredicate = vm.allocateRegister();
           final var predicateForm = arguments[0];
           predicateForm.emit(vm, namespace, rPredicate);
@@ -498,7 +473,7 @@ public class Core extends Library {
         });
 
     bindMacro("for", 1,
-        (vm, namespace, location, arguments, rResult) -> {
+        (namespace, location, arguments, rResult) -> {
           final var varForm = arguments[0];
 
           if (!(varForm instanceof IdForm)) {
@@ -522,7 +497,7 @@ public class Core extends Library {
         });
 
     bindMacro("function", 1,
-        (vm, namespace, location, arguments, rResult) -> {
+        (namespace, location, arguments, rResult) -> {
           final var as = new ArrayDeque<Form>();
           Collections.addAll(as, arguments);
           var name = "";
@@ -564,8 +539,8 @@ public class Core extends Library {
           final var startPc = vm.emitPc();
 
           final var function = new Function(name, ps,
-              (_function, _vm, _location, _namespace, _parameters, _result) -> {
-                _vm.pushCall(new Value<>(functionType, _function), _location, startPc, _result);
+              (_function, _location, _namespace, _parameters, _result) -> {
+                vm.pushCall(new Value<>(functionType, _function), _location, startPc, _result);
 
                 for (var i = 0; i < _parameters.length; i++) {
                   vm.set(ps[i].rValue(), vm.get(_parameters[i]));
@@ -599,7 +574,7 @@ public class Core extends Library {
     alias("^", "function");
 
     bindMacro("if", 2,
-        (vm, namespace, location, arguments, rResult) -> {
+        (namespace, location, arguments, rResult) -> {
           arguments[0].emit(vm, namespace, rResult);
           final var ifPc = vm.emit();
           arguments[1].emit(vm, namespace, rResult);
@@ -614,7 +589,7 @@ public class Core extends Library {
 
     bindFunction("interleave",
         new String[]{"input1"},
-        (function, vm, location, namespace, rParameters, rResult) -> {
+        (function, location, namespace, rParameters, rResult) -> {
           final var iterators = new ArrayList<Iterator<Value<?>>>();
 
           for (final var p : rParameters) {
@@ -644,7 +619,7 @@ public class Core extends Library {
 
     bindFunction("intersection",
         new String[]{"map1"},
-        (function, vm, location, namespace, rParameters, rResult) -> {
+        (function, location, namespace, rParameters, rResult) -> {
           var m1 = vm.get(rParameters[0]).as(mapType);
           var ks = new HashSet<>(m1.keySet());
 
@@ -652,7 +627,7 @@ public class Core extends Library {
             ks.retainAll(vm.get(rParameters[i]).as(mapType).keySet());
           }
 
-          for (final var k: new HashSet<>(m1.keySet())) {
+          for (final var k : new HashSet<>(m1.keySet())) {
             if (!ks.contains(k)) {
               m1.remove(k);
             }
@@ -663,7 +638,7 @@ public class Core extends Library {
 
     bindFunction("iterator",
         new String[]{"sequence"},
-        (function, vm, location, namespace, rParameters, rResult) -> {
+        (function, location, namespace, rParameters, rResult) -> {
           final var s = vm.get(rParameters[0]);
           @SuppressWarnings("unchecked") final var st = (SequenceTrait<Value<?>>) s.type();
           vm.set(rResult, new Value<>(iteratorType, st.iterator(s)));
@@ -671,14 +646,14 @@ public class Core extends Library {
 
     bindFunction("length",
         new String[]{"collection"},
-        (function, vm, location, namespace, rParameters, rResult) -> {
+        (function, location, namespace, rParameters, rResult) -> {
           final var c = vm.get(rParameters[0]);
           final var ct = (CollectionTrait) c.type();
-          vm.set(rResult, new Value<>(integerType, (long)ct.length(c)));
+          vm.set(rResult, new Value<>(integerType, (long) ct.length(c)));
         });
 
     bindMacro("let", 2,
-        (vm, namespace, location, arguments, rResult) -> {
+        (namespace, location, arguments, rResult) -> {
           final var bindingsForm = arguments[0];
 
           if (!(bindingsForm instanceof VectorForm)) {
@@ -747,7 +722,7 @@ public class Core extends Library {
         });
 
     bindMacro("load", 1,
-        (vm, namespace, location, arguments, rResult) -> {
+        (namespace, location, arguments, rResult) -> {
           vm.evaluate(arguments[0], namespace, rResult);
           final var path = vm.get(rResult).as(pathType);
           vm.set(rResult, null);
@@ -761,7 +736,7 @@ public class Core extends Library {
 
 
     bindMacro("map", 2,
-        (vm, namespace, location, arguments, rResult) -> {
+        (namespace, location, arguments, rResult) -> {
           final var rFunction = vm.allocateRegister();
           arguments[0].emit(vm, namespace, rFunction);
           final var rIterators = new int[arguments.length - 1];
@@ -796,7 +771,7 @@ public class Core extends Library {
 
     bindFunction("max",
         new String[]{"value1"},
-        (function, vm, location, namespace, rParameters, rResult) -> {
+        (function, location, namespace, rParameters, rResult) -> {
           var lv = vm.get(rParameters[0]);
           final var t = (ComparableTrait) lv.type();
 
@@ -813,18 +788,18 @@ public class Core extends Library {
 
     bindFunction("milliseconds",
         new String[]{"n"},
-        (function, vm, location, namespace, rParameters, rResult) -> {
+        (function, location, namespace, rParameters, rResult) -> {
           final var n = vm.get(rParameters[0]).as(integerType);
           vm.set(rResult, new Value<>(timeType, Duration.ofMillis(n)));
         });
 
     bindFunction("not",
         new String[]{"value"},
-        (function, vm, location, namespace, rParameters, rResult) ->
+        (function, location, namespace, rParameters, rResult) ->
             vm.set(rResult, new Value<>(bitType, !vm.get(rParameters[0]).isTrue())));
 
     bindMacro("or", 2,
-        (vm, namespace, location, arguments, rResult) -> {
+        (namespace, location, arguments, rResult) -> {
           arguments[0].emit(vm, namespace, rResult);
           final var skipPcs = new ArrayList<Integer>();
 
@@ -842,7 +817,7 @@ public class Core extends Library {
 
     bindFunction("parse-integer",
         new String[]{"input"},
-        (function, vm, location, namespace, rParameters, rResult) -> {
+        (function, location, namespace, rParameters, rResult) -> {
           final int start = (rParameters.length == 2) ? vm.get(rParameters[1]).as(integerType).intValue() : 0;
           final var input = vm.get(rParameters[0]).as(stringType).substring(start);
           final var match = Pattern.compile("^\\s*(\\d+).*").matcher(input);
@@ -853,30 +828,30 @@ public class Core extends Library {
 
           vm.set(rResult, new Value<>(pairType, new Pair(
               new Value<>(integerType, Long.valueOf(match.group(1))),
-              new Value<>(integerType, (long)match.end(1) + start))));
+              new Value<>(integerType, (long) match.end(1) + start))));
         });
 
     bindFunction("path",
         new String[]{"value"},
-        (function, vm, location, namespace, rParameters, rResult) ->
+        (function, location, namespace, rParameters, rResult) ->
             vm.set(rResult, new Value<>(pathType, Paths.get(vm.get(rParameters[0]).as(stringType)))));
 
     bindMacro("peek", 1,
-        (vm, namespace, location, arguments, rResult) -> {
+        (namespace, location, arguments, rResult) -> {
           final var rTarget = vm.allocateRegister();
           arguments[0].emit(vm, namespace, rTarget);
           vm.emit(new Peek(rTarget, rResult));
         });
 
     bindMacro("pop", 1,
-        (vm, namespace, location, arguments, rResult) -> {
+        (namespace, location, arguments, rResult) -> {
           final var rTarget = vm.allocateRegister();
           arguments[0].emit(vm, namespace, rTarget);
           vm.emit(new Pop(rTarget, rResult));
         });
 
     bindMacro("push", 2,
-        (vm, namespace, location, arguments, rResult) -> {
+        (namespace, location, arguments, rResult) -> {
           arguments[0].emit(vm, namespace, rResult);
           final var rValue = vm.allocateRegister();
           arguments[1].emit(vm, namespace, rValue);
@@ -884,7 +859,7 @@ public class Core extends Library {
         });
 
     bindMacro("reduce", 3,
-        (vm, namespace, location, arguments, rResult) -> {
+        (namespace, location, arguments, rResult) -> {
           final var rFunction = vm.allocateRegister();
           arguments[0].emit(vm, namespace, rFunction);
           final var rIterator = vm.allocateRegister();
@@ -901,18 +876,18 @@ public class Core extends Library {
 
     bindFunction("register-count",
         new String[]{},
-        (function, vm, location, namespace, rParameters, rResult) ->
-            vm.set(rResult, new Value<>(integerType, (long)vm.registerCount())));
+        (function, location, namespace, rParameters, rResult) ->
+            vm.set(rResult, new Value<>(integerType, (long) vm.registerCount())));
 
     bindMacro("return", 1,
-        (vm, namespace, location, arguments, rResult) -> {
+        (namespace, location, arguments, rResult) -> {
           arguments[0].emit(vm, namespace, rResult);
           vm.emit(new Return(rResult));
         });
 
     bindFunction("say",
         new String[]{"value1"},
-        (function, vm, location, namespace, rParameters, rResult) -> {
+        (function, location, namespace, rParameters, rResult) -> {
           final var what = new StringBuilder();
 
           for (var i = 0; i < rParameters.length; i++) {
@@ -928,7 +903,7 @@ public class Core extends Library {
         });
 
     bindMacro("set", 2,
-        (vm, namespace, location, arguments, rResult) -> {
+        (namespace, location, arguments, rResult) -> {
           final var targetForm = arguments[0];
 
           if (targetForm instanceof IdForm idf) {
@@ -955,7 +930,7 @@ public class Core extends Library {
 
     bindFunction("sleep",
         new String[]{"duration"},
-        (function, vm, location, namespace, rParameters, rResult) -> {
+        (function, location, namespace, rParameters, rResult) -> {
           try {
             Thread.sleep(vm.get(rParameters[0]).as(timeType));
           } catch (final InterruptedException e) {
@@ -965,7 +940,7 @@ public class Core extends Library {
 
     bindFunction("slice",
         new String[]{"input", "start"},
-        (function, vm, location, namespace, rParameters, rResult) -> {
+        (function, location, namespace, rParameters, rResult) -> {
           final var i = vm.get(rParameters[0]);
           final var it = (IndexedCollectionTrait) i.type();
           final var start = vm.get(rParameters[1]);
@@ -975,14 +950,14 @@ public class Core extends Library {
 
     bindFunction("reverse-string",
         new String[]{"input"},
-        (function, vm, location, namespace, rParameters, rResult) -> {
+        (function, location, namespace, rParameters, rResult) -> {
           final var result = new StringBuilder(vm.get(rParameters[0]).as(stringType)).reverse().toString();
           vm.set(rResult, new Value<>(stringType, result));
         });
 
     bindFunction("slurp",
         new String[]{"path"},
-        (function, vm, location, namespace, rParameters, rResult) -> {
+        (function, location, namespace, rParameters, rResult) -> {
           try {
             final var p = vm.loadPath().resolve(vm.get(rParameters[0]).as(pathType));
             final String data = Files.readString(p);
@@ -994,7 +969,7 @@ public class Core extends Library {
 
     bindFunction("split",
         new String[]{"whole", "separator"},
-        (function, vm, location, namespace, rParameters, rResult) -> {
+        (function, location, namespace, rParameters, rResult) -> {
           final var w = vm.get(rParameters[0]).as(stringType);
           final var sv = vm.get(rParameters[1]);
           String s;
@@ -1018,23 +993,22 @@ public class Core extends Library {
         });
 
     bindMacro("tail", 1,
-        (vm, namespace, location, arguments, rResult) -> {
+        (namespace, location, arguments, rResult) -> {
           arguments[0].emit(vm, namespace, rResult);
           vm.emit(new Tail(rResult, rResult));
         });
 
     bindFunction("this",
         new String[]{"value"},
-        (function, vm, location, namespace, rParameters, rResult) -> {
-          vm.set(rResult, vm.get(rParameters[0]));
-        });
+        (function, location, namespace, rParameters, rResult) ->
+            vm.set(rResult, vm.get(rParameters[0])));
 
     bindMacro("trace", 0,
-        (vm, namespace, location, rParameters, rResult) -> vm.toggleTracing());
+        (namespace, location, rParameters, rResult) -> vm.toggleTracing());
 
     bindFunction("unzip",
         new String[]{"input"},
-        (function, vm, location, namespace, rParameters, rResult) -> {
+        (function, location, namespace, rParameters, rResult) -> {
           final var results = new ArrayList<ArrayList<Value<?>>>();
 
           final var input = vm.get(rParameters[0]);
@@ -1068,7 +1042,7 @@ public class Core extends Library {
 
     bindFunction("zip",
         new String[]{"input1"},
-        (function, vm, location, namespace, rParameters, rResult) -> {
+        (function, location, namespace, rParameters, rResult) -> {
           final var iterators = new ArrayList<Iterator<Value<?>>>();
 
           for (final var p : rParameters) {
@@ -1105,6 +1079,16 @@ public class Core extends Library {
 
           vm.set(rResult, new Value<>(iteratorType, result.iterator()));
         });
+
+    vm.reallocateRegisters();
+
+    evaluate(vm, """
+        (^ <= [l r]
+          (or (< l r) (= l r)))
+          
+        (^ >= [l r]
+          (or (> l r) (= l r)))
+        """);
   }
 
   public interface CallableTrait {
@@ -1274,7 +1258,7 @@ public class Core extends Library {
                      final Location location,
                      final int[] rParameters,
                      final int rResult) {
-      target.as(this).call(vm, location, namespace, rParameters, rResult);
+      target.as(this).call(location, namespace, rParameters, rResult);
     }
 
     public void emitCall(final Value<?> target,
@@ -1327,7 +1311,7 @@ public class Core extends Library {
       return Stream
           .iterate(0, x -> x + 1)
           .limit(value.as(this))
-          .map(v -> new Value<>(Core.integerType, (long)v))
+          .map(v -> new Value<>(Core.integerType, (long) v))
           .iterator();
     }
   }
@@ -1505,8 +1489,8 @@ public class Core extends Library {
     public void makeValue(final Vm vm, final Location location, final int[] rParameters, final int rResult) {
       final var result = new TreeMap<Value<?>, Value<?>>();
 
-      for (int i = 0; i < rParameters.length; i++) {
-        final var v = vm.get(rParameters[i]);
+      for (int rParameter : rParameters) {
+        final var v = vm.get(rParameter);
         result.put(v, v);
       }
 
@@ -1520,7 +1504,7 @@ public class Core extends Library {
     }
 
     public void call(Value<?> target, Vm vm, Namespace namespace, Location location, int[] rParameters, int rResult) {
-      makeMake(target).call(vm, location, namespace, rParameters, rResult);
+      make(vm, target).call(location, namespace, rParameters, rResult);
     }
 
     public void emitCall(final Value<?> target,
@@ -1529,14 +1513,14 @@ public class Core extends Library {
                          final Location location,
                          final int[] rParameters,
                          final int rResult) {
-      vm.emit(new CallDirect(location, new Value<>(functionType, makeMake(target)), rParameters, rResult));
+      vm.emit(new CallDirect(location, new Value<>(functionType, make(vm, target)), rParameters, rResult));
     }
 
-    private Function makeMake(final Value<?> target) {
+    private Function make(final Vm vm, final Value<?> target) {
       return new Function(String.format("%s.make", name()),
           new Function.Parameter[]{},
-          (function, _vm, _location, _namespace, _rParameters, _rResult) ->
-              target.as(this).makeValue(_vm, _location, _rParameters, _rResult));
+          (function, _location, _namespace, _rParameters, _rResult) ->
+              target.as(this).makeValue(vm, _location, _rParameters, _rResult));
     }
   }
 
@@ -1915,9 +1899,9 @@ public class Core extends Library {
     }
 
     public void makeValue(final Vm vm, final Location location, final int[] rParameters, final int rResult) {
-        final var result = new ArrayList<Value<?>>();
+      final var result = new ArrayList<Value<?>>();
 
-      for (final var r: rParameters) {
+      for (final var r : rParameters) {
         result.add(vm.get(r));
       }
 

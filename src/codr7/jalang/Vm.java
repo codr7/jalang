@@ -1,6 +1,7 @@
 package codr7.jalang;
 
 import codr7.jalang.errors.EvaluationError;
+import codr7.jalang.errors.ReadError;
 import codr7.jalang.libraries.Core;
 import codr7.jalang.operations.*;
 import codr7.jalang.readers.FormReader;
@@ -20,7 +21,7 @@ public class Vm {
   public static final int DEFAULT_REGISTER = 0;
   public static final int VERSION = 9;
 
-  public final Core core = new Core();
+  public final Core core;
 
   private final ArrayList<Operation> code = new ArrayList<>();
   private CallFrame callFrame;
@@ -29,6 +30,10 @@ public class Vm {
   private Value<?>[] registers = new Value<?>[1];
   private int registerCount = registers.length;
   private boolean tracingEnabled = false;
+
+  public Vm() {
+    core = new Core(this);
+  }
 
   public final int allocateRegister() {
     final var i = registerCount;
@@ -267,7 +272,7 @@ public class Vm {
         }
         case Push: {
           final var o = (Push) op;
-          registers[o.rResult] = registers[o.rTarget].push(registers[o.rValue]);;
+          registers[o.rResult] = registers[o.rTarget].push(registers[o.rValue]);
           pc++;
           break;
         }
@@ -323,6 +328,27 @@ public class Vm {
     emit(Stop.instance);
     emit(skipPc, new Goto(emitPc()));
     evaluate(startPc, namespace);
+  }
+
+  public void evaluate(final String code, final Namespace namespace) {
+    final var forms = new ArrayDeque<Form>();
+    final var input = new Input(new StringReader(code));
+    final var location = new Location("repl");
+
+    try {
+      while (FormReader.instance.read(input, forms, location)) ;
+    } catch (final IOException e) {
+      throw new ReadError(location, e.toString());
+    }
+
+    var pc = emitPc();
+
+    for (final var f : forms) {
+      f.emit(this, namespace, Vm.DEFAULT_REGISTER);
+    }
+
+    emit(Stop.instance);
+    evaluate(pc, namespace);
   }
 
   public final Value<?> get(final int index) {

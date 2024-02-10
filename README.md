@@ -68,7 +68,7 @@ second
 T
 ```
 
-### f
+### functions
 `^` may be used to create new functions.
 
 ```

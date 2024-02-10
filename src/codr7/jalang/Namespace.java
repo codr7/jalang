@@ -55,6 +55,10 @@ public class Namespace {
     return v;
   }
 
+  public void evaluate(final Vm vm, final String code) {
+    vm.evaluate(code, this);
+  }
+
   public final void include(final Namespace source) {
     bindings.putAll(source.bindings);
   }

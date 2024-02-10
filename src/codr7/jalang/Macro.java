@@ -46,7 +46,7 @@ public record Macro(String name, int arity, Body body) {
                    final Location location,
                    final Form[] arguments,
                    final int rResult) {
-    body.call(vm, namespace, location, arguments, rResult);
+    body.call(namespace, location, arguments, rResult);
   }
 
   public String toString() {
@@ -54,8 +54,7 @@ public record Macro(String name, int arity, Body body) {
   }
 
   public interface Body {
-    void call(final Vm vm,
-              final Namespace namespace,
+    void call(final Namespace namespace,
               final Location location,
               final Form[] arguments,
               final int rResult);

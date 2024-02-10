@@ -1,8 +1,11 @@
-* add support for destructuring Vectors
-** use Pop instead of BreakPair
-** update aoc5
+* add vm.freedRegisters
+** add freeRegisters()
 
 * add aoc 6
+
+* add vararg support
+** add splat support when calling
+*** use in >=/<= definitions
 
 * add Form.quote/unquote
 ** change SymbolReader to QuoteReader
