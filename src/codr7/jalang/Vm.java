@@ -4,18 +4,17 @@ import codr7.jalang.errors.EvaluationError;
 import codr7.jalang.errors.ReadError;
 import codr7.jalang.libraries.Core;
 import codr7.jalang.operations.*;
+import codr7.jalang.operations.Set;
 import codr7.jalang.readers.FormReader;
 
 import java.io.IOException;
 import java.io.StringReader;
+import java.lang.reflect.Array;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.time.Duration;
-import java.util.ArrayDeque;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.TreeMap;
+import java.util.*;
 
 public class Vm {
   public static final int DEFAULT_REGISTER = 0;
@@ -25,6 +24,7 @@ public class Vm {
 
   private final ArrayList<Operation> code = new ArrayList<>();
   private CallFrame callFrame;
+  private ArrayList<Integer> freedRegisters = new ArrayList<>();
   private Path loadPath = Paths.get("");
   private int pc = -1;
   private Value<?>[] registers = new Value<?>[1];
@@ -36,6 +36,10 @@ public class Vm {
   }
 
   public final int allocateRegister() {
+    if (!freedRegisters.isEmpty()) {
+      return freedRegisters.removeLast();
+    }
+
     final var i = registerCount;
     registerCount++;
     return i;
@@ -60,6 +64,10 @@ public class Vm {
 
   public final int emitPc() {
     return code.size();
+  }
+
+  public final void freeRegisters(final Integer...registers) {
+    Collections.addAll(freedRegisters, registers);
   }
 
   public final void toggleTracing() {
@@ -398,7 +406,7 @@ public class Vm {
   }
 
   public void reallocateRegisters() {
-    if (registers.length != registerCount) {
+    if (registers.length + freedRegisters.size() != registerCount) {
       registers = Arrays.copyOf(registers, registerCount);
     }
   }
