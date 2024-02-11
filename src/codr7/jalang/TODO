@@ -1,7 +1,4 @@
-* add vm.freedRegisters
-** add freeRegisters(...)
-*** check in allocateRegister
-** free let-registers after block
+* use freeRegisters
 
 * add aoc 6
 

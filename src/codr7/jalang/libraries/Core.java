@@ -498,6 +498,7 @@ public class Core extends Library {
 
     bindMacro("function", 1,
         (namespace, location, arguments, rResult) -> {
+          final var registers = new ArrayList<Integer>();
           final var as = new ArrayDeque<Form>();
           Collections.addAll(as, arguments);
           var name = "";
@@ -531,8 +532,8 @@ public class Core extends Library {
             } else {
               throw new EmitError(f.location(), "Invalid parameter: %s.", f);
             }
-
-            return new Function.Parameter(pn, vm.allocateRegister());
+            final var r = vm.allocateRegister();
+            return new Function.Parameter(pn, r);
           }).toArray(Function.Parameter[]::new);
 
           final var skipPc = vm.emit();
@@ -565,6 +566,7 @@ public class Core extends Library {
 
           vm.emit(new Return(rResult));
           vm.emit(skipPc, new Goto(vm.emitPc()));
+          vm.freeRegisters(registers.toArray(new Integer[0]));
 
           if (name.isEmpty()) {
             vm.emit(new Set(rResult, value));
@@ -743,21 +745,26 @@ public class Core extends Library {
 
     bindMacro("map", 2,
         (namespace, location, arguments, rResult) -> {
+          final var registers = new ArrayList<Integer>();
           final var rFunction = vm.allocateRegister();
+          registers.add(rFunction);
           arguments[0].emit(vm, namespace, rFunction);
           final var rIterators = new int[arguments.length - 1];
           final var rValues = new int[rIterators.length];
 
           for (int i = 0; i < rIterators.length; i++) {
             final var r = vm.allocateRegister();
+            registers.add(r);
             final var f = arguments[i + 1];
             f.emit(vm, namespace, r);
             vm.emit(new GetIterator(r, r, f.location()));
             rIterators[i] = r;
             rValues[i] = vm.allocateRegister();
+            registers.add(rValues[i]);
           }
 
           final var rCall = vm.allocateRegister();
+          registers.add(rCall);
           vm.emit(new Set(rResult, new Value<>(Core.vectorType, new ArrayList<>())));
           var iteratePcs = new int[rIterators.length];
 
@@ -773,6 +780,8 @@ public class Core extends Library {
           for (int i = 0; i < iteratePcs.length; i++) {
             vm.emit(iteratePcs[i], new Iterate(rIterators[i], rValues[i], endPc));
           }
+
+          vm.freeRegisters(registers.toArray(new Integer[0]));
         });
 
     bindFunction("max",
