@@ -1,6 +1,7 @@
 import codr7.jalang.Namespace;
 import codr7.jalang.Repl;
 import codr7.jalang.Vm;
+import codr7.jalang.compilers.GotoReturn;
 import codr7.jalang.operations.Stop;
 
 import java.io.IOException;
@@ -9,6 +10,8 @@ import java.nio.file.Paths;
 public class Main {
   public static void main(final String[] args) throws IOException {
     final var vm = new Vm();
+    vm.addCompiler(GotoReturn.instance);
+
     final var namespace = new Namespace();
     namespace.include(vm.core);
 

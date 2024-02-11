@@ -38,6 +38,7 @@ public record Macro(String name, int arity, Body body) {
     final var startPc = vm.emitPc();
     emit(vm, namespace, location, arguments, rResult);
     vm.emit(new Return(rResult));
+    vm.compile(startPc);
     return new MacroReference(this.name, startPc, rParameters);
   }
 

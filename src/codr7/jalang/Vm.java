@@ -23,6 +23,8 @@ public class Vm {
   public final Core core;
 
   private final ArrayList<Operation> code = new ArrayList<>();
+  private Operation[] compiledCode = new Operation[0];
+  private ArrayList<Compiler> compilers = new ArrayList<>();
   private CallFrame callFrame;
   private ArrayList<Integer> freedRegisters = new ArrayList<>();
   private Path loadPath = Paths.get("");
@@ -35,6 +37,10 @@ public class Vm {
     core = new Core(this);
   }
 
+  public void addCompiler(final Compiler compiler) {
+    compilers.add(compiler);
+  }
+
   public final int allocateRegister() {
     if (!freedRegisters.isEmpty()) {
       return freedRegisters.removeLast();
@@ -43,6 +49,21 @@ public class Vm {
     final var i = registerCount;
     registerCount++;
     return i;
+  }
+
+  public final void compile(final int startPc) {
+    compiledCode = code.toArray(new Operation[0]);
+    var done = false;
+
+    while (!done) {
+      done = true;
+
+      for (final var c : compilers) {
+        if (c.compile(compiledCode, startPc)) {
+          done = false;
+        }
+      }
+    }
   }
 
   public final int emit(final Operation operation) {
@@ -66,20 +87,16 @@ public class Vm {
     return code.size();
   }
 
-  public final void freeRegisters(final Integer...registers) {
-    Collections.addAll(freedRegisters, registers);
-  }
-
-  public final void toggleTracing() {
-    tracingEnabled = !tracingEnabled;
-  }
-
   public final void evaluate(final int startPc, final Namespace namespace) {
+    if (compiledCode.length != code.size()) {
+      compile(compiledCode.length);
+    }
+
     reallocateRegisters();
     pc = startPc;
 
     for (; ; ) {
-      final var op = code.get(pc);
+      final var op = compiledCode[pc];
 
       switch (op.code) {
         case Benchmark: {
@@ -319,7 +336,7 @@ public class Vm {
         }
         case Trace: {
           pc++;
-          System.out.printf("%d %s\n", pc, code.get(pc));
+          System.out.printf("%d %s\n", pc, compiledCode[pc]);
           break;
         }
         default: {
@@ -357,6 +374,10 @@ public class Vm {
 
     emit(Stop.instance);
     evaluate(pc, namespace);
+  }
+
+  public final void freeRegisters(final Integer...registers) {
+    Collections.addAll(freedRegisters, registers);
   }
 
   public final Value<?> get(final int index) {
@@ -417,5 +438,9 @@ public class Vm {
 
   public final void set(final int index, Value<?> value) {
     registers[index] = value;
+  }
+
+  public final void toggleTracing() {
+    tracingEnabled = !tracingEnabled;
   }
 }

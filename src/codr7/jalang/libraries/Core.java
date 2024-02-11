@@ -1232,6 +1232,7 @@ public class Core extends Library {
       final var f = new SexprForm(location, right.newCallTarget(location), new SexprForm(location, arguments));
       f.emit(vm, namespace, rResult);
       vm.emit(new Return(rResult));
+      vm.compile(startPc);
 
       return new MacroReference(
           String.format("%s-%s-%d", left, right, rParameters.length),
