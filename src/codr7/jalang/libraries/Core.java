@@ -887,6 +887,7 @@ public class Core extends Library {
           vm.emit(new CallIndirect(location, rFunction, new int[]{rValue, rResult}, rResult));
           vm.emit(new Goto(iteratePc));
           vm.emit(iteratePc, new Iterate(rIterator, rValue, vm.emitPc()));
+          vm.freeRegisters(rFunction, rIterator, rValue);
         });
 
     bindFunction("register-count",
