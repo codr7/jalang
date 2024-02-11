@@ -662,6 +662,7 @@ public class Core extends Library {
 
           final var bindings = ((VectorForm) bindingsForm).body();
           final var variables = new TreeMap<Integer, Integer>();
+          final List<Integer> registers = new ArrayList<>();
 
           for (int i = 0; i < bindings.length; i += 2) {
             final var nameForm = bindings[i];
@@ -671,7 +672,6 @@ public class Core extends Library {
             }
 
             final var valueForm = bindings[i + 1];
-
             final java.util.function.BiConsumer<IdForm, Integer> bindId = (f, rValue) -> {
               final var name = f.name();
               final var found = namespace.find(name);
@@ -679,6 +679,7 @@ public class Core extends Library {
               if (found != null && found.type() == variableType) {
                 final var rVar = found.as(variableType);
                 final var rPreviousValue = vm.allocateRegister();
+                registers.add(rPreviousValue);
                 variables.put(rPreviousValue, rVar);
                 vm.emit(new Get(rVar, rPreviousValue));
                 vm.emit(new Get(rValue, rVar));
@@ -696,7 +697,9 @@ public class Core extends Library {
             recursiveBind.function = (f, rValue) -> {
               if (f instanceof PairForm pf) {
                 final var rLeft = vm.allocateRegister();
+                registers.add(rLeft);
                 final var rRight = vm.allocateRegister();
+                registers.add(rRight);
                 vm.emit(new BreakPair(rValue, rLeft, rRight));
                 recursiveBind.function.accept(pf.left(), rLeft);
                 recursiveBind.function.accept(pf.right(), rRight);
@@ -708,6 +711,7 @@ public class Core extends Library {
             };
 
             final var rValue = vm.allocateRegister();
+            registers.add(rValue);
             valueForm.emit(vm, namespace, rValue);
             recursiveBind.function.accept(nameForm, rValue);
           }
@@ -719,6 +723,8 @@ public class Core extends Library {
           for (final var e : variables.entrySet()) {
             vm.emit(new Get(e.getKey(), e.getValue()));
           }
+
+          vm.freeRegisters(registers.toArray(new Integer[0]));
         });
 
     bindMacro("load", 1,

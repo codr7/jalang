@@ -384,3 +384,5 @@
 (load (path "aoc/code3-1.jlg"))
 (load (path "aoc/code4-1.jlg"))
 (load (path "aoc/code5-1.jlg"))
+
+(say (register-count) "registers allocated")
