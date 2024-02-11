@@ -325,6 +325,7 @@ public class Core extends Library {
           }
 
           vm.emit(Stop.instance);
+          vm.freeRegisters(rRepetitions);
         });
 
     bindFunction("call",
@@ -356,6 +357,7 @@ public class Core extends Library {
           }
 
           vm.emit(Stop.instance);
+          vm.freeRegisters(rExpected, rActual);
         });
 
     bindMacro("define", 2,
@@ -438,6 +440,7 @@ public class Core extends Library {
           vm.emit(new Goto(iteratePc));
           vm.emit(iteratePc, new Iterate(rIterator, rValue, vm.emitPc()));
           vm.emit(exitPc, new Goto(vm.emitPc()));
+          vm.freeRegisters(rPredicate, rIterator, rIndex, rValue, rPredicateResult);
         });
 
     bindFunction("find-character",
