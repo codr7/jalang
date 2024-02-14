@@ -14,7 +14,7 @@ public class GotoReturn implements Compiler {
     var result = false;
     final var targetPcs = new ArrayList<Integer>();
 
-    for (var pc = startPc; pc < code.length;) {
+    for (var pc = startPc; pc < code.length; ) {
       final var op = code[pc];
 
       switch (op.code) {
@@ -40,7 +40,7 @@ public class GotoReturn implements Compiler {
 
           break;
         case Return:
-          for (final var targetPc: targetPcs) {
+          for (final var targetPc : targetPcs) {
             code[targetPc] = new Return(((Return) op).rResult);
             result = true;
             System.out.println(targetPc + " RETURN");

@@ -3,8 +3,6 @@ package codr7.jalang.operations;
 import codr7.jalang.Location;
 import codr7.jalang.Operation;
 
-import java.util.Set;
-
 public class Check extends Operation {
   public final int rActual;
   public final int rExpected;
@@ -18,8 +16,8 @@ public class Check extends Operation {
   }
 
   public void addReads(final java.util.Set<Integer> out) {
-   out.add(rActual);
-   out.add(rExpected);
+    out.add(rActual);
+    out.add(rExpected);
   }
 
   public String toString() {

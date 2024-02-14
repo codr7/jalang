@@ -24,7 +24,7 @@ public class CallDirect extends Operation {
   }
 
   public void addReads(final java.util.Set<Integer> out) {
-    for (final var p: rParameters) {
+    for (final var p : rParameters) {
       out.add(p);
     }
   }

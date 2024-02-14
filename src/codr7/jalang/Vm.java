@@ -3,8 +3,8 @@ package codr7.jalang;
 import codr7.jalang.errors.EvaluationError;
 import codr7.jalang.errors.ReadError;
 import codr7.jalang.libraries.Core;
-import codr7.jalang.operations.*;
 import codr7.jalang.operations.Set;
+import codr7.jalang.operations.*;
 import codr7.jalang.readers.FormReader;
 
 import java.io.IOException;
@@ -23,9 +23,9 @@ public class Vm {
 
   private final ArrayList<Operation> code = new ArrayList<>();
   private Operation[] compiledCode = new Operation[0];
-  private ArrayList<Compiler> compilers = new ArrayList<>();
+  private final ArrayList<Compiler> compilers = new ArrayList<>();
   private CallFrame callFrame;
-  private ArrayList<Integer> freedRegisters = new ArrayList<>();
+  private final ArrayList<Integer> freedRegisters = new ArrayList<>();
   private Path loadPath = Paths.get("");
   private int pc = -1;
   private Value<?>[] registers = new Value<?>[1];
@@ -375,7 +375,7 @@ public class Vm {
     evaluate(pc, namespace);
   }
 
-  public final void freeRegisters(final Integer...registers) {
+  public final void freeRegisters(final Integer... registers) {
     Collections.addAll(freedRegisters, registers);
   }
 

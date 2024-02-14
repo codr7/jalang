@@ -474,7 +474,7 @@ public class Core extends Library {
           vm.emit(new Goto(iteratePc));
           vm.emit(iteratePc, new Iterate(rIterator, rValue, vm.emitPc()));
           vm.freeRegisters(rPredicate, rIterator, rValue, rPredicateResult);
-    });
+        });
 
     bindMacro("for", 1,
         (namespace, location, arguments, rResult) -> {
@@ -499,7 +499,7 @@ public class Core extends Library {
           vm.emit(new Goto(iteratePc));
           vm.emit(iteratePc, new Iterate(rIterator, rValue, vm.emitPc()));
           vm.freeRegisters(rIterator, rValue);
-    });
+        });
 
     bindMacro("function", 1,
         (namespace, location, arguments, rResult) -> {

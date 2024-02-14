@@ -9,9 +9,11 @@ public abstract class Operation {
     this.code = code;
   }
 
-  public void addReads(final Set<Integer> out) {}
+  public void addReads(final Set<Integer> out) {
+  }
 
-  public void addWrites(final Set<Integer> out) {}
+  public void addWrites(final Set<Integer> out) {
+  }
 
   public String toString() {
     return code.toString();

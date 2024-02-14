@@ -20,6 +20,7 @@ public class Tail extends Operation {
   public void addWrites(final Set<Integer> out) {
     out.add(rResult);
   }
+
   public String toString() {
     return String.format("%s value: %d result: %d", super.toString(), rValue, rResult);
   }

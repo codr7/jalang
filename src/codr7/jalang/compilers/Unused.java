@@ -4,9 +4,10 @@ import codr7.jalang.Compiler;
 import codr7.jalang.Operation;
 import codr7.jalang.operations.Goto;
 import codr7.jalang.operations.Nop;
-import codr7.jalang.operations.Return;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
 
 public class Unused implements Compiler {
   public static final Unused instance = new Unused();
@@ -15,19 +16,19 @@ public class Unused implements Compiler {
     var result = false;
     final var writes = new HashMap<Integer, Integer>();
 
-    for (var pc = startPc; pc < code.length;) {
+    for (var pc = startPc; pc < code.length; ) {
       final var op = code[pc];
       final var ows = new HashSet<Integer>();
       op.addWrites(ows);
 
-      for (final var r: ows) {
+      for (final var r : ows) {
         writes.put(r, pc);
       }
 
       final var reads = new HashSet<Integer>();
       op.addReads(reads);
 
-      for (final var r: reads) {
+      for (final var r : reads) {
         writes.remove(r);
       }
 
@@ -36,7 +37,7 @@ public class Unused implements Compiler {
           final var gpc = ((Goto) op).pc;
 
           if (gpc > pc) {
-            compile(code, pc+1);
+            compile(code, pc + 1);
             pc = gpc;
           } else {
             pc++;

@@ -2,8 +2,6 @@ package codr7.jalang.operations;
 
 import codr7.jalang.Operation;
 
-import java.util.Set;
-
 public class If extends Operation {
   public final int rCondition;
   public final int elsePc;
