@@ -1,6 +1,8 @@
-* add compilers
+* finish compilers.UnusedValue
+** track w x -> y without read
 
-* use freeRegisters
+* add compilers.TailCall
+** Add TailCall op
 
 * add aoc 6
 

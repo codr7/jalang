@@ -13,6 +13,10 @@ public class Set extends Operation {
     this.value = value;
   }
 
+  public void addWrites(final java.util.Set<Integer> out) {
+    out.add(rResult);
+  }
+
   public String toString() {
     return String.format("%s result: %d value: %s", super.toString(), rResult, value);
   }

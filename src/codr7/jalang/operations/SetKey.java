@@ -2,6 +2,8 @@ package codr7.jalang.operations;
 
 import codr7.jalang.Operation;
 
+import java.util.Set;
+
 public class SetKey extends Operation {
   public final int rKey, rMap, rValue;
 
@@ -10,6 +12,12 @@ public class SetKey extends Operation {
     this.rMap = rMap;
     this.rKey = rKey;
     this.rValue = rValue;
+  }
+
+  public void addReads(final java.util.Set<Integer> out) {
+    out.add(rMap);
+    out.add(rKey);
+    out.add(rValue);
   }
 
   public String toString() {

@@ -9,7 +9,6 @@ import codr7.jalang.readers.FormReader;
 
 import java.io.IOException;
 import java.io.StringReader;
-import java.lang.reflect.Array;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
@@ -115,7 +114,7 @@ public class Vm {
           }
 
           final var elapsedTime = Duration.ofNanos(System.nanoTime() - startTime);
-          registers[o.rRegister] = new Value<>(Core.timeType, elapsedTime);
+          registers[o.rResult] = new Value<>(Core.timeType, elapsedTime);
           break;
         }
         case BreakPair: {

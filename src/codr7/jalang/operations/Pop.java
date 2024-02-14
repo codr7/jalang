@@ -2,6 +2,8 @@ package codr7.jalang.operations;
 
 import codr7.jalang.Operation;
 
+import java.util.Set;
+
 public class Pop extends Operation {
   public final int rResult, rTarget;
 
@@ -9,6 +11,14 @@ public class Pop extends Operation {
     super(Code.Pop);
     this.rTarget = rTarget;
     this.rResult = rResult;
+  }
+
+  public void addReads(final java.util.Set<Integer> out) {
+    out.add(rTarget);
+  }
+
+  public void addWrites(final Set<Integer> out) {
+    out.add(rResult);
   }
 
   public String toString() {

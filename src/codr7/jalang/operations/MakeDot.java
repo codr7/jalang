@@ -2,6 +2,8 @@ package codr7.jalang.operations;
 
 import codr7.jalang.Operation;
 
+import java.util.Set;
+
 public class MakeDot extends Operation {
   public final int rLeft, rRight, rResult;
 
@@ -10,6 +12,15 @@ public class MakeDot extends Operation {
     this.rLeft = rLeft;
     this.rRight = rRight;
     this.rResult = rResult;
+  }
+
+  public void addReads(final java.util.Set<Integer> out) {
+    out.add(rLeft);
+    out.add(rRight);
+  }
+
+  public void addWrites(final Set<Integer> out) {
+    out.add(rResult);
   }
 
   public String toString() {
