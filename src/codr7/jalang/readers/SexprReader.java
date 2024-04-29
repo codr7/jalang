@@ -12,35 +12,35 @@ import java.util.ArrayDeque;
 import java.util.Deque;
 
 public class SexprReader implements Reader {
-  public static final SexprReader instance = new SexprReader();
+    public static final SexprReader instance = new SexprReader();
 
-  public boolean read(final Input in, final Deque<Form> out, final Location location)
-      throws IOException {
-    final var formLocation = location.clone();
+    public boolean read(final Input in, final Deque<Form> out, final Location location)
+            throws IOException {
+        final var formLocation = location.clone();
 
-    if (in.peek() != '(') {
-      throw new ReadError(location, "Invalid sexpr.");
-    }
+        if (in.peek() != '(') {
+            throw new ReadError(location, "Invalid sexpr.");
+        }
 
-    location.update(in.pop());
-    SkipReader.instance.read(in, out, location);
-
-    final var body = new ArrayDeque<Form>();
-
-    for (; ; ) {
-      SkipReader.instance.read(in, out, location);
-
-      if (in.peek() == ')') {
         location.update(in.pop());
-        break;
-      }
+        SkipReader.instance.read(in, out, location);
 
-      if (!FormReader.instance.read(in, body, location)) {
-        throw new ReadError(location, "Invalid sexpr.");
-      }
+        final var body = new ArrayDeque<Form>();
+
+        for (; ; ) {
+            SkipReader.instance.read(in, out, location);
+
+            if (in.peek() == ')') {
+                location.update(in.pop());
+                break;
+            }
+
+            if (!FormReader.instance.read(in, body, location)) {
+                throw new ReadError(location, "Invalid sexpr.");
+            }
+        }
+
+        out.addLast(new SexprForm(formLocation, body.toArray(new Form[0])));
+        return true;
     }
-
-    out.addLast(new SexprForm(formLocation, body.toArray(new Form[0])));
-    return true;
-  }
 }

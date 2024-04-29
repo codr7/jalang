@@ -5,59 +5,59 @@ import codr7.jalang.libraries.Core;
 import codr7.jalang.operations.Return;
 
 public record Macro(String name, int arity, Body body) {
-  public void call(final Vm vm,
-                   final Namespace namespace,
-                   final Location location,
-                   final int[] rParameters,
-                   final int rResult) {
-    final var referenceName = String.format("%s-%d", name, rParameters.length);
-    var referenceValue = namespace.find(referenceName);
+    public void call(final VM vm,
+                     final Namespace namespace,
+                     final Location location,
+                     final int[] rParameters,
+                     final int rResult) {
+        final var referenceName = String.format("%s-%d", name, rParameters.length);
+        var referenceValue = namespace.find(referenceName);
 
-    if (referenceValue == null) {
-      referenceValue = new Value<>(Core.macroReferenceType,
-          makeReference(vm, namespace, location, rParameters, rResult));
-      namespace.bind(referenceName, referenceValue);
+        if (referenceValue == null) {
+            referenceValue = new Value<>(Core.macroReferenceType,
+                    makeReference(vm, namespace, location, rParameters, rResult));
+            namespace.bind(referenceName, referenceValue);
 
-      vm.reallocateRegisters();
+            vm.reallocateRegisters();
+        }
+
+        referenceValue.as(Core.macroReferenceType).call(vm, location, rParameters, rResult);
     }
 
-    referenceValue.as(Core.macroReferenceType).call(vm, location, rParameters, rResult);
-  }
+    public MacroReference makeReference(final VM vm,
+                                        final Namespace namespace,
+                                        final Location location,
+                                        final int[] rParameters,
+                                        final int rResult) {
+        final var arguments = new Form[arity];
 
-  public MacroReference makeReference(final Vm vm,
-                                      final Namespace namespace,
-                                      final Location location,
-                                      final int[] rParameters,
-                                      final int rResult) {
-    final var arguments = new Form[arity];
+        for (int i = 0; i < rParameters.length; i++) {
+            arguments[i] = new RegisterForm(location, rParameters[i]);
+        }
 
-    for (int i = 0; i < rParameters.length; i++) {
-      arguments[i] = new RegisterForm(location, rParameters[i]);
+        final var startPc = vm.emitPc();
+        emit(vm, namespace, location, arguments, rResult);
+        vm.emit(new Return(rResult));
+        vm.compile(startPc);
+        return new MacroReference(this.name, startPc, rParameters);
     }
 
-    final var startPc = vm.emitPc();
-    emit(vm, namespace, location, arguments, rResult);
-    vm.emit(new Return(rResult));
-    vm.compile(startPc);
-    return new MacroReference(this.name, startPc, rParameters);
-  }
+    public void emit(final VM vm,
+                     final Namespace namespace,
+                     final Location location,
+                     final Form[] arguments,
+                     final int rResult) {
+        body.call(namespace, location, arguments, rResult);
+    }
 
-  public void emit(final Vm vm,
-                   final Namespace namespace,
-                   final Location location,
-                   final Form[] arguments,
-                   final int rResult) {
-    body.call(namespace, location, arguments, rResult);
-  }
+    public String toString() {
+        return String.format("(Macro %s)", name);
+    }
 
-  public String toString() {
-    return String.format("(Macro %s)", name);
-  }
-
-  public interface Body {
-    void call(final Namespace namespace,
-              final Location location,
-              final Form[] arguments,
-              final int rResult);
-  }
+    public interface Body {
+        void call(final Namespace namespace,
+                  final Location location,
+                  final Form[] arguments,
+                  final int rResult);
+    }
 }

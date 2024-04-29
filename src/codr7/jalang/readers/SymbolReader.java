@@ -10,24 +10,24 @@ import java.io.IOException;
 import java.util.Deque;
 
 public class SymbolReader implements Reader {
-  public static final SymbolReader instance = new SymbolReader();
+    public static final SymbolReader instance = new SymbolReader();
 
-  public boolean read(final Input in, final Deque<Form> out, final Location location)
-      throws IOException {
-    final var formLocation = location.clone();
+    public boolean read(final Input in, final Deque<Form> out, final Location location)
+            throws IOException {
+        final var formLocation = location.clone();
 
-    if (in.peek() != '\'') {
-      throw new ReadError(location, "Invalid symbol.");
+        if (in.peek() != '\'') {
+            throw new ReadError(location, "Invalid symbol.");
+        }
+
+        location.update(in.pop());
+
+        if (!IdReader.instance.read(in, out, location)) {
+            throw new ReadError(location, "Invalid symbol.");
+        }
+
+        final var name = ((IdForm) out.removeLast()).name();
+        out.addLast(new LiteralForm(formLocation, new Value<>(Core.symbolType, name)));
+        return true;
     }
-
-    location.update(in.pop());
-
-    if (!IdReader.instance.read(in, out, location)) {
-      throw new ReadError(location, "Invalid symbol.");
-    }
-
-    final var name = ((IdForm) out.removeLast()).name();
-    out.addLast(new LiteralForm(formLocation, new Value<>(Core.symbolType, name)));
-    return true;
-  }
 }

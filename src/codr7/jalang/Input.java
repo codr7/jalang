@@ -6,48 +6,48 @@ import java.util.ArrayDeque;
 import java.util.Deque;
 
 public class Input {
-  private final BufferedReader in;
-  private final Deque<Character> buffer = new ArrayDeque<>();
+    private final BufferedReader in;
+    private final Deque<Character> buffer = new ArrayDeque<>();
 
-  public Input(final java.io.Reader in) {
-    this.in = new BufferedReader(in);
-  }
-
-  public char peek() throws IOException {
-    if (buffer.isEmpty()) {
-      fillBuffer();
-
-      if (buffer.isEmpty()) {
-        return 0;
-      }
+    public Input(final java.io.Reader in) {
+        this.in = new BufferedReader(in);
     }
 
-    return buffer.getFirst();
-  }
+    public char peek() throws IOException {
+        if (buffer.isEmpty()) {
+            fillBuffer();
 
-  public char pop() throws IOException {
-    if (buffer.isEmpty()) {
-      fillBuffer();
+            if (buffer.isEmpty()) {
+                return 0;
+            }
+        }
 
-      if (buffer.isEmpty()) {
-        return 0;
-      }
+        return buffer.getFirst();
     }
 
-    return buffer.removeFirst();
-  }
+    public char pop() throws IOException {
+        if (buffer.isEmpty()) {
+            fillBuffer();
 
-  public void push(char c) {
-    buffer.addFirst(c);
-  }
+            if (buffer.isEmpty()) {
+                return 0;
+            }
+        }
 
-  private void fillBuffer() throws IOException {
-    final var cp = in.read();
-
-    if (cp != -1) {
-      for (final var c : Character.toChars(cp)) {
-        buffer.addLast(c);
-      }
+        return buffer.removeFirst();
     }
-  }
+
+    public void push(char c) {
+        buffer.addFirst(c);
+    }
+
+    private void fillBuffer() throws IOException {
+        final var cp = in.read();
+
+        if (cp != -1) {
+            for (final var c : Character.toChars(cp)) {
+                buffer.addLast(c);
+            }
+        }
+    }
 }

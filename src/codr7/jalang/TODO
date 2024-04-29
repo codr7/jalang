@@ -1,5 +1,9 @@
-* finish compilers.UnusedValue
-** track w x -> y without read
+PT0.175965418S
+PT0.173374726S
+PT0.071089401S
+
+* migrate from registers to stack/frames
+** claes
 
 * add compilers.TailCall
 ** Add TailCall op
@@ -16,38 +20,9 @@
 
 * add while loop
 
-* add splat support
-
 * add support for destructuring pair/list function arguments
 ** same as let
 
 * hook up type hierarchy
 
-var dropPrefix = 0;
-          var dropSuffix = 0;
-
-          for (var v = registers[o.rTarget];;) {
-            if (v.type() == Core.pairType) {
-              final var p = v.as(Core.pairType);
-
-              if (p.left().type() == Core.noneType) {
-                if (target == null) {
-                  dropPrefix++;
-                } else {
-                  dropSuffix++;
-                }
-              } else {
-                target = p.left();
-              }
-
-              v = p.right();
-            } else {
-              if (v.type() == Core.noneType) {
-                dropSuffix++;
-              } else {
-                target = v;
-              }
-
-              break;
-            }
-          }
+* switch traits to Value parameters

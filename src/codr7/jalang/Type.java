@@ -7,80 +7,80 @@ import codr7.jalang.operations.CallDirect;
 import codr7.jalang.operations.Set;
 
 public class Type<D> {
-  private final String name;
+    private final String name;
 
-  public Type(final String name) {
-    this.name = name;
-  }
-
-  public D clone(final D value) {
-    return value;
-  }
-
-  public String dump(final D value) {
-    return value.toString();
-  }
-
-  public void emitCall(final Value<?> target,
-                       final Vm vm,
-                       final Namespace namespace,
-                       final Location location,
-                       final int[] rParameters,
-                       final int rResult) {
-    vm.emit(new CallDirect(location, target, rParameters, rResult));
-  }
-
-  public void emitId(final Value<?> value, final Vm vm, final Namespace namespace, final int rResult) {
-    vm.emit(new Set(rResult, value));
-  }
-
-  public boolean equalValues(final D left, final D right) {
-    if (left == null && right == null) {
-      return true;
+    public Type(final String name) {
+        this.name = name;
     }
 
-    if (left == null || right == null) {
-      return false;
+    public D clone(final D value) {
+        return value;
     }
 
-    return left.equals(right);
-  }
+    public String dump(final D value) {
+        return value.toString();
+    }
 
-  public void makeValue(final Vm vm, final Location location, final int[] rParameters, final int rResult) {
-    throw new EvaluationError(location, "Make not supported for type %s", this);
-  }
+    public void emitCall(final Value<?> target,
+                         final VM vm,
+                         final Namespace namespace,
+                         final Location location,
+                         final int[] rParameters,
+                         final int rResult) {
+        vm.emit(new CallDirect(location, target, rParameters, rResult));
+    }
 
-  public final String name() {
-    return name;
-  }
+    public void emitId(final Value<?> value, final VM vm, final Namespace namespace, final int rResult) {
+        vm.emit(new Set(rResult, value));
+    }
 
-  public Form newCallTarget(final D value, final Location location) {
-    throw new EmitError(location, "Invalid call target: %s/%s", value, this);
-  }
+    public boolean equalValues(final D left, final D right) {
+        if (left == null && right == null) {
+            return true;
+        }
 
-  public boolean isTrue(final D value) {
-    return true;
-  }
+        if (left == null || right == null) {
+            return false;
+        }
 
-  public Value<?> peek(final Value<?> target) {
-    return target;
-  }
+        return left.equals(right);
+    }
 
-  public Value<?> pop(final Vm vm, final Value<?> target, final int rTarget) {
-    final var result = Core.NONE;
-    vm.set(rTarget, result);
-    return result;
-  }
+    public void makeValue(final VM vm, final Location location, final int[] rParameters, final int rResult) {
+        throw new EvaluationError(location, "Make not supported for type %s", this);
+    }
 
-  public Value<?> push(final Value<?> target, final Value<?> value) {
-    return new Value<>(Core.pairType, new Pair(value, target));
-  }
+    public final String name() {
+        return name;
+    }
 
-  public String say(final D value) {
-    return dump(value);
-  }
+    public Form newCallTarget(final D value, final Location location) {
+        throw new EmitError(location, "Invalid call target: %s/%s", value, this);
+    }
 
-  public final String toString() {
-    return name;
-  }
+    public boolean isTrue(final D value) {
+        return true;
+    }
+
+    public Value<?> peek(final Value<?> target) {
+        return target;
+    }
+
+    public Value<?> pop(final VM vm, final Value<?> target, final int rTarget) {
+        final var result = Core.NONE;
+        vm.set(rTarget, result);
+        return result;
+    }
+
+    public Value<?> push(final Value<?> target, final Value<?> value) {
+        return new Value<>(Core.pairType, new Pair(value, target));
+    }
+
+    public String say(final D value) {
+        return dump(value);
+    }
+
+    public final String toString() {
+        return name;
+    }
 }

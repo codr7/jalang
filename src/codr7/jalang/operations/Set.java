@@ -4,20 +4,20 @@ import codr7.jalang.Operation;
 import codr7.jalang.Value;
 
 public class Set extends Operation {
-  public final int rResult;
-  public final Value<?> value;
+    public final int rResult;
+    public final Value<?> value;
 
-  public Set(final int rResult, final Value<?> value) {
-    super(Code.Set);
-    this.rResult = rResult;
-    this.value = value;
-  }
+    public Set(final int rResult, final Value<?> value) {
+        super(Code.Set);
+        this.rResult = rResult;
+        this.value = value;
+    }
 
-  public void addWrites(final java.util.Set<Integer> out) {
-    out.add(rResult);
-  }
+    public void addWrites(final java.util.Set<Integer> out) {
+        out.add(rResult);
+    }
 
-  public String toString() {
-    return String.format("%s result: %d value: %s", super.toString(), rResult, value);
-  }
+    public String toString() {
+        return String.format("%s result: %d value: %s", super.toString(), rResult, value);
+    }
 }

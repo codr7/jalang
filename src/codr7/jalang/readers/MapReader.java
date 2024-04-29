@@ -12,35 +12,35 @@ import java.util.ArrayDeque;
 import java.util.Deque;
 
 public class MapReader implements Reader {
-  public static final MapReader instance = new MapReader();
+    public static final MapReader instance = new MapReader();
 
-  public boolean read(final Input in, final Deque<Form> out, final Location location)
-      throws IOException {
-    final var formLocation = location.clone();
+    public boolean read(final Input in, final Deque<Form> out, final Location location)
+            throws IOException {
+        final var formLocation = location.clone();
 
-    if (in.peek() != '{') {
-      throw new ReadError(location, "Invalid map.");
-    }
+        if (in.peek() != '{') {
+            throw new ReadError(location, "Invalid map.");
+        }
 
-    location.update(in.pop());
-    SkipReader.instance.read(in, out, location);
-
-    final var body = new ArrayDeque<Form>();
-
-    for (; ; ) {
-      SkipReader.instance.read(in, out, location);
-
-      if (in.peek() == '}') {
         location.update(in.pop());
-        break;
-      }
+        SkipReader.instance.read(in, out, location);
 
-      if (!FormReader.instance.read(in, body, location)) {
-        throw new ReadError(location, "Invalid map.");
-      }
+        final var body = new ArrayDeque<Form>();
+
+        for (; ; ) {
+            SkipReader.instance.read(in, out, location);
+
+            if (in.peek() == '}') {
+                location.update(in.pop());
+                break;
+            }
+
+            if (!FormReader.instance.read(in, body, location)) {
+                throw new ReadError(location, "Invalid map.");
+            }
+        }
+
+        out.addLast(new MapForm(formLocation, body.toArray(new Form[0])));
+        return true;
     }
-
-    out.addLast(new MapForm(formLocation, body.toArray(new Form[0])));
-    return true;
-  }
 }

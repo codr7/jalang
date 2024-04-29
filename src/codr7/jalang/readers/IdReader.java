@@ -11,29 +11,29 @@ import java.io.IOException;
 import java.util.Deque;
 
 public class IdReader implements Reader {
-  public static final IdReader instance = new IdReader();
+    public static final IdReader instance = new IdReader();
 
-  public boolean read(final Input in, final Deque<Form> out, final Location location)
-      throws IOException {
-    final var formLocation = location.clone();
-    final var buffer = new StringBuilder();
+    public boolean read(final Input in, final Deque<Form> out, final Location location)
+            throws IOException {
+        final var formLocation = location.clone();
+        final var buffer = new StringBuilder();
 
-    for (; ; ) {
-      var c = in.peek();
+        for (; ; ) {
+            var c = in.peek();
 
-      if (c == 0 ||
-          Character.isWhitespace(c) ||
-          c == '(' || c == ')' || c == '[' || c == ']' || c == '{' || c == '}' || c == '.' || c == ':') {
-        break;
-      }
+            if (c == 0 ||
+                    Character.isWhitespace(c) ||
+                    c == '(' || c == ')' || c == '[' || c == ']' || c == '{' || c == '}' || c == '.' || c == ':') {
+                break;
+            }
 
-      in.pop();
-      buffer.append(c);
-      location.update(c);
+            in.pop();
+            buffer.append(c);
+            location.update(c);
+        }
+
+        final var name = buffer.toString();
+        out.addLast(name.equals("_") ? new NoneForm(formLocation) : new IdForm(formLocation, name));
+        return true;
     }
-
-    final var name = buffer.toString();
-    out.addLast(name.equals("_") ? new NoneForm(formLocation) : new IdForm(formLocation, name));
-    return true;
-  }
 }
